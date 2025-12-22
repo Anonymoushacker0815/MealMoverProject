@@ -1,0 +1,14 @@
+# Node
+node_modules/
+npm-debug.log
+
+# Angular
+dist/
+.angular/
+
+# Environment
+.env
+
+# OS
+.DS_Store
+
