@@ -1,0 +1,50 @@
+<header
+  class="
+    sticky top-0 z-50
+    flex items-center justify-between
+    px-4 py-3 sm:px-6 sm:py-4
+    bg-[#9B1C1F]
+  "
+>
+  <!-- Clickable title -->
+  <button
+    (click)="goHome()"
+    class="
+      text-lg sm:text-xl font-semibold text-white
+      hover:opacity-90
+      transition
+    "
+  >
+    MealMover
+  </button>
+
+  <!-- Actions -->
+  <div class="flex items-center gap-2 sm:gap-4">
+    <button
+      (click)="goForum()"
+      class="
+        px-3 py-1.5 sm:px-4 sm:py-2
+        rounded border border-white
+        text-white font-medium
+        hover:bg-white hover:text-[#9B1C1F]
+        transition
+      "
+    >
+      Forum
+    </button>
+
+    <button
+      (click)="goAuth()"
+      class="
+        px-3 py-1.5 sm:px-4 sm:py-2
+        rounded bg-white
+        text-[#9B1C1F]
+        font-medium
+        hover:bg-gray-100
+        transition
+      "
+    >
+      Login
+    </button>
+  </div>
+</header>
