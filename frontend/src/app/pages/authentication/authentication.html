@@ -1,2 +1,102 @@
-<h1 class="text-2xl font-semibold mb-4">Login / Register</h1>
-<p>Authentication page works.</p>
+<!--  Container -->
+<div class="flex items-center justify-center min-h-[calc(100vh-100px)] p-4">
+
+  <!-- Card -->
+  <div class="
+    w-full max-w-3xl
+    bg-white
+    border-2 border-[#9B1C1F]
+    rounded-[3rem]
+    p-8 sm:p-12 md:p-16
+  ">
+
+    <!-- Title: -->
+    <h1 class="text-5xl sm:text-6xl font-bold text-[#9B1C1F] mb-12">
+      Welcome!
+    </h1>
+
+    <!-- Form - Not Yet Functional.  -->
+    <div class="flex flex-col gap-6">
+
+      <!-- Email :-->
+      <input
+        type="email"
+        placeholder="Email"
+        class="
+          w-full
+          bg-white
+          text-gray-800
+          ring-2  ring-[#9B1C1F]
+          rounded-xl
+          px-6 py-4
+          text-lg
+          placeholder-gray-500
+
+          focus:outline-none
+          focus:ring-4
+
+          transition-all
+        "
+      />
+
+      <!-- Password : -->
+      <input
+        type="password"
+        placeholder="Password"
+        class="
+         w-full
+          bg-white
+          text-gray-800
+          ring-2  ring-[#9B1C1F]
+          rounded-xl
+          px-6 py-4
+          text-lg
+          placeholder-gray-500
+
+          focus:outline-none
+          focus:ring-4
+
+          transition-all
+        "
+      />
+
+      <!-- Buttons - TODO: Make a component. -->
+      <div class="flex justify-end gap-4 mt-6">
+        <button
+          class="
+            px-8 py-3
+            border-2 border-[#9B1C1F]
+            rounded-2xl
+            text-lg font-bold
+            text-[#9B1C1F]
+            bg-white
+
+            hover:bg-[#9B1C1F] hover:text-white
+
+            transition-colors duration-200
+          "
+        >
+          Log-In
+        </button>
+
+        <button
+          class="
+            px-8 py-3
+            border-2 border-[#9B1C1F]
+            rounded-2xl
+            text-lg font-bold
+            text-[#9B1C1F]
+            bg-white
+
+            hover:bg-[#9B1C1F] hover:text-white
+
+            transition-colors duration-200
+          "
+        >
+          Register
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
