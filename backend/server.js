@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import pkg from "pg";
+import threadsRouter from './routes/threads.routes.js';
 
 const { Pool } = pkg;
 
@@ -23,6 +24,8 @@ pool.query("SELECT 1")
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
+
+app.use("/api/threads", threadsRouter);
 
 app.listen(3000, () => {
   console.log("Backend running on http://localhost:3000");

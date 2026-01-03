@@ -1,2 +1,93 @@
-<h1 class="text-2xl font-semibold mb-4">Forum</h1>
-<p>Forum page works.</p>
+<!-- Forum Page Wrapper -->
+<div class="min-h-screen bg-gray-100">
+
+  <!-- Filter Bar -->
+  <div
+    class="
+      sticky top-[64px] z-40
+      bg-white border-b
+      px-4 py-3
+      flex flex-wrap gap-2 items-center
+    "
+  >
+    <!-- Filters -->
+    <button
+      class="px-3 py-1.5 rounded border text-sm hover:bg-gray-100"
+      
+    >
+      Newest
+    </button>
+
+    <button
+      class="px-3 py-1.5 rounded border text-sm hover:bg-gray-100"
+      
+    >
+      Most Relevant
+    </button>
+
+    <button
+      class="px-3 py-1.5 rounded border text-sm hover:bg-gray-100"
+      
+    >
+      Most Liked
+    </button>
+
+    <button
+      class="px-3 py-1.5 rounded border text-sm hover:bg-gray-100"
+      
+    >
+      Most Disliked
+    </button>
+
+    <!-- Search -->
+    <input
+      type="text"
+      placeholder="Search threads..."
+      class="
+        w-full sm:w-64
+        px-3 py-1.5
+        border rounded
+        text-sm
+        focus:outline-none
+        focus:ring-2
+        focus:ring-[#9B1C1F]
+      "
+    />
+
+    <!-- New Thread -->
+    <button
+      class="
+        ml-auto
+        bg-[#9B1C1F] text-white
+        px-4 py-1.5 rounded
+        text-sm font-medium
+        hover:opacity-90
+        transition
+      "
+    >
+      + New Thread
+    </button>
+  </div>
+
+  <!-- Thread List -->
+  <div class="max-w-4xl mx-auto px-4 py-6">
+
+    <div class="max-w-4xl mx-auto px-4 py-6">
+        <div class="max-w-4xl mx-auto px-4 py-6 space-y-4">
+            <app-thread-card
+                *ngFor="let thread of threads"
+                [thread]="thread"
+            ></app-thread-card>
+            </div>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="threads.length === 0"
+      class="text-center text-gray-500 mt-12"
+    >
+      No threads found.
+    </div>
+
+  </div>
+</div>
