@@ -12,7 +12,6 @@ export class Home {
   constructor(private router: Router) {}
 
   goManager() {
-    console.log('Manager clicked');
     this.router.navigate(['/manager']);
   }
 

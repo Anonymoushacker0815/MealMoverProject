@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, Navbar],
   templateUrl: './user.html',
   styleUrl: './user.css',
 })

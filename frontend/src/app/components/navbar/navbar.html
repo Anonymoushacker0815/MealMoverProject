@@ -1,0 +1,32 @@
+<!-- VOLLE BREITE, HINTERGRUND HIER -->
+<nav class="w-screen bg-[#E8DCCF] m-0 p-0">
+  
+  <!-- NUR CONTENT zentrieren -->
+  <div
+    class="
+      w-full
+      flex
+      justify-center
+      gap-6
+      py-3
+    "
+  >
+    <button
+      *ngFor="let item of items"
+      (click)="navigate(item.route)"
+      class="
+        text-[#4A3B2F]
+        font-medium
+        px-4
+        py-2
+        rounded-md
+        hover:bg-[#D8C8B8]
+        transition
+        whitespace-nowrap
+      "
+    >
+      {{ item.label }}
+    </button>
+  </div>
+
+</nav>
