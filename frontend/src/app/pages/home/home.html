@@ -1,7 +1,22 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
-  <h1 class="text-4xl font-bold text-green-600">
-    MealMover frontend is working 🚀
-    <br>Alex was here!
-  </h1>
-</div>
+<main class="flex flex-col items-center justify-center gap-6 min-h-[70vh]">
+  <button
+    (click)="goManager()"
+    class="w-48 px-6 py-3 rounded bg-[#9B1C1F] text-white font-semibold hover:bg-red-700 transition"
+  >
+    Manager
+  </button>
 
+  <button
+    (click)="goUser()"
+    class="w-48 px-6 py-3 rounded bg-[#9B1C1F] text-white font-semibold hover:bg-red-700 transition"
+  >
+    User
+  </button>
+
+  <button
+    (click)="goOwner()"
+    class="w-48 px-6 py-3 rounded bg-[#9B1C1F] text-white font-semibold hover:bg-red-700 transition"
+  >
+    Owner
+  </button>
+</main>
