@@ -49,4 +49,21 @@ export class ThreadService {
       createdAt: new Date(api.created_at),
     };
   }
+
+  likeThread(id: string) {
+    return this.http
+      .post<any>(`${this.apiUrl}/${id}/like`, {}) 
+      .pipe(
+        map((api) => (api ? this.mapApiToThread(api) : null))
+      );
+  }
+
+  dislikeThread(id: string) {
+    return this.http
+      .post<any>(`${this.apiUrl}/${id}/dislike`, {})
+      .pipe(
+        map((api) => (api ? this.mapApiToThread(api) : null))
+      );
+  }
+
 }
