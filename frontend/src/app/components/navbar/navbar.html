@@ -1,16 +1,13 @@
-<!-- VOLLE BREITE, HINTERGRUND HIER -->
-<nav class="w-screen bg-[#E8DCCF] m-0 p-0">
-  
-  <!-- NUR CONTENT zentrieren -->
-  <div
-    class="
-      w-full
-      flex
-      justify-center
-      gap-6
-      py-3
-    "
-  >
+<nav
+  class="
+    sticky
+    top-[64px]
+    z-40
+    w-screen
+    bg-[#E8DCCF]
+  "
+>
+  <div class="flex justify-center gap-6 py-3">
     <button
       *ngFor="let item of items"
       (click)="navigate(item.route)"
@@ -28,5 +25,4 @@
       {{ item.label }}
     </button>
   </div>
-
 </nav>
