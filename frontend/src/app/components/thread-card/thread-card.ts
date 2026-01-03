@@ -16,4 +16,5 @@ export class ThreadCardComponent {
   @Output() dislike = new EventEmitter<Thread>();
   @Output() comment = new EventEmitter<Thread>();
   @Output() report = new EventEmitter<Thread>();
+  @Output() open = new EventEmitter<Thread>();
 }

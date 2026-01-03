@@ -89,4 +89,7 @@ export class Forum implements OnInit {
   goNewThread() {
     this.router.navigate(['/forum/new']);
   }
+  goThread(thread: Thread) {
+    this.router.navigate(['/forum', thread.id]);
+  }
 }

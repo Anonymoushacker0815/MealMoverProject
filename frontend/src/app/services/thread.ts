@@ -3,6 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map, Subject } from 'rxjs';
 import { Thread } from '../types/thread';
 import { ThreadApi } from '../types/thread-api';
+import { ReplyApi } from '../types/reply-api';
+import { Reply } from '../types/reply';
+
 
 @Injectable({
   providedIn: 'root',
@@ -66,4 +69,31 @@ export class ThreadService {
       );
   }
 
+  getThread(id: string): Observable<Thread> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+      map((api) => this.mapApiToThread(api))
+    );
+  }
+
+  getReplies(threadId: string): Observable<Reply[]> {
+    return this.http.get<ReplyApi[]>(`${this.apiUrl}/${threadId}/replies`).pipe(
+      map((replies) => replies.map((r) => this.mapApiToReply(r)))
+    );
+  }
+
+  createReply(threadId: string, data: { content: string; author_name?: string }): Observable<Reply> {
+    return this.http.post<ReplyApi>(`${this.apiUrl}/${threadId}/replies`, data).pipe(
+      map((api) => this.mapApiToReply(api))
+    );
+  }
+
+  private mapApiToReply(api: ReplyApi): Reply {
+    return {
+      id: api.id,
+      threadId: api.thread_id,
+      content: api.content,
+      author: api.author_name,
+      createdAt: new Date(api.created_at),
+    };
+  }
 }

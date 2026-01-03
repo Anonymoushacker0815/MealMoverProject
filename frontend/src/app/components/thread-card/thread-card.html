@@ -8,9 +8,9 @@
   "
 >
   <!-- Title -->
-  <h2 class="text-lg font-semibold mb-1">
-    {{ thread.title }}
-  </h2>
+  <button type="button" class="text-left w-full" (click)="open.emit(thread)">
+    <h2 class="text-lg font-semibold">{{ thread.title }}</h2>
+  </button>
 
   <!-- Meta -->
   <div class="text-sm text-gray-500 flex flex-wrap gap-4">
@@ -31,10 +31,6 @@
 
     <button (click)="dislike.emit(thread)" class="hover:underline">
       👎 {{ thread.dislikes }}
-    </button>
-
-    <button (click)="comment.emit(thread)" class="hover:underline">
-      💬 Comment
     </button>
 
     <button

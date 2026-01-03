@@ -78,6 +78,7 @@
             <app-thread-card
                 *ngFor="let thread of threads"
                 [thread]="thread"
+                (open)="goThread($event)"
                 (like)="onLike($event)"
                 (dislike)="onDislike($event)"
             ></app-thread-card>
