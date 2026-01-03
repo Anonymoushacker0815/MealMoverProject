@@ -1,0 +1,75 @@
+<div class="max-w-2xl mx-auto mt-8">
+  <h1 class="text-2xl font-semibold mb-6">Create New Thread</h1>
+
+  <form
+    [formGroup]="threadForm"
+    (ngSubmit)="submit()"
+    class="flex flex-col gap-4"
+  >
+    <!-- TITLE -->
+    <div>
+      <input
+        type="text"
+        placeholder="Thread title"
+        formControlName="title"
+        class="w-full border rounded px-3 py-2"
+      />
+
+      <p
+        *ngIf="
+          threadForm.get('title')?.touched &&
+          threadForm.get('title')?.invalid
+        "
+        class="text-sm text-red-600 mt-1"
+      >
+        Title is required
+      </p>
+    </div>
+
+    <!-- CONTENT -->
+    <div>
+      <textarea
+        rows="6"
+        placeholder="Write your post..."
+        formControlName="content"
+        class="w-full border rounded px-3 py-2"
+      ></textarea>
+
+      <p
+        *ngIf="
+          threadForm.get('content')?.touched &&
+          threadForm.get('content')?.invalid
+        "
+        class="text-sm text-red-600 mt-1"
+      >
+        Content is required
+      </p>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="flex justify-end gap-2">
+      <button
+        type="button"
+        (click)="cancel()"
+        class="px-4 py-2 border rounded"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="submit"
+        [disabled]="threadForm.invalid"
+        class="
+          px-4 py-2
+          bg-[#9B1C1F]
+          text-white
+          rounded
+          font-medium
+          disabled:opacity-50
+        "
+      >
+        Post Thread
+      </button>
+    </div>
+  </form>
+</div>

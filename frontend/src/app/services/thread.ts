@@ -1,44 +1,52 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map, Subject } from 'rxjs';
 import { Thread } from '../types/thread';
-
-interface ThreadApi {
-  id: string;
-  title: string;
-  content: string;
-  author_name: string;
-  likes: number;
-  dislikes: number;
-  views: number;
-  created_at: string;
-  updated_at: string;
-}
+import { ThreadApi } from '../types/thread-api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThreadService {
   private apiUrl = 'http://localhost:3000/api/threads';
+  private refreshSubject = new Subject<void>();
+  refresh$ = this.refreshSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
+  triggerRefresh() {
+    this.refreshSubject.next();
+  }
+  // GET all threads
   getThreads(): Observable<Thread[]> {
+    return this.http.get<ThreadApi[]>(this.apiUrl).pipe(
+      map((threads) =>
+        threads.map((api) => this.mapApiToThread(api))
+      )
+    );
+  }
+
+  // POST new thread
+  createThread(data: {
+    title: string;
+    content: string;
+  }): Observable<Thread> {
     return this.http
-      .get<any[]>(this.apiUrl)
-      .pipe(
-        map((threads) =>
-          threads.map((api) => ({
-            id: api.id,
-            title: api.title,
-            content: api.content,
-            author: api.author_name,
-            likes: api.likes,
-            dislikes: api.dislikes,
-            views: api.views,
-            createdAt: new Date(api.created_at),
-          }))
-        )
-      );
+      .post<ThreadApi>(this.apiUrl, data)
+      .pipe(map((api) => this.mapApiToThread(api)));
+  }
+
+  // Mapper 
+  private mapApiToThread(api: ThreadApi): Thread {
+    return {
+      id: api.id,
+      title: api.title,
+      content: api.content,
+      author: api.author_name,
+      likes: api.likes,
+      dislikes: api.dislikes,
+      views: api.views,
+      createdAt: new Date(api.created_at),
+    };
   }
 }

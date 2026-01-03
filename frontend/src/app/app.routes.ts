@@ -13,4 +13,10 @@ export const routes: Routes = [
   { path: 'manager', component: Manager },
   { path: 'user', component: User },
   { path: 'owner', component: Owner },
+  {
+  path: 'forum/new',
+    loadComponent: () =>
+      import('./pages/forum/new-thread/new-thread')
+        .then(m => m.NewThreadComponent),
+  }
 ];
