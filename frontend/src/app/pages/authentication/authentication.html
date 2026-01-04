@@ -10,93 +10,106 @@
     p-8 sm:p-12 md:p-16
   ">
 
-    <!-- Title: -->
+    <!-- Title -->
     <h1 class="text-5xl sm:text-6xl font-bold text-[#9B1C1F] mb-12">
-      Welcome!
+      @if (!isSelectingRole) {
+        Welcome!
+      } @else {
+        Select Role
+      }
     </h1>
 
-    <!-- Form - Not Yet Functional.  -->
-    <div class="flex flex-col gap-6">
+    <!--View :Form-->
+    @if (!isSelectingRole) {
+      <div class="flex flex-col gap-6">
 
-      <!-- Email :-->
-      <input
-        type="email"
-        placeholder="Email"
-        class="
-          w-full
-          bg-white
-          text-gray-800
-          ring-2  ring-[#9B1C1F]
-          rounded-xl
-          px-6 py-4
-          text-lg
-          placeholder-gray-500
+        <input
+          type="email"
+          placeholder="Email"
+          [(ngModel)]="email"
+          class="w-full bg-white text-gray-800 ring-2 ring-[#9B1C1F] rounded-xl px-6 py-4 text-lg placeholder-gray-500 focus:outline-none focus:ring-4 transition-all"
+        />
 
-          focus:outline-none
-          focus:ring-4
+        <input
+          type="password"
+          placeholder="Password"
+          [(ngModel)]="password"
+          class="w-full bg-white text-gray-800 ring-2 ring-[#9B1C1F] rounded-xl px-6 py-4 text-lg placeholder-gray-500 focus:outline-none focus:ring-4 transition-all"
+        />
 
-          transition-all
-        "
-      />
+        <div class="flex justify-end gap-4 mt-6">
+          <button
+            (click)="onLogin()"
+            class="px-8 py-3 border-2 border-[#9B1C1F] rounded-2xl text-lg font-bold text-[#9B1C1F] bg-white hover:bg-[#9B1C1F] hover:text-white transition-colors duration-200"
+          >
+            Log-In
+          </button>
 
-      <!-- Password : -->
-      <input
-        type="password"
-        placeholder="Password"
-        class="
-         w-full
-          bg-white
-          text-gray-800
-          ring-2  ring-[#9B1C1F]
-          rounded-xl
-          px-6 py-4
-          text-lg
-          placeholder-gray-500
-
-          focus:outline-none
-          focus:ring-4
-
-          transition-all
-        "
-      />
-
-      <!-- Buttons - TODO: Make a component. -->
-      <div class="flex justify-end gap-4 mt-6">
-        <button
-          class="
-            px-8 py-3
-            border-2 border-[#9B1C1F]
-            rounded-2xl
-            text-lg font-bold
-            text-[#9B1C1F]
-            bg-white
-
-            hover:bg-[#9B1C1F] hover:text-white
-
-            transition-colors duration-200
-          "
-        >
-          Log-In
-        </button>
-
-        <button
-          class="
-            px-8 py-3
-            border-2 border-[#9B1C1F]
-            rounded-2xl
-            text-lg font-bold
-            text-[#9B1C1F]
-            bg-white
-
-            hover:bg-[#9B1C1F] hover:text-white
-
-            transition-colors duration-200
-          "
-        >
-          Register
-        </button>
+          <button
+            (click)="onRegisterClick()"
+            class="px-8 py-3 border-2 border-[#9B1C1F] rounded-2xl text-lg font-bold text-[#9B1C1F] bg-white hover:bg-[#9B1C1F] hover:text-white transition-colors duration-200"
+          >
+            Register
+          </button>
+        </div>
       </div>
+    }
 
-    </div>
+    @else {
+      <!-- View: Account Type-->
+      <div class="flex flex-col gap-6">
+
+        <p class="text-xl text-gray-600">Please select your account type:</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+          <!-- Customer Button -->
+          <button
+            (click)="onRegister('Customer')"
+            class="
+              h-32
+              border-2 border-[#9B1C1F]
+              rounded-2xl
+              text-2xl font-bold
+              bg-white
+              text-[#9B1C1F]
+              hover:bg-[#9B1C1F] hover:text-white
+              transition-all duration-200
+              flex items-center justify-center
+            "
+          >
+            Customer
+          </button>
+
+          <!-- Restaurant Button -->
+          <button
+            (click)="onRegister('Restaurant')"
+            class="
+              h-32
+              border-2 border-[#9B1C1F]
+              rounded-2xl
+              text-2xl font-bold
+              bg-white
+              text-[#9B1C1F]
+              hover:bg-[#9B1C1F] hover:text-white
+              transition-all duration-200
+              flex items-center justify-center
+            "
+          >
+            Restaurant
+          </button>
+        </div>
+
+        <!-- Back Button -->
+        <button
+          (click)="cancelRoleSelection()"
+          class="mt-4 text-gray-500 hover:text-[#9B1C1F] font-semibold self-start"
+        >
+          ← Back
+        </button>
+
+      </div>
+    }
+
   </div>
 </div>

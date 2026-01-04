@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import pkg from "pg";
 import threadsRouter from './routes/threads.routes.js';
+import authRoutes from "./routes/auth.routes.js";
 
 const { Pool } = pkg;
 
@@ -24,6 +25,8 @@ pool.query("SELECT 1")
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
+
+app.use("/", authRoutes);
 
 app.use("/api/threads", threadsRouter);
 

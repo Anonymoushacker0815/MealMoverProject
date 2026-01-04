@@ -1,0 +1,25 @@
+<main class="flex flex-col items-center justify-center gap-6 min-h-[70vh]">
+
+
+  <div class="text-center">
+    <h1 class="text-2xl font-semibold mb-4">Account</h1>
+
+    @if (user) {
+      <p>Email: {{ user.email }}</p>
+      <p>Role: {{ user.user_type }}</p>
+      <p>ID: {{ user.id }}</p>
+    } @else {
+      <p>Loading...</p>
+    }
+  </div>
+
+  @if (user) {
+    <button
+      (click)="doLogout()"
+      class="w-48 px-6 py-3 rounded bg-[#9B1C1F] text-white font-semibold hover:bg-red-700 transition"
+    >
+      Log Out
+    </button>
+  }
+
+</main>

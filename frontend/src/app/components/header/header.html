@@ -44,19 +44,21 @@
         Forum
       </button>
 
+    @if (authService.isLoggedIn()) {
+      <button
+        (click)="goAccount()"
+        class="px-3 py-1.5 sm:px-4 sm:py-2 rounded bg-white text-[#9B1C1F] font-medium hover:bg-gray-100 transition"
+      >
+        View Account
+      </button>
+    } @else {
       <button
         (click)="goAuth()"
-        class="
-          px-3 py-1.5 sm:px-4 sm:py-2
-          rounded bg-white
-          text-[#9B1C1F]
-          font-medium
-          hover:bg-gray-100
-          transition
-        "
+        class="px-3 py-1.5 sm:px-4 sm:py-2 rounded bg-white text-[#9B1C1F] font-medium hover:bg-gray-100 transition"
       >
         Login
       </button>
-    </div>
+    }
+  </div>
   </div>
 </header>

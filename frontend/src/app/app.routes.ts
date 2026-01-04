@@ -5,6 +5,7 @@ import { Authentication } from './pages/authentication/authentication';
 import { Manager } from './pages/manager/manager';
 import { User } from './pages/user/user';
 import { Owner } from './pages/owner/owner';
+import {Account} from './pages/account/account';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -25,4 +26,5 @@ export const routes: Routes = [
         .then(m => m.ThreadDetailComponent),
   },
   { path: 'forum', component: Forum },
+  { path: 'account', component: Account },
 ];

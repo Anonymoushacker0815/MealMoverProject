@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -8,6 +9,7 @@ import { Router } from '@angular/router';
 })
 export class Header {
   constructor(private router: Router) {}
+  public authService = inject(AuthService);
 
   goHome() {
     this.router.navigate(['/']);
@@ -19,5 +21,9 @@ export class Header {
 
   goAuth() {
     this.router.navigate(['/authentication']);
+  }
+
+  goAccount() {
+    this.router.navigate(['/account']);
   }
 }
