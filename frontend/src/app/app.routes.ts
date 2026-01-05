@@ -12,7 +12,9 @@ export const routes: Routes = [
   { path: 'authentication', component: Authentication },
   { path: 'manager', component: Manager },
   { path: 'user', component: User },
-  { path: 'owner', component: Owner },
+  
+  { path: 'owner', redirectTo: 'owner/orders', pathMatch: 'full' },
+  
   {
     path: 'owner/orders',
     loadComponent: () =>
