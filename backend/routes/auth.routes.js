@@ -8,6 +8,25 @@ import { pool } from '../db.js';
 const router = express.Router();
 const JWT_SECRET = "MealMover";
 
+
+const generateToken = (user) => {
+    return jwt.sign(
+        {
+            id: user.id,
+            email: user.email,
+            type: user.user_type,
+            location: user.location,
+            loyalty_points: user.loyalty_points,
+            status_id: user.status_id
+        },
+        JWT_SECRET,
+        { expiresIn: "5h" }
+    );
+};
+
+
+
+
 // Register
 router.post("/register", async (req, res) => {
     const { email, password, user_type } = req.body;
@@ -46,21 +65,12 @@ router.post("/register", async (req, res) => {
 
         console.log("New User Created:", result.rows[0]);
 
-        const token = jwt.sign(
-            {
-                id: newUser.id,
-                email: newUser.email,
-                type: newUser.user_type
-            },
-            JWT_SECRET,
-            { expiresIn: "1h" }
-        );
-
+        const token = generateToken(newUser);
 
         res.json({
             success: true,
             message: "User registered successfully",
-            data: result.rows[0],
+            data: newUser,
             token: token
         });
 
@@ -99,15 +109,7 @@ router.post("/login", async (req, res) => {
         }
 
         // 3. Generate JSON Web Token
-        const token = jwt.sign(
-            {
-                id: user.id,
-                email: user.email,
-                type: user.user_type
-            },
-            JWT_SECRET,
-            { expiresIn: "5h" } // Token expires in 5 hours
-        );
+        const token = generateToken(user);
 
         //Dont store password
         delete user.password;

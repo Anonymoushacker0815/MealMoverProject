@@ -29,9 +29,7 @@ export class Authentication {
   private handleAuthSuccess(response: any) {
     console.log('Server Response:', response);
 
-    const userData = response.user || response.data;
-    this.authService.login(response.token, userData);
-
+    this.authService.login(response.token);
     alert('Authentication Successful!');
 
     //  Redirect to Account Page

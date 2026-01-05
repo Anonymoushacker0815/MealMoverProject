@@ -14,7 +14,7 @@ export class Account implements OnInit {
   user: any = null;
 
   ngOnInit() {
-    this.user = this.authService.getUser();
+    this.user = this.authService.currentUser();
 
     if (!this.user) {
       this.router.navigate(['/authentication']);
