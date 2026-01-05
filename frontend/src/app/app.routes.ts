@@ -14,6 +14,30 @@ export const routes: Routes = [
   { path: 'user', component: User },
   { path: 'owner', component: Owner },
   {
+    path: 'owner/orders',
+    loadComponent: () =>
+      import('./pages/owner/orders/orders')
+        .then(m => m.OwnerOrders),
+  },
+  {
+    path: 'owner/menu',
+    loadComponent: () =>
+      import('./pages/owner/menu/menu')
+        .then(m => m.OwnerMenu),
+  },
+  {
+    path: 'owner/analytics',
+    loadComponent: () =>
+      import('./pages/owner/analytics/analytics')
+        .then(m => m.OwnerAnalytics),
+  },
+  {
+    path: 'owner/profile',
+    loadComponent: () =>
+      import('./pages/owner/profile/profile')
+        .then(m => m.OwnerProfile),
+  },
+  {
     path: 'forum/new',
     loadComponent: () =>
       import('./pages/forum/new-thread/new-thread')
