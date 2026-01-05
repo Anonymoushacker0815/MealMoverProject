@@ -13,6 +13,7 @@ export class AuthService {
   login(token: string) {
     localStorage.setItem('token', token);
     const decodedUser = this.decodeToken(token);
+    localStorage.setItem('user', JSON.stringify(decodedUser));
     this.currentUser.set(decodedUser);
     this.isLoggedIn.set(true);
   }
