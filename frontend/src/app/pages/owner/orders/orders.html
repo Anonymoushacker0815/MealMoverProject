@@ -1,5 +1,155 @@
 <app-navbar role="owner"></app-navbar>
 
-<h1 class="text-2xl font-bold mb-6">Orders</h1>
-<p>Hallo</p>
+<div class="px-6 py-4">
 
+  <!-- TOP FILTER BAR -->
+  <div class="flex justify-center mb-6">
+  <div class="flex items-center gap-4">
+
+    <button
+      (click)="setFilter('all')"
+      [ngClass]="activeFilter === 'all' ? 'border-[#7B1E1E]' : 'border-gray-300'"
+      class="px-4 py-2 rounded-xl border font-medium transition"
+    >
+      All Orders
+    </button>
+
+    <button
+      (click)="setFilter('new')"
+      [ngClass]="activeFilter === 'new' ? 'border-[#7B1E1E]' : 'border-gray-300'"
+      class="px-4 py-2 rounded-xl border transition"
+    >
+      New Order
+    </button>
+
+    <button
+      (click)="setFilter('preparing')"
+      [ngClass]="activeFilter === 'preparing' ? 'border-[#7B1E1E]' : 'border-gray-300'"
+      class="px-4 py-2 rounded-xl border transition"
+    >
+      Preparing
+    </button>
+
+    <button
+      (click)="setFilter('ready')"
+      [ngClass]="activeFilter === 'ready' ? 'border-[#7B1E1E]' : 'border-gray-300'"
+      class="px-4 py-2 rounded-xl border transition"
+    >
+      Ready
+    </button>
+
+    <button
+      (click)="setFilter('complete')"
+      [ngClass]="activeFilter === 'complete' ? 'border-[#7B1E1E]' : 'border-gray-300'"
+      class="px-4 py-2 rounded-xl border transition"
+    >
+      Complete
+    </button>
+
+    <!-- SEARCH -->
+    <div class="relative ml-4">
+        <input
+            type="text"
+            placeholder="Order ID or Customer Name"
+            class="
+                pl-4 pr-10 py-2
+                rounded-xl
+                border border-gray-300
+                focus:border-[#7B1E1E]
+                focus:ring-1 focus:ring-[#7B1E1E]
+                focus:outline-none
+                transition
+            "
+        />
+      <span class="absolute right-3 top-2.5">🔍</span>
+    </div>
+
+  </div>
+</div>
+
+
+  <!-- ORDERS GRID -->
+  <div class="grid grid-cols-2 gap-6">
+
+    <!-- ORDER CARD -->
+    <div class="border border-gray-400 rounded-lg overflow-hidden">
+
+      <!-- HEADER -->
+      <div class="bg-gray-300 px-4 py-2 flex justify-between items-center">
+        <span class="font-semibold">ORDER-1232</span>
+        <span class="text-xs px-3 py-1 border border-[#7B1E1E] rounded-lg bg-white">
+          NEW ORDER
+        </span>
+      </div>
+
+      <!-- BODY -->
+      <div class="p-4 space-y-4">
+        <div class="flex gap-3 items-start">
+          <div class="w-10 h-10 bg-gray-300"></div>
+          <div>
+            <p class="font-medium">Name</p>
+            <p class="text-sm text-gray-600">Address</p>
+          </div>
+        </div>
+
+        <div class="bg-gray-200 p-3 rounded-md">
+          <p class="font-semibold text-sm mb-1">ORDER ITEMS</p>
+          <ul class="text-sm list-disc ml-4">
+            <li>2 Burgers</li>
+            <li>1 Chicken Strips</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="flex gap-3 p-4">
+        <button class="flex-1 py-2 rounded-full border border-black">
+          Start Preparing
+        </button>
+        <button class="py-2 px-5 rounded-full border border-black">
+          Reject
+        </button>
+      </div>
+
+    </div>
+
+    <!-- DUPLICATE CARD -->
+    <div class="border border-gray-400 rounded-lg overflow-hidden">
+      <div class="bg-gray-300 px-4 py-2 flex justify-between items-center">
+        <span class="font-semibold">ORDER-1233</span>
+        <span class="text-xs px-3 py-1 border border-[#7B1E1E] rounded-lg bg-white">
+          NEW ORDER
+        </span>
+      </div>
+
+      <div class="p-4 space-y-4">
+        <div class="flex gap-3">
+          <div class="w-10 h-10 bg-gray-300"></div>
+          <div>
+            <p class="font-medium">Name</p>
+            <p class="text-sm text-gray-600">Address</p>
+          </div>
+        </div>
+
+        <div class="bg-gray-200 p-3 rounded-md">
+          <p class="font-semibold text-sm mb-1">ORDER ITEMS</p>
+          <ul class="text-sm list-disc ml-4">
+            <li>2 Burgers</li>
+            <li>1 Chicken Strips</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flex gap-3 p-4">
+        <button class="flex-1 py-2 rounded-full border border-black">
+          Start Preparing
+        </button>
+        <button class="py-2 px-5 rounded-full border border-black">
+          Reject
+        </button>
+      </div>
+    </div>
+
+
+  </div>
+</div>

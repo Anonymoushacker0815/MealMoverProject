@@ -9,4 +9,12 @@ import { Navbar } from '../../../components/navbar/navbar';
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
-export class OwnerOrders {}
+export class OwnerOrders {
+
+  activeFilter: 'all' | 'new' | 'preparing' | 'ready' | 'complete' = 'all';
+
+  setFilter(filter: 'all' | 'new' | 'preparing' | 'ready' | 'complete') {
+    this.activeFilter = filter;
+  }
+
+}
