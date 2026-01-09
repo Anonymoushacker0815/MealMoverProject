@@ -1,4 +1,165 @@
 <app-navbar role="owner"></app-navbar>
 
-<h1 class="text-2xl font-bold mb-6">Analytics</h1>
-<p>Hallo</p>
+<div class="px-6 py-6 space-y-8">
+
+  <!-- TOP ROW -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Order Counts -->
+    <div class="border border-gray-400 rounded-lg overflow-hidden bg-white">
+      <div class="bg-gray-300 px-4 py-2 font-semibold">
+        Order Counts
+      </div>
+
+      <div class="p-5">
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-gray-300 p-8 text-center">
+            <div class="text-4xl font-semibold">{{ orderCounts.day }}</div>
+            <div class="mt-2 font-semibold">Day</div>
+          </div>
+          <div class="bg-gray-300 p-8 text-center">
+            <div class="text-4xl font-semibold">{{ orderCounts.week }}</div>
+            <div class="mt-2 font-semibold">Week</div>
+          </div>
+          <div class="bg-gray-300 p-8 text-center">
+            <div class="text-4xl font-semibold">{{ orderCounts.month }}</div>
+            <div class="mt-2 font-semibold">Month</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Overview -->
+    <div class="border border-gray-400 rounded-lg overflow-hidden bg-white">
+      <div class="bg-gray-300 px-4 py-2 font-semibold">
+        Monthly Overview
+      </div>
+
+      <div class="p-5">
+        <div class="border border-gray-300 p-3">
+
+          <!-- Y axis + chart -->
+          <div class="flex items-start gap-3">
+            <div class="flex flex-col justify-between h-12 w-12 text-right text-xs text-gray-600">
+              <span>max: {{ monthlyMax }}</span>
+              <span>avg: {{ monthlyAvg }}</span>
+              <span>min: {{ monthlyMin }}</span>
+            </div>
+
+            <svg viewBox="0 0 560 200" class="w-full h-56">
+              <!-- grid -->
+              <g opacity="0.25">
+                <line x1="0" y1="40" x2="560" y2="40" stroke="black" stroke-width="1"></line>
+                <line x1="0" y1="92" x2="560" y2="92" stroke="black" stroke-width="1"></line>
+                <line x1="0" y1="144" x2="560" y2="144" stroke="black" stroke-width="1"></line>
+              </g>
+
+              <!-- line -->
+              <polyline
+                [attr.points]="monthlyPolylinePoints"
+                fill="none"
+                stroke="black"
+                stroke-width="2"
+              ></polyline>
+
+              <!-- dots -->
+              <circle
+                *ngFor="let d of monthlyDots"
+                [attr.cx]="d.cx"
+                [attr.cy]="d.cy"
+                r="3"
+                fill="black"
+              ></circle>
+
+              <!-- values under each dot -->
+              <text
+                *ngFor="let d of monthlyDots"
+                [attr.x]="d.cx"
+                [attr.y]="monthlyBottomLabelY"
+                font-size="9"
+                fill="black"
+                text-anchor="middle"
+              >
+                {{ d.value }}
+              </text>
+            </svg>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Popular Items -->
+<div class="border border-gray-400 rounded-lg overflow-hidden bg-white">
+    <div class="bg-gray-300 px-4 py-2 font-semibold">
+      Popular Items
+    </div>
+
+    <div class="px-4 pb-4">
+      <table class="w-full text-left table-fixed border-collapse">
+        <thead>
+          <tr class="text-sm text-gray-600 border-b border-gray-400">
+            <th class="py-3 w-56 font-semibold text-center">Rank</th>
+            <th class="py-3 w-56 font-semibold text-center">Dish Name</th>
+            <th class="py-3 w-56 font-semibold text-center">Total Orders</th>
+            <th class="py-3 w-56 font-semibold text-center">Revenue</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of popularItems; let i = index" class="border-b border-gray-300">
+            <td class="py-4 text-center">{{ i + 1 }}</td>
+            <td class="py-4 text-center">{{ item.name }}</td>
+            <td class="py-4 text-center">{{ item.sold }}</td>
+            <td class="py-4 text-center">€{{ item.revenue | number:'1.0-2' }}</td>
+          </tr>
+
+          <tr *ngIf="recentOrders.length === 0">
+            <td colspan="4" class="py-8 text-center text-gray-500">
+              No items yet.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- Recent Orders -->
+  <div class="border border-gray-400 rounded-lg overflow-hidden bg-white">
+    <div class="bg-gray-300 px-4 py-2 font-semibold">
+      Recent Orders
+    </div>
+
+    <div class="px-4 pb-4">
+      <table class="w-full text-left table-fixed border-collapse">
+        <thead>
+          <tr class="text-sm text-gray-600 border-b border-gray-400">
+            <th class="py-3 w-56 font-semibold text-center">Index</th>
+            <th class="py-3 w-56 font-semibold text-center">Date</th>
+            <th class="py-3 w-56 font-semibold text-center">Status</th>
+            <th class="py-3 w-56 font-semibold text-center">Total</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let o of recentOrders" class="border-b border-gray-300">
+            <td class="py-4 text-center">{{ o.id }}</td>
+            <td class="py-4 text-center">{{ o.date }}</td>
+            <td class="py-4 text-center">{{ statusLabel(o.status) }}</td>
+            <td class="py-4 text-center">€{{ o.total | number:'1.0-2' }}</td>
+          </tr>
+
+          <tr *ngIf="recentOrders.length === 0">
+            <td colspan="4" class="py-8 text-center text-gray-500">
+              No recent orders yet.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
