@@ -21,3 +21,11 @@ CREATE TABLE IF NOT EXISTS users
 INSERT INTO status (name, description) VALUES
      ('Active', 'Standard'),
      ('Suspended', 'User violated terms of service');
+
+INSERT INTO users (email, password, user_type, status_id)
+VALUES (
+           'admin',
+           '$2a$10$L1vWLIsFG.KMvOCg2wnVz.iTB4PISw4gT0BQfWTvy5cdLPpwwEXSq',
+           'Admin',
+           1
+       );
