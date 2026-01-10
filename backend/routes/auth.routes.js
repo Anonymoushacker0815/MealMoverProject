@@ -8,13 +8,13 @@ import { pool } from '../db.js';
 const router = express.Router();
 const JWT_SECRET = "MealMover";
 
-
+// Generate Token
 const generateToken = (user) => {
     return jwt.sign(
         {
             id: user.id,
             email: user.email,
-            type: user.user_type,
+            user_type: user.user_type,
             location: user.location,
             loyalty_points: user.loyalty_points,
             status_id: user.status_id
@@ -25,9 +25,7 @@ const generateToken = (user) => {
 };
 
 
-
-
-// Register
+// ROUTE: Register
 router.post("/register", async (req, res) => {
     const { email, password, user_type } = req.body;
 
@@ -124,6 +122,46 @@ router.post("/login", async (req, res) => {
     } catch (err) {
         console.error("Login Error:", err);
         res.status(500).json({ error: "Server error during login" });
+    }
+});
+
+// Authenticate Token
+const authenticateToken = (req, res, next) => {
+    const token = req.headers['authorization'];
+
+    if (!token) {
+        return res.status(401).json({ error: "No Token." });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ error: "Token Found." });
+        }
+
+        req.user = user;
+        next();
+    });
+};
+
+// ROUTE: VERIFY USER
+router.get("/verifyuser", authenticateToken, async (req, res) => {
+    try {
+
+        const query = "SELECT id, email, user_type, location, loyalty_points, status_id FROM users WHERE id = $1";
+        const result = await pool.query(query, [req.user.id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.json({
+            success: true,
+            user: result.rows[0]
+        });
+
+    } catch (err) {
+        console.error("Auth Check Error:", err);
+        res.status(500).json({ error: "Server Error" });
     }
 });
 

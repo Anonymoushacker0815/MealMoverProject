@@ -1,36 +1,41 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal,inject} from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private http = inject(HttpClient);
 
   isLoggedIn = signal<boolean>(!!localStorage.getItem('token'));
-  currentUser = signal<any>(this.getUserFromStorage());
+  currentUser = signal<any>(this.decodeToken(localStorage.getItem('token')));
 
+  verifyUser() {
+    return this.http.get<any>('http://localhost:3000/verifyuser').pipe(
+      tap(response => {
+        this.currentUser.set(response.user);
+      })
+    );
+  }
 
   login(token: string) {
     localStorage.setItem('token', token);
-    const decodedUser = this.decodeToken(token);
-    localStorage.setItem('user', JSON.stringify(decodedUser));
-    this.currentUser.set(decodedUser);
+    this.currentUser.set(this.decodeToken(token));
     this.isLoggedIn.set(true);
   }
 
   logout() {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
     this.currentUser.set(null);
     this.isLoggedIn.set(false);
   }
 
-  private getUserFromStorage() {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
-  }
 
-  private decodeToken(token: string): any {
+
+  private decodeToken(token: string | null): any {
+    if (!token) return null;
     try {
       return jwtDecode(token);
     } catch (error) {
