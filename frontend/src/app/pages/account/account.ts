@@ -11,14 +11,18 @@ export class Account implements OnInit {
 
   private authService = inject(AuthService);
   private router = inject(Router);
-  user: any = null;
+  user = this.authService.currentUser;
 
   ngOnInit() {
-    this.user = this.authService.currentUser();
-
-    if (!this.user) {
+    if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/authentication']);
+      return;
     }
+
+    this.authService.verifyUser().subscribe({
+      next: () => console.log('User verified by server'),
+      error: () => this.doLogout() // Logout on error
+    });
   }
 
   doLogout() {
