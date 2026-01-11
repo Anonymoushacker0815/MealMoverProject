@@ -2,22 +2,24 @@
 
 <div class="px-6 py-4">
 
-  <!-- TOP BAR (Search centered & long + Add Category right next to it) -->
-  <div class="flex items-center justify-center gap-4 mb-6">
+  <!-- TOP BAR -->
+  <div class="flex items-center justify-center gap-4 mb-6 flex-wrap">
     <div class="relative w-full max-w-3xl">
       <input
         [(ngModel)]="searchTerm"
         type="text"
         placeholder="Search menu items or Category"
-        class="w-full pl-4 pr-10 py-2 rounded-xl border border-gray-300
-               focus:border-[#7B1E1E] focus:ring-1 focus:ring-[#7B1E1E] focus:outline-none transition"
+        class="w-full pl-4 pr-10 py-2 rounded-xl border border-gray-300 bg-white
+               focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
       />
       <span class="absolute right-3 top-2.5">🔍</span>
     </div>
 
     <button
       (click)="toggleAddCategory()"
-      class="px-4 py-2 rounded-xl border border-gray-300 bg-white font-medium transition hover:border-[#7B1E1E]"
+      class="px-4 py-2 rounded-xl border border-gray-300 bg-white font-medium transition
+             hover:border-[#9B1C1F] hover:text-[#9B1C1F]"
+      type="button"
     >
       + Add Category
     </button>
@@ -25,23 +27,25 @@
 
   <!-- ADD CATEGORY FORM -->
   <div *ngIf="showAddCategory" class="flex justify-center mb-6">
-    <div class="w-full max-w-3xl flex gap-3">
+    <div class="w-full max-w-3xl flex gap-3 flex-wrap">
       <input
         [(ngModel)]="newCategoryName"
         type="text"
         placeholder="Category name (e.g., Appetizers)"
-        class="flex-1 pl-4 py-2 rounded-xl border border-gray-300
-               focus:border-[#7B1E1E] focus:ring-1 focus:ring-[#7B1E1E] focus:outline-none transition"
+        class="flex-1 min-w-[220px] pl-4 py-2 rounded-xl border border-gray-300 bg-white
+               focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
       />
       <button
         (click)="addCategory()"
-        class="px-4 py-2 rounded-xl bg-[#7B1E1E] text-white font-medium"
+        class="px-4 py-2 rounded-xl bg-[#9B1C1F] text-white font-medium hover:opacity-95 transition"
+        type="button"
       >
         Add
       </button>
       <button
         (click)="toggleAddCategory()"
-        class="px-4 py-2 rounded-xl border border-gray-300 bg-white"
+        class="px-4 py-2 rounded-xl border border-gray-300 bg-white hover:border-gray-400 transition"
+        type="button"
       >
         Cancel
       </button>
@@ -53,27 +57,32 @@
 
     <div
       *ngFor="let cat of filteredCategories(); trackBy: trackByCategoryId"
-      class="border border-gray-400 rounded-lg overflow-hidden"
+      class="border border-gray-300 rounded-lg overflow-hidden bg-white"
     >
 
       <!-- CATEGORY HEADER -->
-      <div class="bg-gray-300 px-4 py-2 flex justify-between items-center">
+      <div class="bg-[#9B1C1F] text-white px-4 py-2 flex justify-between items-center">
         <span class="font-semibold">
           {{ cat.name }} ({{ cat.dishes.length }} items)
         </span>
 
         <div class="flex gap-2 items-center">
+
           <button
             (click)="toggleDishForm(cat.id)"
-            class="px-3 py-1 border border-black rounded-full bg-white"
+            class="px-3 py-1 rounded-full border border-white/70 bg-white/10
+                   hover:bg-white hover:text-[#9B1C1F] transition"
+            type="button"
           >
             + Add Dish
           </button>
 
           <button
             (click)="removeCategory(cat.id)"
-            class="w-9 h-9 flex items-center justify-center rounded-full border border-black bg-white"
+            class="w-9 h-9 flex items-center justify-center rounded-full border border-white/70 bg-white/10
+                   hover:bg-white hover:text-[#9B1C1F] transition"
             title="Delete Category"
+            type="button"
           >
             ✕
           </button>
@@ -87,15 +96,15 @@
             [(ngModel)]="newDish.name"
             type="text"
             placeholder="Dish name"
-            class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300
-                   focus:border-[#7B1E1E] focus:ring-1 focus:ring-[#7B1E1E] focus:outline-none transition"
+            class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300 bg-white
+                   focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
           />
           <input
             [(ngModel)]="newDish.description"
             type="text"
             placeholder="Description"
-            class="md:col-span-2 pl-4 py-2 rounded-xl border border-gray-300
-                   focus:border-[#7B1E1E] focus:ring-1 focus:ring-[#7B1E1E] focus:outline-none transition"
+            class="md:col-span-2 pl-4 py-2 rounded-xl border border-gray-300 bg-white
+                   focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
           />
           <input
             [(ngModel)]="newDish.price"
@@ -103,20 +112,22 @@
             min="0"
             step="0.01"
             placeholder="Price"
-            class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300
-                   focus:border-[#7B1E1E] focus:ring-1 focus:ring-[#7B1E1E] focus:outline-none transition"
+            class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300 bg-white
+                   focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
           />
 
-          <div class="md:col-span-4 flex gap-3 justify-end">
+          <div class="md:col-span-4 flex gap-3 justify-end flex-wrap">
             <button
               (click)="addDish(cat.id)"
-              class="px-4 py-2 rounded-xl bg-[#7B1E1E] text-white font-medium"
+              class="px-4 py-2 rounded-xl bg-[#9B1C1F] text-white font-medium hover:opacity-95 transition"
+              type="button"
             >
               Add Dish
             </button>
             <button
               (click)="toggleDishForm(cat.id)"
-              class="px-4 py-2 rounded-xl border border-gray-300 bg-white"
+              class="px-4 py-2 rounded-xl border border-gray-300 bg-white hover:border-gray-400 transition"
+              type="button"
             >
               Cancel
             </button>
@@ -126,22 +137,27 @@
 
       <!-- DISH LIST -->
       <div class="p-4 space-y-4 bg-white">
+
         <div
           *ngFor="let dish of cat.dishes; trackBy: trackByDishId"
-          class="flex gap-3 items-start bg-gray-100 p-3 rounded-md"
+          class="flex gap-3 items-start bg-[#9B1C1F]/10 p-3 rounded-md border border-[#9B1C1F]/15"
         >
-          <div class="w-16 h-16 bg-gray-300 rounded"></div>
+          <div class="w-16 h-16 bg-[#9B1C1F]/15 rounded"></div>
 
           <div class="flex-1">
-            <p class="font-medium">{{ dish.name }}</p>
-            <p class="text-sm text-gray-600">{{ dish.description }}</p>
-            <p class="font-semibold mt-1">{{ dish.price | currency:'USD':'symbol' }}</p>
+            <p class="font-medium text-gray-900">{{ dish.name }}</p>
+            <p class="text-sm text-gray-700">{{ dish.description }}</p>
+            <p class="font-semibold mt-1 text-gray-900">
+              {{ dish.price | currency:'USD':'symbol' }}
+            </p>
           </div>
 
           <button
             (click)="removeDish(cat.id, dish.id)"
-            class="w-8 h-8 flex items-center justify-center rounded-full border border-black bg-white"
+            class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-400 bg-white
+                   hover:border-[#9B1C1F] hover:text-[#9B1C1F] transition"
             title="Delete Dish"
+            type="button"
           >
             ✕
           </button>
@@ -151,6 +167,7 @@
           No dishes yet. Click “+ Add Dish”.
         </div>
       </div>
+
     </div>
 
     <div *ngIf="filteredCategories().length === 0" class="text-center text-gray-500 mt-10">
