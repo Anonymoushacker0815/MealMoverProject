@@ -4,14 +4,14 @@
   <div class="border border-gray-300 rounded-2xl overflow-hidden shadow-sm bg-white">
 
     <!-- HEADER -->
-    <div class="bg-gray-300 px-5 py-3 flex justify-between items-center">
+    <div class="bg-[#9B1C1F] text-white px-5 py-3 flex justify-between items-center">
       <div class="flex items-center gap-3">
         <span class="font-semibold text-lg">Profile</span>
 
         <!-- Editing badge -->
         <span
           *ngIf="isEditing"
-          class="text-xs px-3 py-1 rounded-full bg-white border border-[#7B1E1E] text-[#7B1E1E]"
+          class="text-xs px-3 py-1 rounded-full bg-white/10 border border-white/70 text-white"
         >
           Editing…
         </span>
@@ -21,8 +21,8 @@
         <button
           *ngIf="!isEditing"
           (click)="startEdit()"
-          class="px-4 py-2 rounded-xl border border-gray-300 bg-white
-                 hover:border-[#7B1E1E] hover:text-[#7B1E1E] transition"
+          class="px-4 py-2 rounded-xl border border-white/70 bg-white/10
+                 hover:bg-white hover:text-[#9B1C1F] transition"
           type="button"
         >
           Edit
@@ -31,7 +31,7 @@
         <ng-container *ngIf="isEditing">
           <button
             (click)="saveProfile()"
-            class="px-4 py-2 rounded-xl bg-[#7B1E1E] text-white font-medium
+            class="px-4 py-2 rounded-xl bg-white text-[#9B1C1F] font-semibold
                    hover:opacity-95 transition"
             type="button"
           >
@@ -39,8 +39,8 @@
           </button>
           <button
             (click)="cancelEdit()"
-            class="px-4 py-2 rounded-xl border border-gray-300 bg-white
-                   hover:border-gray-400 transition"
+            class="px-4 py-2 rounded-xl border border-white/70 bg-white/10
+                   hover:bg-white hover:text-[#9B1C1F] transition"
             type="button"
           >
             Cancel
@@ -59,11 +59,11 @@
         <div class="shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
           <div class="relative">
             <div
-              class="w-52 h-52 lg:w-60 lg:h-60 rounded-full bg-gray-200
-                     border border-gray-300 shadow-inner
+              class="w-52 h-52 lg:w-60 lg:h-60 rounded-full bg-[#9B1C1F]/10
+                     border border-[#9B1C1F]/25 shadow-inner
                      flex items-center justify-center"
             >
-              <span class="text-5xl lg:text-6xl font-semibold text-gray-600">
+              <span class="text-5xl lg:text-6xl font-semibold text-[#9B1C1F]">
                 MM
               </span>
             </div>
@@ -76,12 +76,12 @@
 
         <!-- PROFILE DATA -->
         <div class="flex-1 w-full">
-          <div class="rounded-2xl border border-gray-200 bg-gray-50 p-6">
+          <div class="rounded-2xl border border-[#9B1C1F]/20 bg-[#9B1C1F]/5 p-6">
             <div class="space-y-6">
 
               <!-- Restaurant Name -->
               <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-                <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-600">
+                <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-700">
                   Restaurant Name
                 </div>
 
@@ -94,17 +94,17 @@
                     *ngIf="isEditing"
                     [(ngModel)]="profile.restaurantName"
                     class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white
-                           focus:border-[#7B1E1E] focus:ring-1 focus:ring-[#7B1E1E]
+                           focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
                            focus:outline-none transition"
                   />
                 </div>
               </div>
 
-              <div class="h-px bg-gray-200"></div>
+              <div class="h-px bg-[#9B1C1F]/15"></div>
 
               <!-- Email -->
               <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-                <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-600">
+                <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-700">
                   Email
                 </div>
 
@@ -118,17 +118,17 @@
                     [(ngModel)]="profile.email"
                     type="email"
                     class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white
-                           focus:border-[#7B1E1E] focus:ring-1 focus:ring-[#7B1E1E]
+                           focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
                            focus:outline-none transition"
                   />
                 </div>
               </div>
 
-              <div class="h-px bg-gray-200"></div>
+              <div class="h-px bg-[#9B1C1F]/15"></div>
 
               <!-- Phone -->
               <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-                <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-600">
+                <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-700">
                   Phone
                 </div>
 
@@ -142,17 +142,17 @@
                     [(ngModel)]="profile.phone"
                     type="text"
                     class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white
-                           focus:border-[#7B1E1E] focus:ring-1 focus:ring-[#7B1E1E]
+                           focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
                            focus:outline-none transition"
                   />
                 </div>
               </div>
 
-              <div class="h-px bg-gray-200"></div>
+              <div class="h-px bg-[#9B1C1F]/15"></div>
 
               <!-- Delivery Zone -->
               <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-                <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-600">
+                <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-700">
                   Delivery Zone
                 </div>
 
@@ -166,7 +166,7 @@
                     [(ngModel)]="profile.deliveryZone"
                     type="text"
                     class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white
-                           focus:border-[#7B1E1E] focus:ring-1 focus:ring-[#7B1E1E]
+                           focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
                            focus:outline-none transition"
                   />
                 </div>
@@ -179,17 +179,17 @@
 
       <!-- RIGHT: OPENING HOURS -->
       <div class="lg:col-span-4">
-        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 shadow-sm">
+        <div class="bg-[#9B1C1F]/5 rounded-2xl p-6 border border-[#9B1C1F]/20 shadow-sm">
 
           <!-- Header -->
           <div class="flex flex-col items-center gap-3 mb-6">
-            <p class="font-semibold text-xl">Opening Hours</p>
+            <p class="font-semibold text-xl text-gray-900">Opening Hours</p>
 
             <button
               *ngIf="isEditing"
               (click)="setAllWeekdays('09:00','18:00')"
-              class="text-sm px-3 py-1.5 rounded-xl border border-gray-300 bg-white
-                     hover:border-[#7B1E1E] transition"
+              class="text-sm px-3 py-1.5 rounded-xl border border-[#9B1C1F] bg-white
+                     text-[#9B1C1F] hover:bg-[#9B1C1F] hover:text-white transition"
               type="button"
             >
               Mon–Fri 09–18
@@ -202,7 +202,7 @@
               *ngFor="let day of days; trackBy: trackByDay"
               class="flex items-center gap-6"
             >
-              <span class="w-12 font-semibold text-right">
+              <span class="w-12 font-semibold text-right text-gray-900">
                 {{ openingHours[day].label }}
               </span>
 
@@ -226,7 +226,7 @@
               *ngFor="let day of days; trackBy: trackByDay"
               class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4"
             >
-              <span class="w-12 font-semibold text-right">
+              <span class="w-12 font-semibold text-right text-gray-900">
                 {{ openingHours[day].label }}
               </span>
 
@@ -241,7 +241,7 @@
                 [disabled]="openingHours[day].closed"
                 class="px-3 py-2 rounded-xl border border-gray-300 bg-white
                        disabled:bg-gray-200 disabled:text-gray-500
-                       focus:border-[#7B1E1E] focus:ring-1 focus:ring-[#7B1E1E]
+                       focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
                        focus:outline-none transition"
               />
 
@@ -253,7 +253,7 @@
                 [disabled]="openingHours[day].closed"
                 class="px-3 py-2 rounded-xl border border-gray-300 bg-white
                        disabled:bg-gray-200 disabled:text-gray-500
-                       focus:border-[#7B1E1E] focus:ring-1 focus:ring-[#7B1E1E]
+                       focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
                        focus:outline-none transition"
               />
             </div>
