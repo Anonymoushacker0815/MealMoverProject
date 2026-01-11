@@ -28,7 +28,7 @@ export class OwnerOrders {
   activeFilter: 'all' | OrderStatus = 'all';
   searchTerm = '';
 
-  // 🔹 Beispiel-Orders
+  // Beispiel-Orders
   orders: Order[] = [
     {
       id: 'ORDER-0001',
