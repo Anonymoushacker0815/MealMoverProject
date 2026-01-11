@@ -41,56 +41,14 @@
 
       <div class="p-5">
         <div class="border border-gray-300 p-3 rounded-md bg-white">
-
-          <!-- Y axis + chart -->
-          <div class="flex items-start gap-3">
-
-            <div class="flex flex-col gap-1 w-16 text-right text-xs text-gray-700">
-              <span class="font-semibold">max: {{ monthlyMax }}</span>
-              <span class="font-semibold">avg: {{ monthlyAvg }}</span>
-              <span class="font-semibold">min: {{ monthlyMin }}</span>
-            </div>
-
-            <svg viewBox="0 0 560 200" class="w-full h-56">
-              <!-- grid -->
-              <g opacity="0.25">
-                <line x1="0" y1="40" x2="560" y2="40" stroke="black" stroke-width="1"></line>
-                <line x1="0" y1="92" x2="560" y2="92" stroke="black" stroke-width="1"></line>
-                <line x1="0" y1="144" x2="560" y2="144" stroke="black" stroke-width="1"></line>
-              </g>
-
-              <!-- line -->
-              <polyline
-                [attr.points]="monthlyPolylinePoints"
-                fill="none"
-                stroke="black"
-                stroke-width="2"
-              ></polyline>
-
-              <!-- dots -->
-              <circle
-                *ngFor="let d of monthlyDots"
-                [attr.cx]="d.cx"
-                [attr.cy]="d.cy"
-                r="3"
-                fill="black"
-              ></circle>
-
-              <!-- values under each dot -->
-              <text
-                *ngFor="let d of monthlyDots"
-                [attr.x]="d.cx"
-                [attr.y]="monthlyBottomLabelY"
-                font-size="9"
-                fill="black"
-                text-anchor="middle"
-              >
-                {{ d.value }}
-              </text>
-            </svg>
-
+          <div class="w-full h-56">
+            <canvas
+              baseChart
+              [data]="monthlyChartData"
+              [type]="monthlyChartType"
+              [options]="monthlyChartOptions"
+            ></canvas>
           </div>
-
         </div>
       </div>
     </div>
@@ -125,7 +83,6 @@
             <td class="py-4 text-center font-semibold">€{{ item.revenue | number:'1.0-2' }}</td>
           </tr>
 
-          <!-- FIX: popularItems prüfen (nicht recentOrders) -->
           <tr *ngIf="popularItems.length === 0">
             <td colspan="4" class="py-8 text-center text-gray-500">
               No items yet.
@@ -136,10 +93,10 @@
     </div>
   </div>
 
-  <!-- Recent Orders -->
+  <!-- Reviews -->
   <div class="border border-gray-300 rounded-lg overflow-hidden bg-white">
     <div class="bg-[#9B1C1F] text-white px-4 py-2 font-semibold">
-      Recent Orders
+      Reviews
     </div>
 
     <div class="px-4 pb-4">
@@ -148,25 +105,46 @@
           <tr class="text-sm text-gray-700 border-b border-gray-300">
             <th class="py-3 w-56 font-semibold text-center">Index</th>
             <th class="py-3 w-56 font-semibold text-center">Date</th>
-            <th class="py-3 w-56 font-semibold text-center">Status</th>
-            <th class="py-3 w-56 font-semibold text-center">Total</th>
+            <th class="py-3 w-56 font-semibold text-center">Rating</th>
+            <th class="py-3 w-56 font-semibold text-center">Action</th>
           </tr>
         </thead>
 
         <tbody>
           <tr
-            *ngFor="let o of recentOrders"
+            *ngFor="let r of reviews"
             class="border-b border-gray-200 hover:bg-[#9B1C1F]/5 transition"
           >
-            <td class="py-4 text-center font-semibold">{{ o.id }}</td>
-            <td class="py-4 text-center">{{ o.date }}</td>
-            <td class="py-4 text-center">{{ statusLabel(o.status) }}</td>
-            <td class="py-4 text-center font-semibold">€{{ o.total | number:'1.0-2' }}</td>
+            <td class="py-4 text-center font-semibold">{{ r.orderId }}</td>
+            <td class="py-4 text-center ">{{ r.date }}</td>
+            <td class="py-4 text-center font-semibold">{{ r.rating }}</td>
+
+            <td class="py-4">
+              <div class="flex items-center justify-center gap-3">
+                <button
+                  (click)="viewReview(r)"
+                  class="px-6 py-1 rounded-full border border-gray-400 bg-white
+                         hover:border-[#9B1C1F] hover:text-[#9B1C1F] transition"
+                  type="button"
+                >
+                  View
+                </button>
+
+                <button
+                  (click)="reportReview(r)"
+                  class="px-6 py-1 rounded-full border border-gray-400 bg-white
+                         hover:border-[#9B1C1F] hover:text-[#9B1C1F] transition"
+                  type="button"
+                >
+                  Report
+                </button>
+              </div>
+            </td>
           </tr>
 
-          <tr *ngIf="recentOrders.length === 0">
+          <tr *ngIf="reviews.length === 0">
             <td colspan="4" class="py-8 text-center text-gray-500">
-              No recent orders yet.
+              No reviews yet.
             </td>
           </tr>
         </tbody>

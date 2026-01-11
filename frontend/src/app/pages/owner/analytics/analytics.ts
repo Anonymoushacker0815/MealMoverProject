@@ -2,6 +2,17 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Navbar } from '../../../components/navbar/navbar';
 
+import { BaseChartDirective } from 'ng2-charts';
+import {
+  Chart,
+  ChartConfiguration,
+  ChartData,
+  ChartOptions,
+  registerables,
+} from 'chart.js';
+
+Chart.register(...registerables);
+
 type MonthlyPoint = { day: number; value: number };
 
 type PopularItem = {
@@ -10,24 +21,23 @@ type PopularItem = {
   revenue: number;
 };
 
-type RecentOrder = {
-  id: string;
+type Review = {
+  orderId: string;
   date: string;
-  total: number;
-  status: 'new' | 'preparing' | 'ready' | 'complete';
+  rating: number;
 };
 
 @Component({
   standalone: true,
   selector: 'app-owner-analytics',
-  imports: [CommonModule, Navbar],
+  imports: [CommonModule, Navbar, BaseChartDirective],
   templateUrl: './analytics.html',
 })
 export class OwnerAnalytics {
   // Order counts
   orderCounts = { day: 30, week: 160, month: 1203 };
 
-  // Monthly overview (demo: orders/day)
+  // Monthly overview
   monthly: MonthlyPoint[] = [
     { day: 1, value: 42 }, { day: 2, value: 35 }, { day: 3, value: 58 }, { day: 4, value: 31 }, { day: 5, value: 49 },
     { day: 6, value: 61 }, { day: 7, value: 38 }, { day: 8, value: 52 }, { day: 9, value: 44 }, { day: 10, value: 40 },
@@ -37,7 +47,7 @@ export class OwnerAnalytics {
     { day: 26, value: 37 }, { day: 27, value: 51 }, { day: 28, value: 43 }, { day: 29, value: 32 }, { day: 30, value: 49 },
   ];
 
-  // Popular items raw
+  // Popular items
   items: PopularItem[] = [
     { name: 'Fries', sold: 92, revenue: 322.0 },
     { name: 'Cola', sold: 77, revenue: 231.0 },
@@ -46,74 +56,70 @@ export class OwnerAnalytics {
     { name: 'Cheesecake', sold: 27, revenue: 189.0 },
   ];
 
-  // Recent orders demo
-  recentOrders: RecentOrder[] = [
-    { id: 'ORDER-1238', date: '2026-12-13', total: 15.4, status: 'new' },
-    { id: 'ORDER-1237', date: '2026-12-13', total: 9.9, status: 'new' },
-    { id: 'ORDER-1236', date: '2026-12-13', total: 18.2, status: 'ready' },
-    { id: 'ORDER-1235', date: '2026-12-13', total: 13.0, status: 'preparing' },
-    { id: 'ORDER-1234', date: '2026-12-13', total: 21.5, status: 'complete' },
+  // Reviews
+  reviews: Review[] = [
+    { orderId: 'Order-1234', date: '2026-12-13', rating: 4 },
+    { orderId: 'Order-1235', date: '2026-12-13', rating: 4 },
+    { orderId: 'Order-1236', date: '2026-12-13', rating: 5 },
+    { orderId: 'Order-1237', date: '2026-12-13', rating: 3 },
+    { orderId: 'Order-1238', date: '2026-12-13', rating: 4 },
   ];
 
   get popularItems(): PopularItem[] {
     return [...this.items].sort((a, b) => b.sold - a.sold);
   }
 
-  // ---------- Chart helpers ----------
-  private chartW = 560;
-  private chartH = 200;
-  private pad = 18;
-  private bottomSpace = 26;
+  // Chart.js config
+  public monthlyChartData: ChartData<'line'> = {
+    labels: this.monthly.map(m => `Day ${m.day}`),
+    datasets: [
+      {
+        label: 'Orders',
+        data: this.monthly.map(m => m.value),
+        borderColor: '#111111',
+        backgroundColor: 'transparent',
+        pointBackgroundColor: '#111111',
+        pointBorderColor: '#111111',
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        borderWidth: 2,
+        tension: 0,
+      },
+    ],
+  };
 
-  get monthlyMin(): number {
-    return Math.min(...this.monthly.map(p => p.value));
-  }
-  get monthlyMax(): number {
-    return Math.max(...this.monthly.map(p => p.value));
-  }
-  get monthlyMid(): number {
-    return Math.round((this.monthlyMin + this.monthlyMax) / 2);
-  }
-  get monthlyAvg(): number {
-  const sum = this.monthly.reduce((acc, d) => acc + d.value, 0);
-  return Math.round(sum / this.monthly.length);
-  }
+  public monthlyChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: true },
+    },
+    scales: {
+      y: {
+        title: { display: true, text: 'Orders' },
+        ticks: { precision: 0 },
+        grid: { color: 'rgba(0,0,0,0.12)' },
+      },
+      x: {
+        ticks: {
+          maxRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: 8,
+        },
+        grid: { display: false },
+      },
+    },
+  };
 
-  private yFromValue(v: number): number {
-    const min = this.monthlyMin;
-    const max = this.monthlyMax;
-    const range = Math.max(1, max - min);
+  public monthlyChartType: ChartConfiguration<'line'>['type'] = 'line';
 
-    const innerH = this.chartH - this.pad * 2 - this.bottomSpace;
-    return this.pad + innerH * (1 - (v - min) / range);
-  }
-
-  private xFromIndex(i: number): number {
-    const innerW = this.chartW - this.pad * 2;
-    const stepX = innerW / Math.max(1, this.monthly.length - 1);
-    return this.pad + i * stepX;
-  }
-
-  get monthlyPolylinePoints(): string {
-    if (!this.monthly.length) return '';
-    return this.monthly
-      .map((p, i) => `${this.xFromIndex(i).toFixed(1)},${this.yFromValue(p.value).toFixed(1)}`)
-      .join(' ');
-  }
-
-  get monthlyDots(): { cx: number; cy: number; value: number }[] {
-    return this.monthly.map((p, i) => ({
-      cx: Number(this.xFromIndex(i).toFixed(1)),
-      cy: Number(this.yFromValue(p.value).toFixed(1)),
-      value: p.value,
-    }));
-  }
-
-  get monthlyBottomLabelY(): number {
-    return this.chartH - 8;
+  // Review View and Report
+  viewReview(r: Review) {
+    alert(`View review for ${r.orderId} (rating: ${r.rating})`);
   }
 
-  statusLabel(s: RecentOrder['status']): string {
-    return s.toUpperCase();
+  reportReview(r: Review) {
+    alert(`Report review for ${r.orderId}`);
   }
 }
