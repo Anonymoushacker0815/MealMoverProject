@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { pool } from '../db.js';
 
 const router = express.Router();
+//TODO Put in enviroment.
 const JWT_SECRET = "MealMover";
 
 // Generate Token
@@ -135,7 +136,7 @@ const authenticateToken = (req, res, next) => {
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
         if (err) {
-            return res.status(403).json({ error: "Token Found." });
+            return res.status(403).json({ error: "Token Found to be not valid ." });
         }
 
         req.user = user;
