@@ -59,7 +59,7 @@ export class OwnerOrders {
     },
   ];
 
-  // ---------- Filter ----------
+  // Filter
   setFilter(filter: 'all' | OrderStatus) {
     this.activeFilter = filter;
   }
@@ -79,7 +79,7 @@ export class OwnerOrders {
     });
   }
 
-  // ---------- Status Actions ----------
+  // Status Actions
   startPreparing(order: Order) {
     order.status = 'preparing';
   }
@@ -96,7 +96,7 @@ export class OwnerOrders {
     this.orders = this.orders.filter(o => o.id !== orderId);
   }
 
-  // ---------- Helpers ----------
+  // Helpers
   statusLabel(status: OrderStatus): string {
     return status.toUpperCase();
   }

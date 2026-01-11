@@ -55,7 +55,7 @@ export class OwnerMenu {
     },
   ];
 
-  // ---------- Category Actions ----------
+  // Category Actions
   toggleAddCategory() {
     this.showAddCategory = !this.showAddCategory;
     if (!this.showAddCategory) this.newCategoryName = '';
@@ -84,7 +84,7 @@ export class OwnerMenu {
     }
   }
 
-  // ---------- Dish Actions ----------
+  // Dish Actions
   toggleDishForm(categoryId: string) {
     if (this.openDishFormForCategoryId === categoryId) {
       this.openDishFormForCategoryId = null;
@@ -123,7 +123,7 @@ export class OwnerMenu {
     cat.dishes = cat.dishes.filter(d => d.id !== dishId);
   }
 
-  // ---------- Search / Filter ----------
+  // Search / Filter
   filteredCategories(): Category[] {
     const q = this.searchTerm.trim().toLowerCase();
     if (!q) return this.categories;
@@ -142,7 +142,7 @@ export class OwnerMenu {
       .filter((c): c is Category => c !== null);
   }
 
-  // ---------- helpers ----------
+  // helpers
   trackByCategoryId = (_: number, item: Category) => item.id;
   trackByDishId = (_: number, item: Dish) => item.id;
 

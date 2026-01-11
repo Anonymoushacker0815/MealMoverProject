@@ -20,13 +20,13 @@ type OpeningDay = {
 })
 export class OwnerProfile {
 
-  // ---------- UI state ----------
+  // UI state
   isEditing = false;
 
   days: DayKey[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   trackByDay = (_: number, day: DayKey) => day;
 
-  // ---------- DEMO PROFILE DATA ----------
+  // DEMO PROFILE DATA
   profile = {
     restaurantName: 'Pizza Italier',
     email: 'mail@example.com',
@@ -47,7 +47,7 @@ export class OwnerProfile {
   // Backup für Cancel
   private backup: any = null;
 
-  // ---------- Actions ----------
+  // Actions
   startEdit() {
     this.backup = {
       profile: JSON.parse(JSON.stringify(this.profile)),
