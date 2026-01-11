@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users
 	email varchar(255) UNIQUE NOT NULL,
 	password varchar(255),
     --username for forum?
-	username varchar(255) UNIQUE,
+	username varchar(100) UNIQUE,
     --GeoJSON
 	location JSONB,
     -- Constraint to the 3 types
