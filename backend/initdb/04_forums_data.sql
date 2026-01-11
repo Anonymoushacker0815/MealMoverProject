@@ -1,22 +1,21 @@
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
-CREATE TABLE replies (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  thread_id UUID NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
-
-  content TEXT NOT NULL,
-  author_name VARCHAR(100) NOT NULL DEFAULT 'Anonymous',
-  author_id UUID,
-
-  likes INT DEFAULT 0,
-  dislikes INT DEFAULT 0,
-
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+INSERT INTO threads (title, content, author_name, likes, dislikes, views)
+VALUES
+(
+  'Best Meal Prep for Office?', 
+  'What meals do you prep for a 9-5 office job?',
+  'lukas',
+  12,
+  1,
+  245
+),
+(
+  'High protein vegan meals',
+  'High protein vegan meal ideas without meat?',
+  'lea',
+  7,
+  0,
+  180
 );
-
-CREATE INDEX idx_replies_thread_id_created_at
-  ON replies(thread_id, created_at DESC);
 
 
 INSERT INTO replies (thread_id, content, author_name)
