@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS u_status
     (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE,
-    description TEXT
+    id serial PRIMARY KEY,
+    name varchar(50) NOT NULL UNIQUE,
+    description text
     );
 	
 CREATE TABLE IF NOT EXISTS users 
@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS users
     --username for forum?
 	username varchar(100) UNIQUE,
     --GeoJSON
-	location JSONB,
+	location jsonb,
     -- Constraint to the 3 types
-	user_type VARCHAR(50) CHECK (user_type IN ('Customer', 'Restaurant','Admin')),
+	user_type varchar(50) CHECK (user_type IN ('Customer', 'Restaurant','Admin')),
 	loyalty_points int DEFAULT 0,
     status_id int,
 	CONSTRAINT FK_status_users FOREIGN KEY (status_id) REFERENCES u_status(id)

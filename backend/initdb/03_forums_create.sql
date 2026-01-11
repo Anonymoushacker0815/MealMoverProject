@@ -1,31 +1,31 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE IF NOT EXISTS threads (
-  id Serial PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  content TEXT NOT NULL,
-  author_name VARCHAR(100) NOT NULL,
-  author_id UUID,
-  likes INT DEFAULT 0,
-  dislikes INT DEFAULT 0,
-  views INT DEFAULT 0,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  id serial PRIMARY KEY,
+  title varchar(255) NOT NULL,
+  content text NOT NULL,
+  author_name varchar(100) NOT NULL,
+  author_id int,
+  likes int DEFAULT 0,
+  dislikes int DEFAULT 0,
+  views int DEFAULT 0,
+  created_at timestamp DEFAULT NOW(),
+  updated_at timestamp DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS replies (
-  id Serial PRIMARY KEY,
+  id serial PRIMARY KEY,
   thread_id int NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
 
-  content TEXT NOT NULL,
-  author_name VARCHAR(100) NOT NULL DEFAULT 'Anonymous',
-  author_id UUID,
+  content text NOT NULL,
+  author_name varchar(100) NOT NULL DEFAULT 'Anonymous',
+  author_id int,
 
-  likes INT DEFAULT 0,
-  dislikes INT DEFAULT 0,
+  likes int DEFAULT 0,
+  dislikes int DEFAULT 0,
 
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  created_at timestamp DEFAULT NOW(),
+  updated_at timestamp DEFAULT NOW()
 );
 
 CREATE INDEX idx_replies_thread_id_created_at

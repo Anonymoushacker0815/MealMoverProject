@@ -1,5 +1,5 @@
 
-INSERT INTO o_status (name, description) values
+INSERT INTO o_status (name, description) VALUES
 ('placed', 'order has been placed'),
 ('preparing', 'order is being prepared'),
 ('delivering', 'the order is on its way'),

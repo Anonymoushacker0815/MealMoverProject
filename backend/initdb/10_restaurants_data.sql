@@ -1,5 +1,5 @@
 
-INSERT INTO r_status (name, description) values
+INSERT INTO r_status (name, description) VALUES
 ('Active', 'Standard'),
 ('Pending', 'To be accepted by the Admin'),
 ('Suspended', 'Restaurant violated terms of service');
