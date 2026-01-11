@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS ustatus
+CREATE TABLE IF NOT EXISTS u_status
     (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE,
@@ -18,5 +18,5 @@ CREATE TABLE IF NOT EXISTS users
 	user_type VARCHAR(50) CHECK (user_type IN ('Customer', 'Restaurant','Admin')),
 	loyalty_points int DEFAULT 0,
     status_id int,
-	CONSTRAINT FK_status_users FOREIGN KEY (status_id) REFERENCES ustatus(id)
+	CONSTRAINT FK_status_users FOREIGN KEY (status_id) REFERENCES u_status(id)
 	);
