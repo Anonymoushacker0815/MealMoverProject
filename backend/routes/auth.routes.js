@@ -59,6 +59,15 @@ router.post("/register", async (req, res) => {
 
         console.log("New User Created:", result.rows[0]);
 
+        // If the new user is a Restaurant, create an empty restaurant profile
+        if (newUser.user_type === 'Restaurant') {
+            await pool.query(
+                `INSERT INTO restaurants (name, email, phone, user_id, status_id)
+                VALUES ($1, $2, $3, $4, $5)`,
+                ['New Restaurant', '', '', newUser.id, 1]
+            );
+        }
+
         const token = generateToken(newUser);
 
         res.json({
