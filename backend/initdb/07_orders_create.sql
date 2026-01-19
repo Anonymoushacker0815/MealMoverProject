@@ -18,6 +18,7 @@ CONSTRAINT FK_status_order FOREIGN KEY (status_id) REFERENCES o_status(id)
 CREATE TABLE IF NOT EXISTS o_dishes (
 order_id int,
 dish_id int,
+ammount int,
 PRIMARY KEY (order_id, dish_id),
 CONSTRAINT FK_order_dish FOREIGN KEY (order_id) REFERENCES orders(id)
 );
