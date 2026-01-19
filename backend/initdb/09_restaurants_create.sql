@@ -10,6 +10,8 @@ name varchar(255),
 location jsonb,
 email varchar (255),
 phone varchar(20),
+delivery_zone varchar(255),
+opening_hours jsonb,
 user_id int,
 status_id int DEFAULT 2,
 CONSTRAINT FK_status_restaurant FOREIGN KEY (status_id) REFERENCES r_status(id)

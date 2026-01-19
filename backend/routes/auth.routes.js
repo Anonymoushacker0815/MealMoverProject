@@ -62,9 +62,9 @@ router.post("/register", async (req, res) => {
         // If the new user is a Restaurant, create an empty restaurant profile
         if (newUser.user_type === 'Restaurant') {
             await pool.query(
-                `INSERT INTO restaurants (name, email, phone, user_id, status_id)
-                VALUES ($1, $2, $3, $4, $5)`,
-                ['New Restaurant', '', '', newUser.id, 1]
+                `INSERT INTO restaurants (name, email, phone, delivery_zone, opening_hours, user_id, status_id)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                ['New Restaurant', newUser.email, '', null, null, newUser.id, 2]
             );
         }
 

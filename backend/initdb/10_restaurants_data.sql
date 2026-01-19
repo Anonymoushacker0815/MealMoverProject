@@ -4,9 +4,42 @@ INSERT INTO r_status (name, description) VALUES
 ('Pending', 'To be accepted by the Admin'),
 ('Suspended', 'Restaurant violated terms of service');
 
-INSERT INTO restaurants (name, email, phone, user_id, status_id) VALUES
-('SpeedEat', 'speed.eat@mail.com', '95839682', 4, 2),
-('Gimme Foods', 'gimme.foods@email.com', '8533455', 5, 1);
+INSERT INTO restaurants (name, email, phone, delivery_zone, opening_hours, user_id, status_id) VALUES
+(
+  'SpeedEat',
+  'speed.eat@mail.com',
+  '95839682',
+  '3 km radius',
+  '{
+    "mon": {"label":"Mon","closed":false,"open":"09:00","close":"18:00"},
+    "tue": {"label":"Tue","closed":false,"open":"09:00","close":"18:00"},
+    "wed": {"label":"Wed","closed":false,"open":"09:00","close":"18:00"},
+    "thu": {"label":"Thu","closed":false,"open":"09:00","close":"18:00"},
+    "fri": {"label":"Fri","closed":false,"open":"09:00","close":"20:00"},
+    "sat": {"label":"Sat","closed":false,"open":"10:00","close":"20:00"},
+    "sun": {"label":"Sun","closed":true,"open":"00:00","close":"00:00"}
+  }'::jsonb,
+  4,
+  2
+),
+(
+  'Gimme Foods',
+  'gimme.foods@email.com',
+  '8533455',
+  '5 km radius',
+  '{
+    "mon": {"label":"Mon","closed":false,"open":"10:00","close":"18:00"},
+    "tue": {"label":"Tue","closed":false,"open":"10:00","close":"18:00"},
+    "wed": {"label":"Wed","closed":false,"open":"10:00","close":"18:00"},
+    "thu": {"label":"Thu","closed":false,"open":"10:00","close":"18:00"},
+    "fri": {"label":"Fri","closed":false,"open":"10:00","close":"20:00"},
+    "sat": {"label":"Sat","closed":false,"open":"12:00","close":"20:00"},
+    "sun": {"label":"Sun","closed":true,"open":"00:00","close":"00:00"}
+  }'::jsonb,
+  5,
+  1
+);
+
 
 INSERT INTO categories (name, description, restaurant_id) VALUES
 ('fish', 'contains fish', 1),
