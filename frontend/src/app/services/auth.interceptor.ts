@@ -5,14 +5,23 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // get the token
   const token = localStorage.getItem('token');
 
-  // add token
-  if (token) {
-    const clonedReq = req.clone({
-      setHeaders: {
-        Authorization: `${token}`
-      }
-    });
-    return next(clonedReq);
+
+  const externalApis = [
+    'router.project-osrm.org',
+    'photon.komoot.io',
+  ];
+
+
+  const isExternal = externalApis.some(domain => req.url.includes(domain));
+
+
+  if (isExternal) {
+    return next(req);
   }
-  return next(req);
+
+  const authReq = token
+    ? req.clone({ setHeaders: { Authorization: token } })
+    : req;
+
+  return next(authReq);
 };

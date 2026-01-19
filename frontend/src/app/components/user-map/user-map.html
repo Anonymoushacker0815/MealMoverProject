@@ -1,0 +1,61 @@
+<div class="p-4 bg-white border-2 border-[#9B1C1F] rounded-2xl shadow-sm relative">
+
+  <h2 class="text-xl font-bold mb-4 text-[#9B1C1F]">
+    {{ mode === 'picker' ? 'Select Location' : 'Route' }}
+  </h2>
+
+
+  @if (mode === 'picker') {
+    <div class="flex gap-2 mb-4">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="searchLocation()"
+        placeholder="Enter address."
+        class="flex-1 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#9B1C1F] outline-none"
+      />
+      <button
+        (click)="searchLocation()"
+        class="bg-[#9B1C1F] text-white px-4 py-2 rounded font-bold">
+        Find
+      </button>
+    </div>
+
+    @if (selectedAddress()) {
+      <p class="mb-2 text-sm text-[#9B1C1F] font-bold bg-red-50 p-2 rounded border border-red-200">
+        Selected: {{ selectedAddress() }}
+      </p>
+    }
+  }
+
+
+  <div id="map" class="map-container relative z-0"></div>
+
+
+  @if (errorMessage()) {
+    <div class="mt-4 p-3 bg-red-100 text-red-700 rounded text-sm font-semibold">
+      {{ errorMessage() }}
+    </div>
+  }
+
+
+  @if (mode === 'route' && routeInfo() && !errorMessage()) {
+    <div class="mt-4 p-4 bg-gray-100 rounded border border-gray-300">
+      <div class="flex justify-between">
+        <div>
+          <span class="block text-gray-500 text-xs font-bold uppercase">Distance</span>
+          <span class="text-lg font-bold">
+            {{ (routeInfo().distance / 1000).toFixed(2) }} km
+          </span>
+        </div>
+
+        <div class="text-right">
+          <span class="block text-gray-500 text-xs font-bold uppercase">Est. Time</span>
+          <span class="text-lg font-bold">
+            {{ (routeInfo().duration / 60).toFixed(0) }} min
+          </span>
+        </div>
+      </div>
+    </div>
+  }
+</div>

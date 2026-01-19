@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { pool } from '../db.js';
 
 const router = express.Router();
-//TODO Put in enviroment.
+
 const JWT_SECRET = "MealMover";
 
 // Generate Token
@@ -28,34 +28,29 @@ const generateToken = (user) => {
 
 // ROUTE: Register
 router.post("/register", async (req, res) => {
-    const { email, password, user_type } = req.body;
+    const { email, password, user_type, location } = req.body;
 
     const allowedTypes = ['Customer', 'Restaurant'];
     const typeToSave = allowedTypes.includes(user_type) ? user_type : 'Customer';
 
-
-    //Password Hashing
+    // Password Hashing
     const hashRounds = 10;
     const hashedPassword = await bcrypt.hash(password, hashRounds);
 
-
-    // temp local
-    const defaultLocation = {
+    const locationToSave = location || {
         type: "Point",
-        coordinates: [-74.006, 40.7128]
+        coordinates: [14.305472, 46.6243]
     };
 
-    // temp status
     const defaultStatus = 1;
 
     try {
         const query = `
-      INSERT INTO users (email, password, location, user_type, status_id)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *;
-    `;
-
-        const values = [email, hashedPassword, defaultLocation, typeToSave, defaultStatus];
+            INSERT INTO users (email, password, location, user_type, status_id)
+            VALUES ($1, $2, $3, $4, $5)
+                RETURNING *;
+        `;
+        const values = [email, hashedPassword, locationToSave, typeToSave, defaultStatus];
 
         const result = await pool.query(query, values);
         const newUser = result.rows[0];
