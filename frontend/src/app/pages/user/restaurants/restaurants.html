@@ -1,0 +1,141 @@
+<div class="w-[92%] mx-auto h-full font-sans py-8">
+
+
+  <div class="flex flex-col md:flex-row gap-6 mb-12 w-full">
+
+
+    <div class="relative flex-1">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="applyFilter()"
+        placeholder="Search"
+        class="
+          w-full
+          bg-white
+          text-gray-800
+          ring-2 ring-[#9B1C1F]
+          rounded-2xl
+          pl-14 pr-6 py-4
+          text-lg
+          placeholder-gray-500
+          focus:outline-none focus:ring-4
+          transition-all duration-200
+        "
+      >
+
+      <span class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
+         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </span>
+    </div>
+
+    <button class="
+      flex items-center justify-between gap-4
+      px-8 py-4
+      border-2 border-[#9B1C1F]
+      rounded-2xl
+      text-lg font-bold text-[#9B1C1F]
+      bg-white
+      hover:bg-[#9B1C1F] hover:text-white
+      transition-colors duration-200
+      min-w-[180px] whitespace-nowrap
+      group
+    ">
+      <span>Sort by</span>
+      <svg class="w-5 h-5 text-[#9B1C1F] group-hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+    </button>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-12 w-full">
+
+
+    <aside class="w-full lg:w-64 shrink-0 space-y-10">
+      <div>
+        <h2 class="font-bold text-2xl mb-6 text-[#9B1C1F]">Filters</h2>
+      </div>
+
+
+      <div class="space-y-4">
+        <h3 class="font-bold text-xl text-gray-800 mb-3">Options</h3>
+          <label class="flex items-center gap-4 cursor-pointer group select-none">
+            <div class="relative w-6 h-6 border-2 border-[#9B1C1F] rounded-lg bg-white group-hover:bg-red-50 transition-colors flex items-center justify-center">
+              <input type="checkbox" class="peer absolute inset-0 w-full h-full appearance-none cursor-pointer">
+              <div class="w-full h-full bg-[#9B1C1F] rounded-[3px] opacity-0 peer-checked:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
+            </div>
+            <span class="text-lg text-gray-600 font-medium group-hover:text-[#9B1C1F] transition-colors">Label</span>
+          </label>
+      </div>
+    </aside>
+
+
+    <main class="flex-1 min-w-0">
+
+
+      <div class="w-full mb-12">
+        <div class="flex items-center justify-center gap-6 overflow-x-auto pb-6 no-scrollbar">
+
+
+          <button class="shrink-0 text-[#9B1C1F] p-3 hover:bg-red-50 rounded-full transition-colors">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>
+          </button>
+
+
+          @for(cat of categories; track cat.name) {
+            <div class="flex flex-col items-center gap-3 min-w-[100px] cursor-pointer group shrink-0">
+
+              <div class="
+                w-24 h-24
+                rounded-2xl
+                border-2 border-[#9B1C1F]
+                flex items-center justify-center
+                bg-white
+                group-hover:bg-[#9B1C1F]
+                transition-colors duration-200
+              ">
+                <span class="text-xl font-bold text-[#9B1C1F] group-hover:text-white uppercase transition-colors">
+                   {{ cat.name.substring(0,3) }}
+                 </span>
+              </div>
+
+
+              <span class="text-sm font-bold text-gray-700 group-hover:text-[#9B1C1F] capitalize transition-colors">
+                {{ cat.name }}
+              </span>
+            </div>
+          }
+
+          @if(categories.length === 0) {
+            <div class="text-gray-400 text-lg font-semibold">No categories found</div>
+          }
+
+
+          <button class="shrink-0 text-[#9B1C1F] p-3 hover:bg-red-50 rounded-full transition-colors">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
+      </div>
+
+
+      @if (isLoading) {
+        <div class="flex justify-center items-center py-20">
+          <div class="w-12 h-12 border-4 border-[#9B1C1F] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      }
+
+
+      @if (!isLoading && restaurants.length === 0) {
+        <div class="text-center py-20 border-2 border-dashed border-gray-200 rounded-[3rem]">
+          <p class="text-2xl text-gray-400 font-bold">No restaurants found.</p>
+        </div>
+      }
+
+
+      <div class="flex flex-col gap-8 w-full">
+        @for (rest of restaurants; track rest.id) {
+          <app-restaurant-card [restaurant]="rest"></app-restaurant-card>
+        }
+      </div>
+
+    </main>
+  </div>
+</div>

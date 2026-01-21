@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import {Navbar} from '../../../components/navbar/navbar';
-import { UserMap } from '../../../components/user-map/user-map';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-order',
   imports: [
-    Navbar,UserMap
+    Navbar, RouterOutlet
   ],
   templateUrl: './order.html',
   styleUrl: './order.css',

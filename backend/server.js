@@ -2,7 +2,11 @@ import express from "express";
 import cors from "cors";
 import pkg from "pg";
 import threadsRouter from './routes/threads.routes.js';
+
 import authRoutes from "./routes/auth.routes.js";
+
+import userRestaurantRoutes from './routes/userRestaurant.routes.js';
+
 import ownerMenuRoutes from './routes/ownerMenu.routes.js';
 import ownerProfileRoutes from './routes/ownerProfile.routes.js';
 
@@ -35,6 +39,9 @@ app.use("/api/threads", threadsRouter);
 
 app.use('/owner', ownerMenuRoutes);
 app.use('/owner', ownerProfileRoutes);
+
+
+app.use("/user-restaurants", userRestaurantRoutes);
 
 app.listen(3000, () => {
   console.log("Backend running on http://localhost:3000");

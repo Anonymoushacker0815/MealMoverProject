@@ -39,12 +39,24 @@ export const routes: Routes = [
   },
 
   { path: 'user', redirectTo: 'user/order', pathMatch: 'full' },
+
   {
     path: 'user/order',
-    loadComponent: () =>
-      import('./pages/user/order/order')
-        .then(m => m.Order),
+    loadComponent: () => import('./pages/user/order/order').then(m => m.Order),
+    children: [
+      {
+        path: '',
+        redirectTo: 'restaurants',
+        pathMatch: 'full'
+      },
+      {
+        path: 'restaurants',
+        loadComponent: () => import('./pages/user/restaurants/restaurants').then(m => m.RestaurantsPage),
+      },
+
+    ]
   },
+
   {
     path: 'user/loyalty',
     loadComponent: () =>
