@@ -17,5 +17,9 @@ export class RestaurantService {
     return this.http.get<any[]>(`${this.apiUrl}/categories`);
   }
 
+  getRestaurantMenu(id: number) {
+    return this.http.get<any>(`${this.apiUrl}/${id}/menu`);
+  }
+
 
 }

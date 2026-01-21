@@ -1,0 +1,80 @@
+<div
+  class="
+    group
+    flex
+    w-full
+    bg-white
+    rounded-[2.5rem]
+    ring-2 ring-[#9B1C1F]
+    hover:ring-4
+    transition-all duration-200
+    p-6
+    cursor-pointer
+  "
+  (click)="addToBasket()"
+>
+  <div
+    class="
+      w-24 h-24
+      rounded-2xl
+      bg-gray-50
+      border
+      border-gray-200
+      flex-shrink-0
+      mr-6
+    "
+  >
+  </div>
+
+  <div class="flex flex-col justify-between flex-1">
+
+    <div>
+      <div class="flex justify-between items-start">
+        <h4
+          class="
+            text-xl
+            font-bold
+            uppercase
+            tracking-wide
+            text-gray-800
+            group-hover:text-[#9B1C1F]
+            line-clamp-1
+          "
+        >
+          {{ dish.name }}
+        </h4>
+
+        <span class="font-bold text-[#9B1C1F] text-lg">
+          ${{ dish.price | number:'1.2-2' }}
+        </span>
+      </div>
+
+      <p class="text-sm text-gray-400 mt-2 line-clamp-2">
+        {{ dish.description }}
+      </p>
+    </div>
+
+    <div class="text-right mt-4">
+      <span
+        class="
+          inline-block
+          text-xs
+          font-bold
+          uppercase
+          tracking-wide
+          border
+          border-[#9B1C1F]
+          text-[#9B1C1F]
+          px-4
+          py-1.5
+          rounded-full
+          group-hover:bg-[#9B1C1F]
+          group-hover:text-white
+          transition-colors
+        "
+      >
+        Add +
+      </span>
+    </div>
+  </div>
+</div>

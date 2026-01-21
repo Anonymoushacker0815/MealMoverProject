@@ -1,0 +1,140 @@
+<div
+  class="
+    relative
+    sticky top-4
+    w-full
+    min-h-[500px]
+    bg-white
+    rounded-[2.5rem]
+    ring-2 ring-[#9B1C1F]
+    hover:ring-4
+    transition-all duration-200
+    flex flex-col
+    p-8
+  "
+>
+  <h2
+    class="
+      text-3xl
+      font-bold
+      text-[#9B1C1F]
+      uppercase
+      tracking-wide
+      text-center
+      mb-6
+    "
+  >
+    Basket
+  </h2>
+
+  <div class="flex-1 overflow-y-auto pr-2 space-y-4">
+
+    @if (cartService.cartItems().length === 0) {
+      <div class="text-center text-gray-400 font-bold uppercase mt-10">
+        Your basket is empty
+      </div>
+    }
+
+    @for (item of cartService.cartItems(); track item.id) {
+      <div
+        class="
+          relative
+          bg-gray-50
+          rounded-2xl
+          p-4
+          border
+          border-gray-200
+          group
+        "
+      >
+        <button
+          (click)="cartService.removeFromCart(item.id)"
+          class="
+            absolute
+            top-3
+            right-3
+            text-gray-400
+            hover:text-[#9B1C1F]
+          "
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <p class="font-bold text-gray-800 uppercase tracking-wide text-sm">
+          {{ item.name }}
+        </p>
+
+        <p class="text-sm font-bold text-[#9B1C1F] mt-1">
+          ${{ item.price }}
+        </p>
+
+        <div class="flex items-center gap-3 mt-3">
+          <button
+            (click)="cartService.updateQuantity(item.id, -1)"
+            class="
+              w-7 h-7
+              rounded-full
+              border
+              border-[#9B1C1F]
+              text-[#9B1C1F]
+              font-bold
+              hover:bg-[#9B1C1F]
+              hover:text-white
+              transition-colors
+            "
+          >
+            -
+          </button>
+
+          <span class="font-bold text-gray-800 w-6 text-center">
+            {{ item.quantity }}
+          </span>
+
+          <button
+            (click)="cartService.updateQuantity(item.id, 1)"
+            class="
+              w-7 h-7
+              rounded-full
+              border
+              border-[#9B1C1F]
+              text-[#9B1C1F]
+              font-bold
+              hover:bg-[#9B1C1F]
+              hover:text-white
+              transition-colors
+            "
+          >
+            +
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="pt-6 mt-6 border-t border-gray-200">
+    <button
+      (click)="checkout()"
+      [disabled]="cartService.cartItems().length === 0"
+      class="
+        w-full
+        py-4
+        rounded-2xl
+        font-bold
+        uppercase
+        tracking-wide
+        border-2
+        border-[#9B1C1F]
+        text-[#9B1C1F]
+        hover:bg-[#9B1C1F]
+        hover:text-white
+        transition-all
+        disabled:opacity-50
+        disabled:cursor-not-allowed
+      "
+    >
+      Checkout (${{ cartService.totalPrice()  }})
+    </button>
+  </div>
+</div>

@@ -51,8 +51,12 @@ export const routes: Routes = [
       },
       {
         path: 'restaurants',
-        loadComponent: () => import('./pages/user/restaurants/restaurants').then(m => m.RestaurantsPage),
+        loadComponent: () => import('./pages/user/restaurants/restaurants').then(m => m.Restaurants),
       },
+      {
+        path: 'menu/:id',
+        loadComponent: () => import('./pages/user/menu/menu').then(m => m.Menu),
+      }
 
     ]
   },

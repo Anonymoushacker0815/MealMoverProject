@@ -10,7 +10,7 @@ import { RestaurantCard } from '../../../components/restaurant-card/restaurant-c
   imports: [CommonModule, FormsModule, RestaurantCard],
   templateUrl: './restaurants.html'
 })
-export class RestaurantsPage implements OnInit {
+export class Restaurants implements OnInit {
   private restaurantService = inject(RestaurantService);
   private cdr = inject(ChangeDetectorRef);
 
