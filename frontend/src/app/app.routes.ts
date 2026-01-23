@@ -9,7 +9,34 @@ import {Account} from './pages/account/account';
 export const routes: Routes = [
   { path: '', component: Home },
   { path: 'authentication', component: Authentication },
-  { path: 'manager', component: Manager },
+
+  { path: 'manager', redirectTo: 'manager/dashboard', pathMatch: 'full' },
+  //{ path: 'manager/dashboard', component: Manager },
+
+  {
+    path: 'manager/dashboard',
+    loadComponent: () =>
+      import('./pages/manager/dashboard/dashboard')
+        .then(m => m.ManagerDashboard)
+  },
+  { 
+    path: 'manager/moderation', 
+    loadComponent: () =>
+      import('./pages/manager/moderation/moderation')
+        .then(m => m.ManagerModeration)
+  },
+  { 
+    path: 'manager/report', 
+    loadComponent: () =>
+      import('./pages/manager/report/report')
+        .then(m => m.ManagerReport)
+  },
+  { 
+    path: 'manager/settings', 
+    loadComponent: () =>
+      import('./pages/manager/settings/settings')
+        .then(m => m.ManagerSettings)
+  },
 
   { path: 'owner', redirectTo: 'owner/orders', pathMatch: 'full' },
 

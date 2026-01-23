@@ -6,6 +6,6 @@ import { Component } from '@angular/core';
   templateUrl: './moderation.html',
   styleUrl: './moderation.css',
 })
-export class Moderation {
+export class ManagerModeration {
 
 }
