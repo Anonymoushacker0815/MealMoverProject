@@ -111,5 +111,47 @@ router.get("/:id/menu", async (req, res) => {
 });
 
 
+router.post("/order", async (req, res) => {
+    console.log("Request Body:", JSON.stringify(req.body, null, 2));
+
+    const { customerId, restaurantId, price, items } = req.body;
+
+    if (!items || items.length === 0) {
+        console.log("Order failed: Cart is empty");
+        return res.status(400).json({ error: "Cart is empty" });
+    }
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+
+        const orderQuery = `
+            INSERT INTO orders (customer_id, restaurant_id, status_id, price)
+            VALUES ($1, $2, 1, $3)
+                RETURNING id
+        `;
+        const orderResult = await client.query(orderQuery, [customerId, restaurantId, price]);
+        const newOrderId = orderResult.rows[0].id;
+
+        const dishQuery = `
+            INSERT INTO o_dishes (order_id, dish_id, ammount)
+            VALUES ($1, $2, $3)
+        `;
+        for (const item of items) {
+            await client.query(dishQuery, [newOrderId, item.id, item.quantity]);
+        }
+        await client.query('COMMIT');
+        res.status(201).json({ message: "Order placed successfully", orderId: newOrderId });
+
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error("Error placing order:", err);
+        res.status(500).json({ error: "Server error processing order" });
+    } finally {
+        client.release();
+    }
+});
+
 
 export default router;

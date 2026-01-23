@@ -156,7 +156,7 @@
           </div>
 
           <div class="space-y-4">
-            @for (item of category.items; track item.id) {
+            @for (item of $any(category.items ?? []); track item.id) {
               <app-menu-item [dish]="item"></app-menu-item>
             }
           </div>
@@ -167,7 +167,7 @@
 
     <!-- Basket -->
     <div class="lg:col-span-3">
-      <app-basket></app-basket>
+      <app-basket [restaurantId]="currentRestaurantId"></app-basket>
     </div>
 
   </div>
