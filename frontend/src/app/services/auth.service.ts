@@ -21,6 +21,7 @@ export class AuthService {
   }
 
   login(token: string) {
+    localStorage.removeItem('orderLastRoute');
     localStorage.setItem('token', token);
     this.currentUser.set(this.decodeToken(token));
     this.isLoggedIn.set(true);
@@ -28,6 +29,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('orderLastRoute');
     this.currentUser.set(null);
     this.isLoggedIn.set(false);
   }
