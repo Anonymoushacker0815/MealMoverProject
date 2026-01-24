@@ -46,7 +46,7 @@ export class Authentication {
       return;
     }
     if (userType === 'Customer') {
-      this.router.navigate(['/user/orders']);
+      this.router.navigate(['/user/order']);
       return;
     }
       this.router.navigate(['/account']);
