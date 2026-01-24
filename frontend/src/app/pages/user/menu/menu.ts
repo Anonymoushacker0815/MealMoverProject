@@ -23,12 +23,15 @@ export class Menu implements OnInit {
   menuCategories: any[] = [];
   filteredCategories: any[] = [];
 
+  currentRestaurantId!: number;
+
   searchQuery = '';
   selectedCategoryFilter = '';
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+      this.currentRestaurantId = Number(id);
       this.loadMenu(Number(id));
     }
   }
