@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import {Component, OnInit, inject, ChangeDetectorRef, OnDestroy} from '@angular/core';
 import { CommonModule,Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { RestaurantService } from '../../../services/restaurant.service';
 import { MenuItemComponent } from '../../../components/menu-item/menu-item';
+import { CartService } from '../../../services/cart.service';
 import { BasketComponent } from '../../../components/basket/basket';
 
 @Component({
@@ -13,9 +14,11 @@ import { BasketComponent } from '../../../components/basket/basket';
   imports: [CommonModule, FormsModule, MenuItemComponent, BasketComponent],
   templateUrl: './menu.html'
 })
-export class Menu implements OnInit {
+export class Menu implements OnInit,OnDestroy {
+
   private route = inject(ActivatedRoute);
   private restaurantService = inject(RestaurantService);
+  private cartService = inject(CartService);
   private cdr = inject(ChangeDetectorRef);
   private location = inject(Location);
 
@@ -35,6 +38,11 @@ export class Menu implements OnInit {
       this.loadMenu(Number(id));
     }
   }
+
+  ngOnDestroy(): void {
+    this.cartService.clearCart();
+  }
+
 
   loadMenu(id: number) {
     this.restaurantService.getRestaurantMenu(id).subscribe({
