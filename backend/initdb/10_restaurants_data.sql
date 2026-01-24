@@ -4,41 +4,52 @@ INSERT INTO r_status (name, description) VALUES
 ('Pending', 'To be accepted by the Admin'),
 ('Suspended', 'Restaurant violated terms of service');
 
-INSERT INTO restaurants (name, email, phone, delivery_zone, opening_hours, user_id, status_id) VALUES
-(
-  'SpeedEat',
-  'speed.eat@mail.com',
-  '95839682',
-  '3 km radius',
-  '{
-    "mon": {"label":"Mon","closed":false,"open":"09:00","close":"18:00"},
-    "tue": {"label":"Tue","closed":false,"open":"09:00","close":"18:00"},
-    "wed": {"label":"Wed","closed":false,"open":"09:00","close":"18:00"},
-    "thu": {"label":"Thu","closed":false,"open":"09:00","close":"18:00"},
-    "fri": {"label":"Fri","closed":false,"open":"09:00","close":"20:00"},
-    "sat": {"label":"Sat","closed":false,"open":"10:00","close":"20:00"},
-    "sun": {"label":"Sun","closed":true,"open":"00:00","close":"00:00"}
-  }'::jsonb,
-  4,
-  2
-),
-(
-  'Gimme Foods',
-  'gimme.foods@email.com',
-  '8533455',
-  '5 km radius',
-  '{
-    "mon": {"label":"Mon","closed":false,"open":"10:00","close":"18:00"},
-    "tue": {"label":"Tue","closed":false,"open":"10:00","close":"18:00"},
-    "wed": {"label":"Wed","closed":false,"open":"10:00","close":"18:00"},
-    "thu": {"label":"Thu","closed":false,"open":"10:00","close":"18:00"},
-    "fri": {"label":"Fri","closed":false,"open":"10:00","close":"20:00"},
-    "sat": {"label":"Sat","closed":false,"open":"12:00","close":"20:00"},
-    "sun": {"label":"Sun","closed":true,"open":"00:00","close":"00:00"}
-  }'::jsonb,
-  5,
-  1
-);
+INSERT INTO restaurants (
+    name,
+    email,
+    phone,
+    delivery_zone,
+    opening_hours,
+    user_id,
+    status_id,
+    location
+) VALUES
+      (
+          'SpeedEat',
+          'speed.eat@mail.com',
+          '95839682',
+          '3 km radius',
+          '{
+            "mon": {"label":"Mon","closed":false,"open":"09:00","close":"18:00"},
+            "tue": {"label":"Tue","closed":false,"open":"09:00","close":"18:00"},
+            "wed": {"label":"Wed","closed":false,"open":"09:00","close":"18:00"},
+            "thu": {"label":"Thu","closed":false,"open":"09:00","close":"18:00"},
+            "fri": {"label":"Fri","closed":false,"open":"09:00","close":"20:00"},
+            "sat": {"label":"Sat","closed":false,"open":"10:00","close":"20:00"},
+            "sun": {"label":"Sun","closed":true,"open":"00:00","close":"00:00"}
+          }'::jsonb,
+          4,
+          2,
+          '{"type":"Point","coordinates":[14.299591003901329,46.62504993899363]}'
+      ),
+      (
+          'Gimme Foods',
+          'gimme.foods@email.com',
+          '8533455',
+          '5 km radius',
+          '{
+            "mon": {"label":"Mon","closed":false,"open":"10:00","close":"18:00"},
+            "tue": {"label":"Tue","closed":false,"open":"10:00","close":"18:00"},
+            "wed": {"label":"Wed","closed":false,"open":"10:00","close":"18:00"},
+            "thu": {"label":"Thu","closed":false,"open":"10:00","close":"18:00"},
+            "fri": {"label":"Fri","closed":false,"open":"10:00","close":"20:00"},
+            "sat": {"label":"Sat","closed":false,"open":"12:00","close":"20:00"},
+            "sun": {"label":"Sun","closed":true,"open":"00:00","close":"00:00"}
+          }'::jsonb,
+          5,
+          1,
+          '{"type":"Point","coordinates":[14.295221891287628,46.602274114923205]}'
+      );
 
 
 INSERT INTO categories (name, description, restaurant_id) VALUES
