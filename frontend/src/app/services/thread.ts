@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, map, Subject } from 'rxjs';
 import { Thread } from '../types/thread';
 import { ThreadApi } from '../types/thread-api';
@@ -17,10 +17,16 @@ export class ThreadService {
 
   constructor(private http: HttpClient) {}
 
+  private getAuthHeaders(): { headers?: HttpHeaders } {
+    const token = localStorage.getItem('token');
+    if (!token) return {};
+    return { headers: new HttpHeaders({ Authorization: token }) };
+  }
+
   triggerRefresh() {
     this.refreshSubject.next();
   }
-  // GET all threads
+
   getThreads(): Observable<Thread[]> {
     return this.http.get<ThreadApi[]>(this.apiUrl).pipe(
       map((threads) =>
@@ -29,7 +35,6 @@ export class ThreadService {
     );
   }
 
-  // POST new thread
   createThread(data: {
     title: string;
     content: string;
@@ -39,7 +44,6 @@ export class ThreadService {
       .pipe(map((api) => this.mapApiToThread(api)));
   }
 
-  // Mapper 
   private mapApiToThread(api: ThreadApi): Thread {
     return {
       id: api.id,
@@ -67,6 +71,17 @@ export class ThreadService {
       .pipe(
         map((api) => (api ? this.mapApiToThread(api) : null))
       );
+  }
+
+  reportThread(id: string, reason: string | null) {
+    const cleaned =
+      typeof reason === 'string' && reason.trim().length > 0 ? reason.trim() : null;
+
+    return this.http.post<any>(
+      `${this.apiUrl}/${id}/report`,
+      { reason: cleaned },
+      this.getAuthHeaders()
+    );
   }
 
   getThread(id: string): Observable<Thread> {

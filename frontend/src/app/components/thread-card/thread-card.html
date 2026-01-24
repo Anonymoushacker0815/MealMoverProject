@@ -36,6 +36,7 @@
     <button
       (click)="report.emit(thread)"
       class="ml-auto text-red-500 hover:underline"
+      [disabled]="!isLoggedIn()"
     >
       Report
     </button>

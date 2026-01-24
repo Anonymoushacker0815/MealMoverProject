@@ -5,6 +5,7 @@ import { config } from "../config.js";
 
 const JWT_SECRET = config.JWT_SECRET;
 const router = express.Router();
+router.use(express.json());
 
 
 const authenticateToken = (req, res, next) => {
@@ -77,6 +78,33 @@ router.post('/', authenticateToken, async (req, res) => {
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'DB error' });
+  }
+});
+
+/*
+ POST /api/threads/:id/report
+ body: { reason?: string }
+*/
+router.post('/:id/report', authenticateToken, async (req, res) => {
+  const threadId = req.params.id;
+  const reporterId = req.user.id;
+  const reason = req.body?.reason ?? null;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO moderation_thread_reports (thread_id, reporter_id, reason, status, created_at)
+       VALUES ($1, $2, $3, 'open', NOW())
+       RETURNING *`,
+      [threadId, reporterId, reason]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    if (err?.code === '23505') {
+      return res.status(409).json({ error: 'Already reported' });
+    }
     console.error(err);
     res.status(500).json({ error: 'DB error' });
   }

@@ -1,5 +1,5 @@
 INSERT INTO settings (id, delivery_distance, discount, service_fee) VALUES
-(10, 3, 13.50);
+(10, 3, 13.50, 0);
 --percent for percent discounts like 5%
 --and amount for fixed amounts like 10€
 INSERT INTO discount_codes (code, percent, amount) VALUES

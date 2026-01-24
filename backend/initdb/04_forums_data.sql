@@ -46,3 +46,20 @@ VALUES
   'lisa',
   (SELECT id FROM users WHERE username = 'lisa' LIMIT 1)
 );
+
+INSERT INTO moderation_thread_reports (thread_id, reporter_id, reason, status, created_at)
+VALUES
+(
+  (SELECT id FROM threads WHERE title = 'Best Meal Prep for Office?' LIMIT 1),
+  (SELECT id FROM users WHERE username = 'lisa' LIMIT 1),
+  'Spam / off-topic',
+  'open',
+  NOW()
+),
+(
+  (SELECT id FROM threads WHERE title = 'High protein vegan meals' LIMIT 1),
+  (SELECT id FROM users WHERE username = 'george' LIMIT 1),
+  'Harassment / inappropriate language',
+  'open',
+  NOW()
+);

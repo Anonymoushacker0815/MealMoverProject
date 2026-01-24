@@ -50,3 +50,21 @@ ALTER TABLE replies
   ADD CONSTRAINT fk_replies_author
   FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL;
 
+CREATE TABLE IF NOT EXISTS moderation_thread_reports (
+  id serial PRIMARY KEY,
+  thread_id int NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
+  reporter_id int NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  reason text,
+  status varchar(20) NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'reviewed', 'dismissed', 'actioned')),
+  created_at timestamp DEFAULT NOW(),
+  reviewed_at timestamp,
+  reviewed_by int REFERENCES users(id) ON DELETE SET NULL,
+  resolution_note text
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_moderation_thread_reports_reporter_thread
+  ON moderation_thread_reports(reporter_id, thread_id);
+
+CREATE INDEX IF NOT EXISTS idx_moderation_thread_reports_status_created
+  ON moderation_thread_reports(status, created_at DESC);
+

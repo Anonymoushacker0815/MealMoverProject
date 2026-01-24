@@ -1,12 +1,11 @@
 import express from "express";
 import cors from "cors";
 import pkg from "pg";
+
 import threadsRouter from './routes/threads.routes.js';
-
+import moderationRouter from './routes/moderation.routes.js';
 import authRoutes from "./routes/auth.routes.js";
-
 import userRestaurantRoutes from './routes/userRestaurant.routes.js';
-
 import ownerMenuRoutes from './routes/ownerMenu.routes.js';
 import ownerProfileRoutes from './routes/ownerProfile.routes.js';
 import accountRouter from "./routes/account.routes.js";
@@ -38,7 +37,7 @@ app.get("/health", (req, res) => {
 app.use("/", authRoutes);
 
 app.use("/api/threads", threadsRouter);
-
+app.use("/moderation", moderationRouter);
 app.use('/owner', ownerMenuRoutes);
 app.use('/owner', ownerProfileRoutes);
 app.use("/", accountRouter);
