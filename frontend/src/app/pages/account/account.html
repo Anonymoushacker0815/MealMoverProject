@@ -1,25 +1,268 @@
-<main class="flex flex-col items-center justify-center gap-6 min-h-[70vh]">
+<!-- Seiten-Container -->
+<main class="flex flex-col items-center justify-center gap-6 min-h-[70vh] px-6 py-6">
 
+  <!-- Account Card -->
+  <div class="w-full max-w-3xl border border-gray-300 rounded-2xl overflow-hidden shadow-sm bg-white">
 
-  <div class="text-center">
-    <h1 class="text-2xl font-semibold mb-4">Account</h1>
+    <!-- Header mit Titel & Aktionen -->
+    <div class="bg-[#9B1C1F] text-white px-5 py-3 flex justify-between items-center">
 
-    @if (user()) {
-      <p>Email: {{ user().email }}</p>
-      <p>Role: {{ user().user_type }}</p>
-      <p>ID: {{ user().id }}</p>
-    } @else {
-      <p>Loading...</p>
-    }
+      <!-- Titel & Status -->
+      <div class="flex items-center gap-3">
+        <span class="font-semibold text-lg">Account</span>
+
+        <!-- Edit-Status Anzeige -->
+        @if (isEditing) {
+          <span class="text-xs px-3 py-1 rounded-full bg-white/10 border border-white/70">
+            Editing…
+          </span>
+        }
+      </div>
+
+      <!-- Header Buttons -->
+      <div class="flex gap-2">
+
+        <!-- Edit Button -->
+        @if (!isEditing) {
+          <button
+            type="button"
+            (click)="startEdit()"
+            class="px-4 py-2 rounded-xl border border-white/70 bg-white/10 hover:bg-white hover:text-[#9B1C1F] transition"
+          >
+            Edit
+          </button>
+        }
+
+        <!-- Save / Cancel Buttons -->
+        @else {
+          <button
+            type="button"
+            (click)="saveProfile()"
+            class="px-4 py-2 rounded-xl bg-white text-[#9B1C1F] font-semibold hover:opacity-95 transition"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            (click)="cancelEdit()"
+            class="px-4 py-2 rounded-xl border border-white/70 bg-white/10 hover:bg-white hover:text-[#9B1C1F] transition"
+          >
+            Cancel
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Hauptinhalt -->
+    <div class="p-6 space-y-6">
+
+      @if (user) {
+
+        <!-- Ansicht: Profil anzeigen -->
+        @if (!isEditing) {
+
+          <!-- Benutzerinformationen -->
+          <div class="space-y-2 text-center">
+            <p><span class="font-semibold">Email:</span> {{ user.email }}</p>
+            <p><span class="font-semibold">Username:</span> {{ user.username }}</p>
+            <p><span class="font-semibold">Role:</span> {{ user.user_type }}</p>
+            <p><span class="font-semibold">ID:</span> {{ user.id }}</p>
+
+            <!-- Adresse -->
+            <div class="pt-2 text-sm text-gray-600">
+              <span class="font-semibold">Location:</span>
+
+              @if (isAddressLoading) {
+                <span class="italic">Loading address…</span>
+              } @else {
+                @if (addressLabel) {
+                  {{ addressLabel }}
+                } @else {
+                  -
+                }
+              }
+            </div>
+          </div>
+
+          <!-- Aktionen -->
+          <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+
+            <!-- Passwort ändern -->
+            <button
+              type="button"
+              (click)="togglePasswordChange()"
+              class="px-6 py-3 rounded-xl border-2 border-[#9B1C1F] text-[#9B1C1F]
+                     font-semibold bg-white hover:bg-[#9B1C1F] hover:text-white transition"
+            >
+              Change Password
+            </button>
+
+            <!-- Logout -->
+            <button
+              type="button"
+              (click)="doLogout()"
+              class="px-6 py-3 rounded-xl bg-[#9B1C1F] text-white font-semibold hover:bg-red-700 transition"
+            >
+              Log Out
+            </button>
+          </div>
+
+          <!-- Passwort-Änderung -->
+          @if (isChangingPassword) {
+
+            <div class="border border-gray-200 rounded-2xl p-5 bg-gray-50 space-y-4">
+
+              <h2 class="text-lg font-semibold text-gray-900">Change Password</h2>
+
+              <!-- Aktuelles Passwort -->
+              <input
+                type="password"
+                placeholder="Current password"
+                [(ngModel)]="pw.currentPassword"
+                class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white
+                       focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
+                       focus:outline-none transition"
+              />
+
+              <!-- Neues Passwort -->
+              <input
+                type="password"
+                placeholder="New password"
+                [(ngModel)]="pw.newPassword"
+                class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white
+                       focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
+                       focus:outline-none transition"
+              />
+
+              <!-- Neues Passwort bestätigen -->
+              <input
+                type="password"
+                placeholder="Confirm new password"
+                [(ngModel)]="pw.confirmNewPassword"
+                class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white
+                       focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
+                       focus:outline-none transition"
+              />
+
+              <!-- Passwort-Buttons -->
+              <div class="flex gap-3">
+                <button
+                  type="button"
+                  (click)="changePassword()"
+                  class="flex-1 px-4 py-3 rounded-xl bg-[#9B1C1F] text-white font-semibold hover:bg-red-700 transition"
+                >
+                  Save Password
+                </button>
+
+                <button
+                  type="button"
+                  (click)="togglePasswordChange()"
+                  class="px-4 py-3 rounded-xl border border-gray-300 bg-white hover:bg-gray-100 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- Ansicht: Profil bearbeiten -->
+        @if (isEditing) {
+
+          <div class="space-y-5">
+
+            <!-- Email bearbeiten -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+              <div class="text-sm font-semibold text-gray-700">Email</div>
+              <div class="sm:col-span-2">
+                <input
+                  type="email"
+                  [(ngModel)]="edit.email"
+                  class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white
+                         focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
+                         focus:outline-none transition"
+                />
+              </div>
+            </div>
+
+            <!-- Username bearbeiten -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+              <div class="text-sm font-semibold text-gray-700">Username</div>
+              <div class="sm:col-span-2">
+                <input
+                  type="text"
+                  [(ngModel)]="edit.username"
+                  class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white
+                         focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
+                         focus:outline-none transition"
+                />
+              </div>
+            </div>
+
+            <!-- Location bearbeiten -->
+            <div class="border border-gray-200 rounded-2xl p-5 bg-gray-50 space-y-3">
+
+              <!-- Location Header -->
+              <div class="flex items-center justify-between gap-4">
+                <h2 class="text-lg font-semibold text-gray-900">Location</h2>
+
+                <!-- Aktuelle Adresse -->
+                <div class="text-sm text-gray-600 text-right">
+                  @if (isAddressLoading) {
+                    <span class="italic">Loading address…</span>
+                  } @else {
+                    @if (addressLabel) {
+                      {{ addressLabel }}
+                    } @else {
+                      -
+                    }
+                  }
+
+                  <!-- Koordinaten -->
+                  @if (edit.location) {
+                    <div class="text-xs text-gray-400">
+                      ({{ edit.location.coordinates[1] }}, {{ edit.location.coordinates[0] }})
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Hinweis -->
+              <p class="text-sm text-gray-600">
+                Click on the map to update your location.
+              </p>
+
+              <!-- Karten-Component -->
+              <app-user-map
+                mode="picker"
+                (locationSelected)="onLocationSelected($event)"
+              ></app-user-map>
+
+              <!-- Location gesetzt -->
+              @if (edit.location) {
+                <p class="text-sm font-semibold text-[#9B1C1F]">Location set.</p>
+              }
+            </div>
+
+            <!-- Logout im Edit-Modus -->
+            <div class="flex justify-center pt-2">
+              <button
+                type="button"
+                (click)="doLogout()"
+                class="w-48 px-6 py-3 rounded bg-[#9B1C1F] text-white font-semibold hover:bg-red-700 transition"
+              >
+                Log Out
+              </button>
+            </div>
+
+          </div>
+        }
+
+      } @else {
+        <!-- Ladeanzeige -->
+        <p class="text-center text-gray-600">Loading...</p>
+      }
+
+    </div>
   </div>
-
-  @if (user()) {
-    <button
-      (click)="doLogout()"
-      class="w-48 px-6 py-3 rounded bg-[#9B1C1F] text-white font-semibold hover:bg-red-700 transition"
-    >
-      Log Out
-    </button>
-  }
-
 </main>
