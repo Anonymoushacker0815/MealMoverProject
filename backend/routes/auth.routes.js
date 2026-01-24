@@ -1,13 +1,13 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { config } from "../config.js";
 
+const JWT_SECRET = config.JWT_SECRET;
 
 import { pool } from '../db.js';
 
 const router = express.Router();
-
-const JWT_SECRET = "MealMover";
 
 // Generate Token
 const generateToken = (user) => {

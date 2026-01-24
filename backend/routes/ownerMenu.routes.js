@@ -1,10 +1,11 @@
 import express from "express";
 import { pool } from "../db.js";
 import jwt from "jsonwebtoken";
+import { config } from "../config.js";
+
+const JWT_SECRET = config.JWT_SECRET;
 
 const router = express.Router();
-
-const JWT_SECRET = "MealMover";
 
 // Middleware
 const authenticateToken = (req, res, next) => {

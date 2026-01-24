@@ -1,9 +1,11 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import { pool } from "../db.js";
+import { config } from "../config.js";
+
+const JWT_SECRET = config.JWT_SECRET;
 
 const router = express.Router();
-const JWT_SECRET = "MealMover";
 
 // Middleware: Bearer Token akzeptieren
 const authenticateToken = (req, res, next) => {

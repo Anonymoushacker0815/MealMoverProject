@@ -8,10 +8,11 @@ import jwt from "jsonwebtoken";
 // Database
 import { pool } from "../db.js";
 
-const router = express.Router();
+import { config } from "../config.js";
 
-// JWT Secret
-const JWT_SECRET = "MealMover";
+const JWT_SECRET = config.JWT_SECRET;
+
+const router = express.Router();
 
 // Token-Authentifizierung (Authorization: <token>)
 const authenticateToken = (req, res, next) => {

@@ -90,9 +90,14 @@ router.post('/', authenticateToken, async (req, res) => {
 router.post('/:id/report', authenticateToken, async (req, res) => {
   const threadId = req.params.id;
   const reporterId = req.user.id;
-  const reason = req.body?.reason ?? null;
+  const rawReason = req.body?.reason;
+  const reason =
+    typeof rawReason === 'string' && rawReason.trim().length > 0
+      ? rawReason.trim()
+      : null;
 
   try {
+    console.log('REPORT req.body =', req.body);
     const result = await pool.query(
       `INSERT INTO moderation_thread_reports (thread_id, reporter_id, reason, status, created_at)
        VALUES ($1, $2, $3, 'open', NOW())
@@ -103,7 +108,10 @@ router.post('/:id/report', authenticateToken, async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     if (err?.code === '23505') {
-      return res.status(409).json({ error: 'Already reported' });
+      if (err?.constraint === 'uq_moderation_thread_reports_reporter_thread') {
+        return res.status(409).json({ error: 'Already reported by this user' });
+      }
+      return res.status(409).json({ error: 'Duplicate report' });
     }
     console.error(err);
     res.status(500).json({ error: 'DB error' });
