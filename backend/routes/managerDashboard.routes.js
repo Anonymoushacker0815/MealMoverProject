@@ -13,7 +13,7 @@ router.get("/income", async (req, res) => {
         
         const result = await pool.query(query);
         res.json(result.rows);
-    } catch {
+    } catch (err) {
         console.error("Error fetching income: ", err);
         res.json(500).json({ error: "Server Error "});
     }
@@ -31,7 +31,7 @@ router.get("/usercount", async (req, res) => {
 
         const result = await pool.query(query);
         res.json(result.rows);
-    } catch {
+    } catch (err) {
         console.error("Error fetching user count: ", err);
         res.status(500).json({ error: "Server Error" });
     }
@@ -41,7 +41,7 @@ router.get("/usercount", async (req, res) => {
 router.get("/pendingRegistrations", async (req, res) => {
     try { 
         const query = `
-        SELECT r.name, r.email
+        SELECT r.name, r.email, r.phone
         FROM restaurants r
         LEFT JOIN r_status s ON r.status_id = s.id
         WHERE s.name = 'Pending'
@@ -49,7 +49,7 @@ router.get("/pendingRegistrations", async (req, res) => {
 
         const result = await pool.query(query);
         res.json(result.rows);
-    } catch {
+    } catch (err) {
         console.error("Error fetching oending registrations: ", err);
         res.status(500).json({ error: "Server Error" });
     }
@@ -68,6 +68,24 @@ router.get("/orders", async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         console.error("Error fetching order counts: ", err);
-        res.status(500).json({ error: "Server Error"});
+        res.status(500).json({ error: "Server Error" });
     }
 });
+
+//all restaurants
+router.get("/restaurants", async (req, res) => {
+    try {
+        const query = `
+        SELECT r.id, r.name, r.email, r.phone, delivery_zone, opening_hours, s.name
+        FROM restaurants r
+        LEFT JOIN r_status s ON r.status_id = s.id;
+        `;
+
+        const result = await pool.query(query);
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Error fetching restaurants: ", err);
+        res.status(500).json({ error: "Server Error" });
+    }
+});
+
