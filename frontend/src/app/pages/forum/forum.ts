@@ -121,11 +121,13 @@ export class Forum implements OnInit {
         this.isSubmittingReport = false;
         this.isReportModalOpen = false;
         this.reportTarget = null;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isSubmittingReport = false;
         if (err?.status === 409) {
           this.reportErrorMsg = 'You already reported this thread.';
+          this.cdr.detectChanges();
           return;
         }
         console.error('Report failed', err);
