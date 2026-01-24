@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
@@ -17,6 +17,8 @@ export class BasketComponent {
 
   @Input() restaurantId!: number;
   @Input() isSummary = false;
+
+  @Output() orderPlaced = new EventEmitter<number>();
 
   isSubmitting = false;
 
@@ -51,8 +53,10 @@ export class BasketComponent {
     this.cartService.placeOrder(user.id, this.restaurantId).subscribe({
       next: (response) => {
         console.log('Order created:', response);
-        alert(`Order placed successfully! ID: ${response.orderId}`);
+        this.cartService.clearCart();
         this.isSubmitting = false;
+
+        this.orderPlaced.emit(response.orderId);
       },
       error: (error) => {
         console.error('Checkout error:', error);

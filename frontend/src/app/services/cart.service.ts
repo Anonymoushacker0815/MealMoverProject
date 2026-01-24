@@ -69,6 +69,8 @@ export class CartService {
     );
   }
 
-
+  getOrderStatus(orderId: number) {
+    return this.http.get<any>(`${this.apiUrl}/status/${orderId}`);
+  }
 
 }

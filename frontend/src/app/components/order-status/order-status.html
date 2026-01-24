@@ -1,0 +1,70 @@
+<div class="mt-6 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+  <div class="flex justify-between items-center mb-6 border-b pb-4">
+    <h3 class="text-xl font-bold text-[#9B1C1F]">Order Status</h3>
+    <div class="text-right">
+      <span class="block text-xs text-gray-400">ORDER #{{orderId}}</span>
+      <span class="block text-xs text-gray-500">Updated: {{ lastUpdated() | date:'mediumTime' }}</span>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center p-4">
+      <span class="text-[#9B1C1F] font-bold animate-pulse">Loading status...</span>
+    </div>
+  } @else {
+    <div class="relative flex flex-col gap-0">
+
+      @for (step of steps; track step.key; let last = $last) {
+        <div class="flex gap-4 relative">
+
+
+          <div class="flex flex-col items-center">
+
+            <div
+              class="z-10 w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300"
+              [ngClass]="{
+                'bg-[#9B1C1F] border-[#9B1C1F] text-white': getStepClass(step.key) === 'completed' || getStepClass(step.key) === 'active',
+                'bg-white border-gray-300 text-gray-300': getStepClass(step.key) === 'pending'
+              }">
+
+              @if (getStepClass(step.key) === 'completed') {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              } @else if (getStepClass(step.key) === 'active') {
+                <div class="w-2.5 h-2.5 bg-white rounded-full animate-ping"></div>
+              } @else {
+                <span class="text-xs font-bold">{{ $index + 1 }}</span>
+              }
+            </div>
+
+
+            @if (!last) {
+              <div class="w-0.5 h-12 -my-1 bg-gray-200">
+                <div class="w-full bg-[#9B1C1F] transition-all duration-500"
+                     [style.height]="getStepClass(step.key) === 'completed' ? '100%' : '0%'">
+                </div>
+              </div>
+            }
+          </div>
+
+
+          <div class="pt-1 pb-8">
+            <p class="font-bold text-lg leading-none"
+               [ngClass]="{
+                 'text-[#9B1C1F]': getStepClass(step.key) === 'active',
+                 'text-gray-800': getStepClass(step.key) === 'completed',
+                 'text-gray-400': getStepClass(step.key) === 'pending'
+               }">
+              {{ step.label }}
+            </p>
+            @if (getStepClass(step.key) === 'active') {
+              <p class="text-sm text-gray-500 mt-1 animate-pulse">Processing...</p>
+            }
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+</div>

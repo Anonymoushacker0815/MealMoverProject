@@ -157,5 +157,41 @@ router.post("/order", async (req, res) => {
     }
 });
 
+router.get("/order/status/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = `
+            SELECT
+                o.id,
+                os.name as status,
+                o.delivery_time
+            FROM orders o
+                     JOIN o_status os ON o.status_id = os.id
+            WHERE o.id = $1
+        `;
+
+        const result = await pool.query(query, [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Order not found" });
+        }
+
+        const row = result.rows[0];
+
+        res.json({
+            success: true,
+            order: {
+                id: row.id,
+                status: row.status,
+                deliveryTime: row.delivery_time
+            }
+        });
+
+    } catch (err) {
+        console.error("Error fetching order status:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
 
 export default router;

@@ -1,21 +1,22 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core'; // Import this
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { RestaurantService } from '../../../services/restaurant.service';
 import { BasketComponent } from '../../../components/basket/basket';
 import { UserMap } from '../../../components/user-map/user-map';
+import { OrderStatusComponent } from '../../../components/order-status/order-status';
 
 @Component({
   selector: 'app-order-summary',
   standalone: true,
-  imports: [CommonModule, BasketComponent, UserMap],
+  imports: [CommonModule, BasketComponent, UserMap, OrderStatusComponent],
   templateUrl: './order-summary.html'
 })
 export class OrderSummary implements OnInit {
   private route = inject(ActivatedRoute);
   private restaurantService = inject(RestaurantService);
   private location = inject(Location);
-  private cdr = inject(ChangeDetectorRef); // Inject here
+  private cdr = inject(ChangeDetectorRef);
 
   restaurantId!: number;
   restaurant: any = null;
@@ -24,6 +25,7 @@ export class OrderSummary implements OnInit {
   loading = true;
   error = '';
 
+  activeOrderId: number | null = null;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('restaurantId');
@@ -31,6 +33,15 @@ export class OrderSummary implements OnInit {
       this.restaurantId = Number(id);
       this.loadData();
     }
+  }
+
+
+  onOrderSuccess(orderId: number) {
+    this.activeOrderId = orderId;
+    setTimeout(() => {
+      const el = document.getElementById('status-section');
+      if(el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   }
 
   handleDistance(meters: number) {
@@ -62,7 +73,6 @@ export class OrderSummary implements OnInit {
         }
 
         this.loading = false;
-        // Force the view to recognize the new data
         this.cdr.detectChanges();
       },
       error: (err) => {

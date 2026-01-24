@@ -1,4 +1,3 @@
-
 <div class="w-[92%] mx-auto py-8 font-sans">
 
   <div class="mb-6">
@@ -43,7 +42,19 @@
     </div>
 
     <div>
-      <app-basket [restaurantId]="restaurantId" [isSummary]="true"></app-basket>
+
+      <app-basket
+        [restaurantId]="restaurantId"
+        [isSummary]="true"
+        (orderPlaced)="onOrderSuccess($event)">
+      </app-basket>
+
+      @if (activeOrderId) {
+        <div id="status-section" class="fade-in-up">
+          <app-order-status [orderId]="activeOrderId"></app-order-status>
+        </div>
+      }
+
     </div>
 
   </div>
