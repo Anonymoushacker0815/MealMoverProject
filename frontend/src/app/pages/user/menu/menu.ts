@@ -1,4 +1,5 @@
 import {Component, OnInit, inject, ChangeDetectorRef, OnDestroy} from '@angular/core';
+import { Router,} from '@angular/router';
 import { CommonModule,Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +17,7 @@ import { BasketComponent } from '../../../components/basket/basket';
 })
 export class Menu implements OnInit,OnDestroy {
 
+  private router = inject(Router);
   private route = inject(ActivatedRoute);
   private restaurantService = inject(RestaurantService);
   private cartService = inject(CartService);
@@ -40,7 +42,10 @@ export class Menu implements OnInit,OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.cartService.clearCart();
+    const isGoingToSummary = this.router.url.includes('summary');
+    if (!isGoingToSummary) {
+      this.cartService.clearCart();
+    }
   }
 
 
