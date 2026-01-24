@@ -19,20 +19,20 @@ export const routes: Routes = [
       import('./pages/manager/dashboard/dashboard')
         .then(m => m.ManagerDashboard)
   },
-  { 
-    path: 'manager/moderation', 
+  {
+    path: 'manager/moderation',
     loadComponent: () =>
       import('./pages/manager/moderation/moderation')
         .then(m => m.ManagerModeration)
   },
-  { 
-    path: 'manager/report', 
+  {
+    path: 'manager/report',
     loadComponent: () =>
       import('./pages/manager/report/report')
         .then(m => m.ManagerReport)
   },
-  { 
-    path: 'manager/settings', 
+  {
+    path: 'manager/settings',
     loadComponent: () =>
       import('./pages/manager/settings/settings')
         .then(m => m.ManagerSettings)
@@ -83,6 +83,10 @@ export const routes: Routes = [
       {
         path: 'menu/:id',
         loadComponent: () => import('./pages/user/menu/menu').then(m => m.Menu),
+      },
+      {
+        path: 'summary/:restaurantId',
+        loadComponent: () => import('./pages/user/order-summary/order-summary').then(m => m.OrderSummary)
       }
 
     ]

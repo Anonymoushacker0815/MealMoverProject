@@ -10,6 +10,10 @@ router.get("/", async (req, res) => {
             SELECT
                 r.id,
                 r.name,
+                r.location,
+                r.email,
+                r.phone,
+                r.opening_hours,
                 r.delivery_zone,
                 COUNT(rev.id) as review_count,
                 COALESCE(AVG(rev.rating), 0)::numeric(10,1) as average_rating
@@ -51,7 +55,7 @@ router.get("/:id/menu", async (req, res) => {
     try {
 
         const restaurantQuery = `
-            SELECT id, name, delivery_zone, opening_hours 
+            SELECT id, name, location, delivery_zone, opening_hours 
             FROM restaurants WHERE id = $1
         `;
         const restResult = await pool.query(restaurantQuery, [id]);

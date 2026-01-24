@@ -16,13 +16,14 @@ export class BasketComponent {
   private router = inject(Router);
 
   @Input() restaurantId!: number;
+  @Input() isSummary = false;
 
   isSubmitting = false;
 
   get cartItems() { return this.cartService.cartItems; }
   get totalPrice() { return this.cartService.totalPrice; }
 
-  checkout() {
+  handleAction() {
     if (this.cartItems().length === 0) return;
 
     if (!this.authService.isLoggedIn()) {
@@ -30,6 +31,14 @@ export class BasketComponent {
       return;
     }
 
+    if (this.isSummary) {
+      this.placeOrder();
+    } else {
+      this.router.navigate(['/user/order/summary', this.restaurantId]);
+    }
+  }
+
+  private placeOrder() {
     const user = this.authService.currentUser();
 
     if (!user || !user.id) {

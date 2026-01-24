@@ -1,0 +1,50 @@
+
+<div class="w-[92%] mx-auto py-8 font-sans">
+
+  <div class="mb-6">
+    <button (click)="goBack()" class="flex items-center gap-2 text-[#9B1C1F] font-bold hover:underline">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+      </svg>
+      Back to Menu
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <div class="space-y-6">
+      <div>
+        @if (restaurantCoords) {
+          <app-user-map
+            [mode]="'route'"
+            [destination]="restaurantCoords">
+          </app-user-map>
+        } @else {
+          <div class="h-[500px] w-full bg-gray-100 rounded-2xl flex items-center justify-center border-2 border-[#9B1C1F]">
+            <span class="text-gray-400 font-bold">Loading Map Location...</span>
+          </div>
+        }
+      </div>
+
+      @if (restaurant) {
+        <div class="bg-red-50 p-6 rounded-2xl border border-red-100 flex items-start gap-4">
+          <div class="bg-[#9B1C1F] text-white p-2 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-gray-600 text-sm font-bold uppercase">Delivering From</p>
+            <h3 class="font-bold text-xl text-[#9B1C1F]">{{ restaurant.name }}</h3>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div>
+      <app-basket [restaurantId]="restaurantId" [isSummary]="true"></app-basket>
+    </div>
+
+  </div>
+</div>

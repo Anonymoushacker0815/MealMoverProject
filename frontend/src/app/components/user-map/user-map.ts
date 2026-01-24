@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, inject, signal, Input, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
@@ -12,34 +12,41 @@ import { MapService } from '../../services/map.service';
   templateUrl: './user-map.html',
   styleUrl: './user-map.css'
 })
-export class UserMap implements OnInit, OnDestroy {
+export class UserMap implements AfterViewInit, OnDestroy, OnChanges {
   private authService = inject(AuthService);
   private mapService = inject(MapService);
 
-
   @Input() mode: 'route' | 'picker' = 'route';
-
+  @Input() destination: { lat: number, lng: number } | null = null;
   @Output() locationSelected = new EventEmitter<{lat: number, lng: number, address: string, geojson: any}>();
 
   private map!: L.Map;
   private routeLayer: L.GeoJSON | null = null;
   private endMarker: L.CircleMarker | null = null;
-
-
   private startMarker: L.CircleMarker | null = null;
-
 
   private userLat: number = 46.6243;
   private userLng: number = 14.30547;
 
+  @Output() distanceChange = new EventEmitter<number>();
 
   searchQuery: string = '';
   routeInfo = signal<any>(null);
   errorMessage = signal<string>('');
   selectedAddress = signal<string>('');
 
-  ngOnInit() {
-    this.initMap();
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.initMap();
+    }, 100);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['destination'] && !changes['destination'].firstChange && this.destination && this.map) {
+      if (this.mode === 'route') {
+        this.drawRoute(this.userLat, this.userLng, this.destination.lat, this.destination.lng);
+      }
+    }
   }
 
   ngOnDestroy() {
@@ -49,8 +56,13 @@ export class UserMap implements OnInit, OnDestroy {
   }
 
   private initMap(): void {
-    const user = this.authService.currentUser();
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) {
+      console.error("Map container not found");
+      return;
+    }
 
+    const user = this.authService.currentUser();
     if (user && user.location) {
       const userCoords = this.mapService.extractCoords(user.location);
       if (userCoords) {
@@ -60,10 +72,12 @@ export class UserMap implements OnInit, OnDestroy {
     }
 
     this.map = L.map('map').setView([this.userLat, this.userLng], 13);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '©OpenStreetMap'
     }).addTo(this.map);
 
+    this.map.invalidateSize();
     if (this.mode === 'route') {
       this.initRouteMode();
     } else {
@@ -77,14 +91,13 @@ export class UserMap implements OnInit, OnDestroy {
       radius: 8, color: '#FFFFFF', weight: 3, fillColor: '#9B1C1F', fillOpacity: 1
     }).addTo(this.map).bindPopup("You are here");
 
-    this.mapService.getAddressFromPosition(this.userLat, this.userLng).subscribe(addr => {
-      this.startMarker?.setPopupContent(`<b>Start:</b><br>${addr}`);
-    });
-
-
-    this.map.on('click', (e: L.LeafletMouseEvent) => {
-      this.drawRoute(this.userLat, this.userLng, e.latlng.lat, e.latlng.lng);
-    });
+    if (this.destination) {
+      this.drawRoute(this.userLat, this.userLng, this.destination.lat, this.destination.lng);
+    } else {
+      this.map.on('click', (e: L.LeafletMouseEvent) => {
+        this.drawRoute(this.userLat, this.userLng, e.latlng.lat, e.latlng.lng);
+      });
+    }
   }
 
   private drawRoute(startLat: number, startLng: number, endLat: number, endLng: number) {
@@ -101,27 +114,20 @@ export class UserMap implements OnInit, OnDestroy {
         const route = data.routes[0];
 
         this.routeInfo.set({ distance: route.distance, duration: route.duration });
-
+        this.distanceChange.emit(route.distance);
 
         if (this.routeLayer) this.map.removeLayer(this.routeLayer);
         if (this.endMarker) this.map.removeLayer(this.endMarker);
 
-
         this.routeLayer = L.geoJSON(route.geometry, {
-          style: { color: '#9B1C1F', weight: 8, opacity: 1, lineCap: 'round' }
+          style: { color: '#9B1C1F', weight: 6, opacity: 0.8, lineCap: 'round' }
         }).addTo(this.map);
-
 
         this.endMarker = L.circleMarker([endLat, endLng], {
           radius: 8, color: '#FFFFFF', weight: 3, fillColor: '#9B1C1F', fillOpacity: 1
-        }).addTo(this.map).bindPopup("Loading address...");
+        }).addTo(this.map);
 
         this.map.fitBounds(this.routeLayer.getBounds(), { padding: [50, 50] });
-
-
-        this.mapService.getAddressFromPosition(endLat, endLng).subscribe(addr => {
-          this.endMarker?.setPopupContent(`<b>Destination:</b><br>${addr}`).openPopup();
-        });
       },
       error: (err) => {
         this.errorMessage.set('Routing unavailable.');
