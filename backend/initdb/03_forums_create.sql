@@ -28,5 +28,25 @@ CREATE TABLE IF NOT EXISTS replies (
   updated_at timestamp DEFAULT NOW()
 );
 
-CREATE INDEX idx_replies_thread_id_created_at
+CREATE INDEX IF NOT EXISTS idx_replies_thread_id_created_at
   ON replies(thread_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS thread_votes (
+  user_id   int NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  thread_id int NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
+  vote_type varchar(10) NOT NULL CHECK (vote_type IN ('like', 'dislike')),
+  created_at timestamp DEFAULT NOW(),
+  updated_at timestamp DEFAULT NOW(),
+  PRIMARY KEY (user_id, thread_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_thread_votes_thread_id ON thread_votes(thread_id);
+
+ALTER TABLE threads
+  ADD CONSTRAINT fk_threads_author
+  FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL;
+
+ALTER TABLE replies
+  ADD CONSTRAINT fk_replies_author
+  FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL;
+

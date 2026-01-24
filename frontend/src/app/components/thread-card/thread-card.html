@@ -25,11 +25,11 @@
 
   <!-- Actions -->
   <div class="flex gap-4 mt-4 text-sm items-center">
-    <button (click)="like.emit(thread)" class="hover:underline">
+    <button (click)="like.emit(thread)" class="hover:underline" [disabled]="!isLoggedIn()">
       👍 {{ thread.likes }}
     </button>
 
-    <button (click)="dislike.emit(thread)" class="hover:underline">
+    <button (click)="dislike.emit(thread)" class="hover:underline" [disabled]="!isLoggedIn()">
       👎 {{ thread.dislikes }}
     </button>
 

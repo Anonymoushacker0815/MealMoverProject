@@ -5,6 +5,7 @@ import { ThreadService } from '../../services/thread';
 import { Thread } from '../../types/thread';
 import { ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-forum',
@@ -19,8 +20,13 @@ export class Forum implements OnInit {
   constructor(
     private threadService: ThreadService,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private auth: AuthService
   ) {}
+
+  isLoggedIn() {
+    return this.auth.isLoggedIn();
+  }
 
   ngOnInit() {
     this.loadThreads();
@@ -38,45 +44,40 @@ export class Forum implements OnInit {
   }
 
   onLike(thread: Thread) {
-    // optimistic UI
-    const oldLikes = thread.likes;
-    thread.likes += 1;
-    this.cdr.detectChanges();
-
     this.threadService.likeThread(thread.id).subscribe({
       next: (updated) => {
         if (updated) {
           this.replaceThread(updated);
         }
-        this.threadService.triggerRefresh();
       },
       error: (err) => {
         console.error('Like failed', err);
-        thread.likes = oldLikes; 
-        this.cdr.detectChanges();
+        this.handleAuthError(err);
       },
     });
   }
 
   onDislike(thread: Thread) {
-    const oldDislikes = thread.dislikes;
-    thread.dislikes += 1;
-    this.cdr.detectChanges();
-
     this.threadService.dislikeThread(thread.id).subscribe({
       next: (updated) => {
         if (updated) {
           this.replaceThread(updated);
         }
-        this.threadService.triggerRefresh();
       },
       error: (err) => {
         console.error('Dislike failed', err);
-        thread.dislikes = oldDislikes;
-        this.cdr.detectChanges();
+        this.handleAuthError(err);
       },
     });
   }
+
+  private handleAuthError(err: any) {
+      if (err?.status === 401 || err?.status === 403) {
+        this.router.navigate(['/authentication']);
+        return true;
+      }
+      return false;
+    }
 
   private replaceThread(updated: Thread) {
     const idx = this.threads.findIndex(t => t.id === updated.id);

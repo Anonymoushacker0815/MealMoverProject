@@ -41,9 +41,15 @@ export class NewThreadComponent {
     this.threadService.createThread(this.threadForm.value).subscribe({
       next: () => {
         this.threadService.triggerRefresh();
+        this.isSubmitting = false;
         this.router.navigate(['/forum']);
       },
       error: (err) => {
+        if (err?.status === 401 || err?.status === 403) {
+          this.isSubmitting = false;
+          this.router.navigate(['/authentication']);
+          return;
+        }
         console.error('Failed to create thread', err);
         this.isSubmitting = false;
       },

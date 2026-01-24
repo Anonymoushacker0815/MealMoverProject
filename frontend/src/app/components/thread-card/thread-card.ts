@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Thread } from '../../types/thread';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-thread-card',
@@ -10,6 +11,11 @@ import { Thread } from '../../types/thread';
   styleUrl: './thread-card.css',
 })
 export class ThreadCardComponent {
+  private auth = inject(AuthService);
+
+  isLoggedIn() {
+    return this.auth.isLoggedIn();
+  }
   @Input({ required: true }) thread!: Thread;
 
   @Output() like = new EventEmitter<Thread>();

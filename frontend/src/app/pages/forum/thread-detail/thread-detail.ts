@@ -12,6 +12,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { ThreadService } from '../../../services/thread';
 import { Thread } from '../../../types/thread';
 import { Reply } from '../../../types/reply';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   standalone: true,
@@ -33,7 +34,8 @@ export class ThreadDetailComponent {
     private router: Router,
     private threadService: ThreadService,
     private fb: FormBuilder,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private auth: AuthService
   ) {
     this.threadId = this.route.snapshot.paramMap.get('id') ?? '';
 
@@ -48,8 +50,10 @@ export class ThreadDetailComponent {
   back() {
     this.router.navigate(['/forum']);
   }
+  isLoggedIn() {
+    return this.auth.isLoggedIn();
+  }
 
-  // Optional: Like/Dislike on the thread detail page
   onLike() {
     if (!this.thread) return;
 
@@ -68,6 +72,10 @@ export class ThreadDetailComponent {
         console.error('Like failed', err);
         if (this.thread) this.thread.likes = oldLikes;
         this.cdr.detectChanges();
+
+        if (err?.status === 401 || err?.status === 403) {
+          this.router.navigate(['/authentication']);
+        }
       },
     });
   }
@@ -90,11 +98,19 @@ export class ThreadDetailComponent {
         console.error('Dislike failed', err);
         if (this.thread) this.thread.dislikes = oldDislikes;
         this.cdr.detectChanges();
+
+        if (err?.status === 401 || err?.status === 403) {
+          this.router.navigate(['/authentication']);
+        }
       },
     });
   }
 
   submitReply() {
+    if (!this.isLoggedIn()) {
+      this.router.navigate(['/authentication']);
+      return;
+    }
     if (this.replyForm.invalid || this.isSubmitting) {
       this.replyForm.markAllAsTouched();
       return;
@@ -104,18 +120,21 @@ export class ThreadDetailComponent {
 
     const payload = {
       content: this.replyForm.value.content ?? '',
-      author_name: 'Anonymous', // später: aus Auth/User nehmen
     };
 
     this.threadService.createReply(this.threadId, payload).subscribe({
       next: (newReply) => {
-        // sofort oben anzeigen (weil backend auch DESC sortiert)
         this.replies = [newReply, ...this.replies];
         this.replyForm.reset();
         this.isSubmitting = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
+        if (err?.status === 401 || err?.status === 403) {
+          this.isSubmitting = false;
+          this.router.navigate(['/authentication']);
+          return;
+        }
         console.error('Failed to create reply', err);
         this.isSubmitting = false;
         this.cdr.detectChanges();

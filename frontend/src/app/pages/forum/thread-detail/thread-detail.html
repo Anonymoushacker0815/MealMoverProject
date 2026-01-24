@@ -16,7 +16,7 @@
           type="button"
           (click)="onLike()"
           class="px-3 py-1.5 rounded border bg-white text-sm hover:bg-gray-50"
-          [disabled]="!thread"
+          [disabled]="!thread || !isLoggedIn()"
         >
           Like <span *ngIf="thread">({{ thread.likes }})</span>
         </button>
@@ -25,7 +25,7 @@
           type="button"
           (click)="onDislike()"
           class="px-3 py-1.5 rounded border bg-white text-sm hover:bg-gray-50"
-          [disabled]="!thread"
+          [disabled]="!thread || !isLoggedIn()"
         >
           Dislike <span *ngIf="thread">({{ thread.dislikes }})</span>
         </button>
@@ -89,7 +89,7 @@
         <div class="flex justify-end">
           <button
             type="submit"
-            [disabled]="replyForm.invalid || isSubmitting"
+            [disabled]="!isLoggedIn() || replyForm.invalid || isSubmitting"
             class="px-4 py-2 bg-[#9B1C1F] text-white rounded text-sm font-medium disabled:opacity-50"
           >
             {{ isSubmitting ? 'Posting...' : 'Post Reply' }}
