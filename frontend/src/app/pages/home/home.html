@@ -1,22 +1,25 @@
-<main class="flex flex-col items-center justify-center gap-6 min-h-[70vh]">
-  <button
-    (click)="goManager()"
-    class="w-48 px-6 py-3 rounded bg-[#9B1C1F] text-white font-semibold hover:bg-red-700 transition"
-  >
-    Manager
-  </button>
+<main class="relative w-full h-screen overflow-hidden">
+  <!-- Background -->
+  <div
+    class="absolute inset-0 bg-no-repeat bg-left-top bg-cover"
+    style="background-image: url('/home.png');"
+    aria-hidden="true"
+  ></div>
 
-  <button
-    (click)="goUser()"
-    class="w-48 px-6 py-3 rounded bg-[#9B1C1F] text-white font-semibold hover:bg-red-700 transition"
-  >
-    User
-  </button>
-
-  <button
-    (click)="goOwner()"
-    class="w-48 px-6 py-3 rounded bg-[#9B1C1F] text-white font-semibold hover:bg-red-700 transition"
-  >
-    Owner
-  </button>
+  <!-- Text block -->
+  <div class="absolute top-10 left-0 p-10 sm:p-14 md:p-20">
+    <!-- readability layer (only under the left area) -->
+    <div>
+      <h1
+        class="font-extrabold tracking-tight text-white drop-shadow
+               leading-[0.92]
+               text-[clamp(4rem,7vw,9rem)]
+               max-w-[18ch]
+               whitespace-normal lg:whitespace-nowrap"
+      >
+        Feed the Hunger
+      </h1>
+    </div>
+  </div>
 </main>
+

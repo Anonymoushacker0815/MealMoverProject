@@ -8,18 +8,4 @@ import { Router } from '@angular/router';
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home {
-  constructor(private router: Router) {}
-
-  goManager() {
-    this.router.navigate(['/manager']);
-  }
-
-  goUser() {
-    this.router.navigate(['/user']);
-  }
-
-  goOwner() {
-    this.router.navigate(['/owner']);
-  }
-}
+export class Home {}
