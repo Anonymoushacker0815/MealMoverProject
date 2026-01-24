@@ -54,7 +54,7 @@ export class OwnerOrders implements OnInit {
     this.loadOrders();
   }
 
-  // Authorization Header (ohne Bearer)
+  // Authorization Header
   private headers() {
     const token = localStorage.getItem('token') ?? '';
     return new HttpHeaders({ Authorization: token });

@@ -8,11 +8,17 @@ INSERT INTO o_status (name, description) VALUES
 INSERT INTO orders (customer_id, restaurant_id, status_id, price) VALUES
 (2, 2, 2, 23.50),
 (3, 1, 1, 39.99),
-(2, 1, 4, 20.00);
+(2, 1, 4, 20.00),
+(2, 1, 1, 18.50),
+(3, 2, 1, 14.90);;
 
 INSERT INTO o_dishes (order_id, dish_id, ammount) VALUES
 (1,2,5),
 (1,1,2),
 (2,3,2),
 (2,4,5),
-(3,3,1);
+(3,3,1),
+(4,3,1),
+(4,4,2),
+(5,1,2),
+(5,2,1);

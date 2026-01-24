@@ -92,7 +92,7 @@ router.get("/owner/orders", authenticateToken, async (req, res) => {
       LEFT JOIN r_dishes d ON d.id = od.dish_id
       WHERE o.restaurant_id = $1
       GROUP BY o.id, os.name, u.username, u.email, u.location
-      ORDER BY o.order_time DESC;
+      ORDER BY o.order_time ASC, o.id ASC;
     `;
 
     const r = await pool.query(q, [restaurantId]);
@@ -102,7 +102,6 @@ router.get("/owner/orders", authenticateToken, async (req, res) => {
       const displayId = `ORDER-${String(row.order_id).padStart(4, "0")}`;
       const uiStatus = mapDbStatusToUiStatus(row.status_name);
 
-      // Adresse: erstmal leer/placeholder (kannst du später mit Reverse-Geocoding im Frontend ersetzen)
       let address = "";
       const loc = row.customer_location;
       if (loc?.coordinates?.length === 2) {
@@ -114,7 +113,7 @@ router.get("/owner/orders", authenticateToken, async (req, res) => {
         id: displayId, // Anzeige
         customerName: row.customer_username || row.customer_email,
         address,
-        location: row.customer_location, // optional fürs spätere Reverse-Geocoding
+        location: row.customer_location,
         status: uiStatus,
         items: row.items,
       };
