@@ -10,6 +10,7 @@ import userRestaurantRoutes from './routes/userRestaurant.routes.js';
 import ownerMenuRoutes from './routes/ownerMenu.routes.js';
 import ownerProfileRoutes from './routes/ownerProfile.routes.js';
 import accountRouter from "./routes/account.routes.js";
+import ownerOrdersRouter from "./routes/ownerOrders.routes.js";
 
 
 const { Pool } = pkg;
@@ -41,6 +42,7 @@ app.use("/api/threads", threadsRouter);
 app.use('/owner', ownerMenuRoutes);
 app.use('/owner', ownerProfileRoutes);
 app.use("/", accountRouter);
+app.use("/", ownerOrdersRouter);
 
 
 app.use("/user-restaurants", userRestaurantRoutes);

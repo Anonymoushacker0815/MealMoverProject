@@ -67,6 +67,11 @@
     </div>
   </div>
 
+  <!-- LOADING -->
+  <div *ngIf="isLoading" class="text-center text-gray-500 mb-4">
+    Loading orders...
+  </div>
+
   <!-- ORDERS GRID -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
@@ -74,21 +79,17 @@
       *ngFor="let order of filteredOrders()"
       class="border border-gray-300 rounded-lg overflow-hidden bg-white"
     >
-
       <!-- HEADER -->
       <div class="bg-[#9B1C1F] text-white px-4 py-2 flex justify-between items-center">
         <span class="font-semibold">{{ order.id }}</span>
 
-        <span
-          class="text-xs px-3 py-1 rounded-lg border border-white/70 bg-white/10"
-        >
+        <span class="text-xs px-3 py-1 rounded-lg border border-white/70 bg-white/10">
           {{ statusLabel(order.status) }}
         </span>
       </div>
 
       <!-- BODY -->
       <div class="p-4 space-y-4">
-
         <div class="flex gap-3 items-start">
           <div class="w-10 h-10 bg-[#9B1C1F]/15 rounded"></div>
 
@@ -106,7 +107,6 @@
             </li>
           </ul>
         </div>
-
       </div>
 
       <!-- ACTIONS -->
@@ -148,7 +148,7 @@
         <!-- REJECT -->
         <button
           *ngIf="order.status === 'new'"
-          (click)="rejectOrder(order.id)"
+          (click)="rejectOrder(order)"
           class="py-2 px-5 rounded-full border border-gray-400 text-gray-800
                  hover:border-[#9B1C1F] hover:text-[#9B1C1F] transition"
           type="button"
@@ -157,12 +157,11 @@
         </button>
 
       </div>
-
     </div>
 
     <!-- NO ORDERS -->
     <div
-      *ngIf="filteredOrders().length === 0"
+      *ngIf="!isLoading && filteredOrders().length === 0"
       class="col-span-full text-center text-gray-500 mt-10"
     >
       No orders found.
