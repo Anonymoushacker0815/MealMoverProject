@@ -34,9 +34,23 @@ export class Authentication {
   private handleAuthSuccess(response: any) {
     console.log('Server Response:', response);
     this.authService.login(response.token);
-    alert('Authentication Successful!');
-    this.router.navigate(['/account']);
-  }
+    console.log('user_type:', response?.user?.user_type);
+    const userType = response?.user?.user_type;
+
+    if (userType === 'Admin') {
+      this.router.navigate(['/manager/dashboard']);
+      return;
+    }
+    if (userType === 'Restaurant') {
+      this.router.navigate(['/owner/orders']);
+      return;
+    }
+    if (userType === 'Customer') {
+      this.router.navigate(['/user/orders']);
+      return;
+    }
+      this.router.navigate(['/account']);
+    }
 
   onRegisterClick() {
     if (!this.email || !this.password) {
