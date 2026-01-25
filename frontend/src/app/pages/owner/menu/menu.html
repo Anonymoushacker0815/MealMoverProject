@@ -25,6 +25,11 @@
     </button>
   </div>
 
+  <!-- INFO: Reorder nur ohne Search -->
+  <div *ngIf="searchTerm.trim()" class="text-center text-sm text-gray-500 mb-6">
+    Clear search to reorder categories and dishes (drag & drop).
+  </div>
+
   <!-- ADD CATEGORY FORM -->
   <div *ngIf="showAddCategory" class="flex justify-center mb-6">
     <div class="w-full max-w-3xl flex gap-3 flex-wrap">
@@ -52,125 +57,194 @@
     </div>
   </div>
 
+  <!-- LOADING -->
+  <div *ngIf="isLoading" class="text-center text-gray-500 mb-6">
+    Loading menu...
+  </div>
+
   <!-- CATEGORIES -->
   <div class="space-y-6">
 
+    <!-- Category Drag&Drop Container -->
     <div
-      *ngFor="let cat of filteredCategories(); trackBy: trackByCategoryId"
-      class="border border-gray-300 rounded-lg overflow-hidden bg-white"
+      cdkDropList
+      [cdkDropListData]="categories"
+      (cdkDropListDropped)="dropCategory($event)"
+      class="space-y-6"
+      [cdkDropListDisabled]="!!searchTerm.trim()"
     >
 
-      <!-- CATEGORY HEADER -->
-      <div class="bg-[#9B1C1F] text-white px-4 py-2 flex justify-between items-center">
-        <span class="font-semibold">
-          {{ cat.name }} ({{ cat.dishes.length }} items)
-        </span>
+      <!-- Category Card -->
+      <div
+        *ngFor="let cat of filteredCategories(); trackBy: trackByCategoryId"
+        cdkDrag
+        class="border border-gray-300 rounded-lg overflow-hidden bg-white"
+      >
 
-        <div class="flex gap-2 items-center">
-
-          <button
-            (click)="toggleDishForm(cat.id)"
-            class="px-3 py-1 rounded-full border border-white/70 bg-white/10
-                   hover:bg-white hover:text-[#9B1C1F] transition"
-            type="button"
-          >
-            + Add Dish
-          </button>
-
-          <button
-            (click)="removeCategory(cat.id)"
-            class="w-9 h-9 flex items-center justify-center rounded-full border border-white/70 bg-white/10
-                   hover:bg-white hover:text-[#9B1C1F] transition"
-            title="Delete Category"
-            type="button"
-          >
-            ✕
-          </button>
-        </div>
-      </div>
-
-      <!-- ADD DISH FORM -->
-      <div *ngIf="openDishFormForCategoryId === cat.id" class="p-4 bg-white border-t border-gray-200">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input
-            [(ngModel)]="newDish.name"
-            type="text"
-            placeholder="Dish name"
-            class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300 bg-white
-                   focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
-          />
-          <input
-            [(ngModel)]="newDish.description"
-            type="text"
-            placeholder="Description"
-            class="md:col-span-2 pl-4 py-2 rounded-xl border border-gray-300 bg-white
-                   focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
-          />
-          <input
-            [(ngModel)]="newDish.price"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="Price"
-            class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300 bg-white
-                   focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
-          />
-
-          <div class="md:col-span-4 flex gap-3 justify-end flex-wrap">
-            <button
-              (click)="addDish(cat.id)"
-              class="px-4 py-2 rounded-xl bg-[#9B1C1F] text-white font-medium hover:opacity-95 transition"
-              type="button"
+        <!-- CATEGORY HEADER -->
+        <div class="bg-[#9B1C1F] text-white px-4 py-2 flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <!-- Drag Handle Category -->
+            <span
+              cdkDragHandle
+              class="cursor-grab select-none text-white/80 text-xl leading-none"
+              title="Drag to reorder category"
             >
-              Add Dish
-            </button>
+              ☰
+            </span>
+
+            <span class="font-semibold">
+              {{ cat.name }} ({{ cat.dishes.length }} items)
+            </span>
+
+            <!-- Saving Badge Category -->
+            <span
+              *ngIf="isSavingCategoryOrder"
+              class="text-xs px-3 py-1 rounded-full bg-white/10 border border-white/60"
+            >
+              Saving…
+            </span>
+          </div>
+
+          <div class="flex gap-2 items-center">
             <button
               (click)="toggleDishForm(cat.id)"
-              class="px-4 py-2 rounded-xl border border-gray-300 bg-white hover:border-gray-400 transition"
+              class="px-3 py-1 rounded-full border border-white/70 bg-white/10
+                     hover:bg-white hover:text-[#9B1C1F] transition"
               type="button"
             >
-              Cancel
+              + Add Dish
+            </button>
+
+            <button
+              (click)="removeCategory(cat.id)"
+              class="w-9 h-9 flex items-center justify-center rounded-full border border-white/70 bg-white/10
+                     hover:bg-white hover:text-[#9B1C1F] transition"
+              title="Delete Category"
+              type="button"
+            >
+              ✕
             </button>
           </div>
         </div>
-      </div>
 
-      <!-- DISH LIST -->
-      <div class="p-4 space-y-4 bg-white">
+        <!-- ADD DISH FORM -->
+        <div *ngIf="openDishFormForCategoryId === cat.id" class="p-4 bg-white border-t border-gray-200">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <input
+              [(ngModel)]="newDish.name"
+              type="text"
+              placeholder="Dish name"
+              class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300 bg-white
+                     focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
+            />
+            <input
+              [(ngModel)]="newDish.description"
+              type="text"
+              placeholder="Description"
+              class="md:col-span-2 pl-4 py-2 rounded-xl border border-gray-300 bg-white
+                     focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
+            />
+            <input
+              [(ngModel)]="newDish.price"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Price"
+              class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300 bg-white
+                     focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
+            />
 
-        <div
-          *ngFor="let dish of cat.dishes; trackBy: trackByDishId"
-          class="flex gap-3 items-start bg-[#9B1C1F]/10 p-3 rounded-md border border-[#9B1C1F]/15"
-        >
-          <div class="w-16 h-16 bg-[#9B1C1F]/15 rounded"></div>
+            <div class="md:col-span-4 flex gap-3 justify-end flex-wrap">
+              <button
+                (click)="addDish(cat.id)"
+                class="px-4 py-2 rounded-xl bg-[#9B1C1F] text-white font-medium hover:opacity-95 transition"
+                type="button"
+              >
+                Add Dish
+              </button>
+              <button
+                (click)="toggleDishForm(cat.id)"
+                class="px-4 py-2 rounded-xl border border-gray-300 bg-white hover:border-gray-400 transition"
+                type="button"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
 
-          <div class="flex-1">
-            <p class="font-medium text-gray-900">{{ dish.name }}</p>
-            <p class="text-sm text-gray-700">{{ dish.description }}</p>
-            <p class="font-semibold mt-1 text-gray-900">
-              {{ dish.price | currency:'USD':'symbol' }}
-            </p>
+        <!-- DISH LIST -->
+        <div class="p-4 space-y-4 bg-white">
+
+          <!-- Dish Drag&Drop Container (pro Category) -->
+          <div
+            cdkDropList
+            [cdkDropListData]="cat.dishes"
+            (cdkDropListDropped)="dropDish(cat, $event)"
+            class="space-y-4"
+            [cdkDropListDisabled]="!!searchTerm.trim()"
+          >
+
+            <!-- Dish Row -->
+            <div
+              *ngFor="let dish of cat.dishes; trackBy: trackByDishId"
+              cdkDrag
+              class="flex gap-3 items-start bg-[#9B1C1F]/10 p-3 rounded-md border border-[#9B1C1F]/15"
+            >
+              <!-- Image Placeholder -->
+              <div class="w-16 h-16 bg-[#9B1C1F]/15 rounded"></div>
+
+              <!-- Dish Info -->
+              <div class="flex-1">
+                <p class="font-medium text-gray-900">{{ dish.name }}</p>
+                <p class="text-sm text-gray-700">{{ dish.description }}</p>
+                <p class="font-semibold mt-1 text-gray-900">
+                  {{ dish.price | currency:'USD':'symbol' }}
+                </p>
+
+                <!-- Saving Badge Dish -->
+                <div *ngIf="isSavingDishOrder" class="text-xs text-gray-500 mt-1">
+                  Saving order…
+                </div>
+              </div>
+
+              <!-- Right Actions Column -->
+              <div class="flex flex-col items-end gap-2">
+                <!-- Delete Dish -->
+                <button
+                  (click)="removeDish(cat.id, dish.id)"
+                  class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-400 bg-white
+                         hover:border-[#9B1C1F] hover:text-[#9B1C1F] transition"
+                  title="Delete Dish"
+                  type="button"
+                >
+                  ✕
+                </button>
+
+                <!-- Drag Handle Dish -->
+                <span
+                  cdkDragHandle
+                  class="cursor-grab select-none text-gray-700 text-lg leading-none px-2 py-1 rounded
+                         border border-gray-300 bg-white hover:border-[#9B1C1F] hover:text-[#9B1C1F] transition"
+                  title="Drag to reorder dish"
+                >
+                  ⠿
+                </span>
+              </div>
+            </div>
+
           </div>
 
-          <button
-            (click)="removeDish(cat.id, dish.id)"
-            class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-400 bg-white
-                   hover:border-[#9B1C1F] hover:text-[#9B1C1F] transition"
-            title="Delete Dish"
-            type="button"
-          >
-            ✕
-          </button>
+          <div *ngIf="cat.dishes.length === 0" class="text-sm text-gray-500">
+            No dishes yet. Click “+ Add Dish”.
+          </div>
         </div>
 
-        <div *ngIf="cat.dishes.length === 0" class="text-sm text-gray-500">
-          No dishes yet. Click “+ Add Dish”.
-        </div>
       </div>
-
     </div>
 
-    <div *ngIf="filteredCategories().length === 0" class="text-center text-gray-500 mt-10">
+    <div *ngIf="!isLoading && filteredCategories().length === 0" class="text-center text-gray-500 mt-10">
       No categories found. Click “+ Add Category”.
     </div>
 

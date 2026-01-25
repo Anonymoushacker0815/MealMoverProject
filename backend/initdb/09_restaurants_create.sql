@@ -36,3 +36,12 @@ CONSTRAINT FK_dishes_restaurant FOREIGN KEY (restaurant_id) REFERENCES restauran
 category_id int,
 CONSTRAINT FK_dishes_category FOREIGN KEY (category_id) REFERENCES categories(id)
 );
+
+ALTER TABLE categories
+ADD COLUMN IF NOT EXISTS sort_index int;
+
+ALTER TABLE r_dishes
+ADD COLUMN IF NOT EXISTS sort_index int;
+
+UPDATE categories SET sort_index = id WHERE sort_index IS NULL;
+UPDATE r_dishes  SET sort_index = id WHERE sort_index IS NULL;
