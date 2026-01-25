@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Navbar } from '../../../components/navbar/navbar';
+
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from '../../../services/auth.service';
 
 import { BaseChartDirective } from 'ng2-charts';
 import {
@@ -22,9 +25,20 @@ type PopularItem = {
 };
 
 type Review = {
+  id: number;         // <-- wichtig (kommt jetzt vom Backend)
   orderId: string;
   date: string;
   rating: number;
+};
+
+type ReviewDetails = {
+  id: number;
+  rating: number;
+  details: string;
+  user_id: number;
+  username: string;
+  dish_id: number | null;
+  dish_name: string | null;
 };
 
 @Component({
@@ -33,60 +47,70 @@ type Review = {
   imports: [CommonModule, Navbar, BaseChartDirective],
   templateUrl: './analytics.html',
 })
-export class OwnerAnalytics {
-  // Order counts
-  orderCounts = { day: 30, week: 160, month: 1203 };
+export class OwnerAnalytics implements OnInit {
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
-  // Monthly overview
-  monthly: MonthlyPoint[] = [
-    { day: 1, value: 42 }, { day: 2, value: 35 }, { day: 3, value: 58 }, { day: 4, value: 31 }, { day: 5, value: 49 },
-    { day: 6, value: 61 }, { day: 7, value: 38 }, { day: 8, value: 52 }, { day: 9, value: 44 }, { day: 10, value: 40 },
-    { day: 11, value: 55 }, { day: 12, value: 29 }, { day: 13, value: 47 }, { day: 14, value: 53 }, { day: 15, value: 36 },
-    { day: 16, value: 41 }, { day: 17, value: 50 }, { day: 18, value: 33 }, { day: 19, value: 46 }, { day: 20, value: 59 },
-    { day: 21, value: 34 }, { day: 22, value: 48 }, { day: 23, value: 39 }, { day: 24, value: 45 }, { day: 25, value: 28 },
-    { day: 26, value: 37 }, { day: 27, value: 51 }, { day: 28, value: 43 }, { day: 29, value: 32 }, { day: 30, value: 49 },
-  ];
+  private API = 'http://localhost:3000';
 
-  // Popular items
-  items: PopularItem[] = [
-    { name: 'Fries', sold: 92, revenue: 322.0 },
-    { name: 'Cola', sold: 77, revenue: 231.0 },
-    { name: 'Classic Burger', sold: 58, revenue: 638.0 },
-    { name: 'Chicken Strips', sold: 41, revenue: 410.0 },
-    { name: 'Cheesecake', sold: 27, revenue: 189.0 },
-  ];
+  isLoading = false;
 
-  // Reviews
-  reviews: Review[] = [
-    { orderId: 'Order-1234', date: '2026-12-13', rating: 4 },
-    { orderId: 'Order-1235', date: '2026-12-13', rating: 4 },
-    { orderId: 'Order-1236', date: '2026-12-13', rating: 5 },
-    { orderId: 'Order-1237', date: '2026-12-13', rating: 3 },
-    { orderId: 'Order-1238', date: '2026-12-13', rating: 4 },
-  ];
+  // Monat/Jahr Auswahl
+  currentYear = new Date().getFullYear();
+  currentMonth = new Date().getMonth() + 1;
+
+  // Daten
+  orderCounts = { day: 0, week: 0, month: 0 };
+  monthly: MonthlyPoint[] = [];
+  items: PopularItem[] = [];
+  reviews: Review[] = [];
+
+  // Modal State
+  isReviewModalOpen = false;
+  isReviewLoading = false;
+  selectedReview: ReviewDetails | null = null;
+
+  ngOnInit() {
+    this.loadAnalytics();
+  }
+
+  // Authorization Header (ohne Bearer)
+  private headers() {
+    const token = localStorage.getItem('token') ?? '';
+    return new HttpHeaders({ Authorization: token });
+  }
+
+  get monthLabel(): string {
+    return new Date(this.currentYear, this.currentMonth - 1).toLocaleString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    });
+  }
+
+  prevMonth() {
+    this.currentMonth--;
+    if (this.currentMonth < 1) {
+      this.currentMonth = 12;
+      this.currentYear--;
+    }
+    this.loadAnalytics();
+  }
+
+  nextMonth() {
+    this.currentMonth++;
+    if (this.currentMonth > 12) {
+      this.currentMonth = 1;
+      this.currentYear++;
+    }
+    this.loadAnalytics();
+  }
 
   get popularItems(): PopularItem[] {
     return [...this.items].sort((a, b) => b.sold - a.sold);
   }
 
-  // Chart.js config
-  public monthlyChartData: ChartData<'line'> = {
-    labels: this.monthly.map(m => `Day ${m.day}`),
-    datasets: [
-      {
-        label: 'Orders',
-        data: this.monthly.map(m => m.value),
-        borderColor: '#111111',
-        backgroundColor: 'transparent',
-        pointBackgroundColor: '#111111',
-        pointBorderColor: '#111111',
-        pointRadius: 3,
-        pointHoverRadius: 5,
-        borderWidth: 2,
-        tension: 0,
-      },
-    ],
-  };
+  public monthlyChartData: ChartData<'line'> = { labels: [], datasets: [] };
 
   public monthlyChartOptions: ChartOptions<'line'> = {
     responsive: true,
@@ -105,7 +129,7 @@ export class OwnerAnalytics {
         ticks: {
           maxRotation: 0,
           autoSkip: true,
-          maxTicksLimit: 8,
+          maxTicksLimit: 10,
         },
         grid: { display: false },
       },
@@ -114,12 +138,108 @@ export class OwnerAnalytics {
 
   public monthlyChartType: ChartConfiguration<'line'>['type'] = 'line';
 
-  // Review View and Report
+  private rebuildChart() {
+    this.monthlyChartData = {
+      labels: this.monthly.map((m) => m.day.toString()), // nur Zahl
+      datasets: [
+        {
+          label: 'Orders',
+          data: this.monthly.map((m) => m.value),
+          borderColor: '#111111',
+          backgroundColor: 'transparent',
+          pointBackgroundColor: '#111111',
+          pointBorderColor: '#111111',
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          borderWidth: 2,
+          tension: 0,
+        },
+      ],
+    };
+    this.cdr.detectChanges();
+  }
+
+  loadAnalytics() {
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
+    const url = `${this.API}/owner/analytics?year=${this.currentYear}&month=${this.currentMonth}`;
+
+    this.http.get<any>(url, { headers: this.headers() }).subscribe({
+      next: (res) => {
+        if (res?.selected?.year && res?.selected?.month) {
+          this.currentYear = Number(res.selected.year);
+          this.currentMonth = Number(res.selected.month);
+        }
+
+        this.orderCounts = res.orderCounts ?? { day: 0, week: 0, month: 0 };
+
+        this.monthly = (res.monthly ?? []).map((x: any) => ({
+          day: Number(x.day),
+          value: Number(x.value),
+        }));
+
+        this.items = (res.items ?? []).map((x: any) => ({
+          name: x.name,
+          sold: Number(x.sold ?? 0),
+          revenue: Number(x.revenue ?? 0),
+        }));
+
+        this.reviews = (res.reviews ?? []).map((r: any) => ({
+          id: Number(r.id),
+          orderId: r.orderId,
+          date: r.date ?? '',
+          rating: Number(r.rating ?? 0),
+        }));
+
+        this.rebuildChart();
+
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.log('LOAD /owner/analytics ERROR', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+        }
+        alert(err.error?.error || 'Failed to load analytics');
+      },
+    });
+  }
+
+  // Modal öffnen + Details laden
   viewReview(r: Review) {
-    alert(`View review for ${r.orderId} (rating: ${r.rating})`);
+    this.isReviewModalOpen = true;
+    this.isReviewLoading = true;
+    this.selectedReview = null;
+    this.cdr.detectChanges();
+
+    this.http.get<any>(`${this.API}/owner/reviews/${r.id}`, { headers: this.headers() }).subscribe({
+      next: (res) => {
+        this.selectedReview = res.review as ReviewDetails;
+        this.isReviewLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.log('LOAD /owner/reviews/:id ERROR', err);
+        this.isReviewLoading = false;
+        this.cdr.detectChanges();
+        alert(err.error?.error || 'Failed to load review details');
+      },
+    });
+  }
+
+  closeReviewModal() {
+    this.isReviewModalOpen = false;
+    this.isReviewLoading = false;
+    this.selectedReview = null;
+    this.cdr.detectChanges();
   }
 
   reportReview(r: Review) {
-    alert(`Report review for ${r.orderId}`);
+    alert(`Report review ${r.orderId}`);
   }
 }
