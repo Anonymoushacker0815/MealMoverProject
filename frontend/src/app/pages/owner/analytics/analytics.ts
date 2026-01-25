@@ -14,23 +14,29 @@ import {
   registerables,
 } from 'chart.js';
 
+// Chart.js initialisieren
 Chart.register(...registerables);
 
+
+// Tageswert für Monatsdiagramm
 type MonthlyPoint = { day: number; value: number };
 
+// Beliebteste Gerichte
 type PopularItem = {
   name: string;
   sold: number;
   revenue: number;
 };
 
+// Review-Übersicht
 type Review = {
-  id: number;         // <-- wichtig (kommt jetzt vom Backend)
+  id: number;
   orderId: string;
   date: string;
   rating: number;
 };
 
+// Review-Detailansicht
 type ReviewDetails = {
   id: number;
   rating: number;
@@ -48,39 +54,48 @@ type ReviewDetails = {
   templateUrl: './analytics.html',
 })
 export class OwnerAnalytics implements OnInit {
+
+  // Angular Services
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
+  // Backend Basis-URL
   private API = 'http://localhost:3000';
 
+  // Ladezustand
   isLoading = false;
 
-  // Monat/Jahr Auswahl
+  // Aktuell ausgewählter Monat / Jahr
   currentYear = new Date().getFullYear();
   currentMonth = new Date().getMonth() + 1;
 
-  // Daten
+  // Analytics-Daten
   orderCounts = { day: 0, week: 0, month: 0 };
   monthly: MonthlyPoint[] = [];
   items: PopularItem[] = [];
   reviews: Review[] = [];
 
-  // Modal State
+  // Review-Modal Status
   isReviewModalOpen = false;
   isReviewLoading = false;
   selectedReview: ReviewDetails | null = null;
 
+
+  // Initiales Laden der Analytics
   ngOnInit() {
     this.loadAnalytics();
   }
 
-  // Authorization Header (ohne Bearer)
+
+  // Authorization Header
   private headers() {
     const token = localStorage.getItem('token') ?? '';
     return new HttpHeaders({ Authorization: token });
   }
 
+
+  // Anzeige-Label für aktuellen Monat
   get monthLabel(): string {
     return new Date(this.currentYear, this.currentMonth - 1).toLocaleString('en-US', {
       month: 'long',
@@ -88,6 +103,8 @@ export class OwnerAnalytics implements OnInit {
     });
   }
 
+
+  // Zum vorherigen Monat wechseln
   prevMonth() {
     this.currentMonth--;
     if (this.currentMonth < 1) {
@@ -97,6 +114,8 @@ export class OwnerAnalytics implements OnInit {
     this.loadAnalytics();
   }
 
+
+  // Zum nächsten Monat wechseln
   nextMonth() {
     this.currentMonth++;
     if (this.currentMonth > 12) {
@@ -106,12 +125,18 @@ export class OwnerAnalytics implements OnInit {
     this.loadAnalytics();
   }
 
+
+  // Sortierte Liste der beliebtesten Gerichte
   get popularItems(): PopularItem[] {
     return [...this.items].sort((a, b) => b.sold - a.sold);
   }
 
+
+  // Chart-Daten
   public monthlyChartData: ChartData<'line'> = { labels: [], datasets: [] };
 
+
+  // Chart-Konfiguration
   public monthlyChartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -136,11 +161,14 @@ export class OwnerAnalytics implements OnInit {
     },
   };
 
+  // Chart-Typ
   public monthlyChartType: ChartConfiguration<'line'>['type'] = 'line';
 
+
+  // Baut das Monatsdiagramm neu auf
   private rebuildChart() {
     this.monthlyChartData = {
-      labels: this.monthly.map((m) => m.day.toString()), // nur Zahl
+      labels: this.monthly.map((m) => m.day.toString()),
       datasets: [
         {
           label: 'Orders',
@@ -159,6 +187,8 @@ export class OwnerAnalytics implements OnInit {
     this.cdr.detectChanges();
   }
 
+
+  // Lädt alle Analytics-Daten vom Backend
   loadAnalytics() {
     this.isLoading = true;
     this.cdr.detectChanges();
@@ -167,24 +197,30 @@ export class OwnerAnalytics implements OnInit {
 
     this.http.get<any>(url, { headers: this.headers() }).subscribe({
       next: (res) => {
+
+        // Monat/Jahr ggf. vom Backend korrigieren
         if (res?.selected?.year && res?.selected?.month) {
           this.currentYear = Number(res.selected.year);
           this.currentMonth = Number(res.selected.month);
         }
 
+        // Zähler
         this.orderCounts = res.orderCounts ?? { day: 0, week: 0, month: 0 };
 
+        // Monatsdiagramm
         this.monthly = (res.monthly ?? []).map((x: any) => ({
           day: Number(x.day),
           value: Number(x.value),
         }));
 
+        // Beliebteste Gerichte
         this.items = (res.items ?? []).map((x: any) => ({
           name: x.name,
           sold: Number(x.sold ?? 0),
           revenue: Number(x.revenue ?? 0),
         }));
 
+        // Reviews
         this.reviews = (res.reviews ?? []).map((r: any) => ({
           id: Number(r.id),
           orderId: r.orderId,
@@ -210,7 +246,8 @@ export class OwnerAnalytics implements OnInit {
     });
   }
 
-  // Modal öffnen + Details laden
+
+  // Öffnet Review-Modal und lädt Details
   viewReview(r: Review) {
     this.isReviewModalOpen = true;
     this.isReviewLoading = true;
@@ -232,6 +269,8 @@ export class OwnerAnalytics implements OnInit {
     });
   }
 
+
+  // Schließt das Review-Modal
   closeReviewModal() {
     this.isReviewModalOpen = false;
     this.isReviewLoading = false;
@@ -239,6 +278,8 @@ export class OwnerAnalytics implements OnInit {
     this.cdr.detectChanges();
   }
 
+
+  // Review melden (Placeholder)
   reportReview(r: Review) {
     alert(`Report review ${r.orderId}`);
   }
