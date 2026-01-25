@@ -21,5 +21,7 @@ export class RestaurantService {
     return this.http.get<any>(`${this.apiUrl}/${id}/menu`);
   }
 
-
+  submitReview(data: { userId: number, restaurantId: number, rating: number, details: string }) {
+    return this.http.post(`${this.apiUrl}/review`, data);
+  }
 }

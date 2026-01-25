@@ -194,4 +194,37 @@ router.get("/order/status/:id", async (req, res) => {
 });
 
 
+// POST: Submit a review
+router.post("/review", async (req, res) => {
+    const { rating, details, userId, restaurantId } = req.body;
+
+    // Basic validation
+    if (!userId || !restaurantId || !rating) {
+        return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const client = await pool.connect();
+
+    try {
+        const query = `
+            INSERT INTO reviews (rating, details, user_id, restaurant_id)
+            VALUES ($1, $2, $3, $4)
+            RETURNING id
+        `;
+
+        const result = await client.query(query, [rating, details, userId, restaurantId]);
+
+        res.status(201).json({
+            message: "Review submitted successfully",
+            reviewId: result.rows[0].id
+        });
+
+    } catch (err) {
+        console.error("Error submitting review:", err);
+        res.status(500).json({ error: "Server error processing review" });
+    } finally {
+        client.release();
+    }
+});
+
 export default router;

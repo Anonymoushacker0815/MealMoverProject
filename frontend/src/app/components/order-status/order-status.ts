@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../services/cart.service';
+import { Router } from '@angular/router';
 import { Subscription, interval, startWith, switchMap } from 'rxjs';
 
 @Component({
@@ -11,9 +12,12 @@ import { Subscription, interval, startWith, switchMap } from 'rxjs';
 })
 export class OrderStatusComponent implements OnInit, OnDestroy {
   private cartService = inject(CartService);
+  private router = inject(Router);
   private pollSubscription?: Subscription;
+  private hasRedirected = false;
 
   @Input({ required: true }) orderId!: number;
+  @Input({ required: true }) restaurantId!: number;
 
   status = signal<string>('placed');
   lastUpdated = signal<Date>(new Date());
@@ -27,8 +31,8 @@ export class OrderStatusComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit() {
-// Poll every 60 seconds typically but for debug every 20
-    this.pollSubscription = interval(20000)
+    // Poll every 60 seconds typically but for debug every 5
+    this.pollSubscription = interval(5000)
       .pipe(
         startWith(0),
         switchMap(() => this.cartService.getOrderStatus(this.orderId))
@@ -39,6 +43,14 @@ export class OrderStatusComponent implements OnInit, OnDestroy {
             this.status.set(res.order.status);
             this.lastUpdated.set(new Date());
             this.loading.set(false);
+
+            if (res.order.status === 'completed' && !this.hasRedirected) {
+              this.hasRedirected = true;
+
+              setTimeout(() => {
+                this.router.navigate(['/user/order/review', this.restaurantId]);
+              }, 2000);
+            }
           }
         },
         error: (err) => console.error('Error polling order status', err)

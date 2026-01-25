@@ -51,7 +51,7 @@
 
       @if (activeOrderId) {
         <div id="status-section" class="fade-in-up">
-          <app-order-status [orderId]="activeOrderId"></app-order-status>
+          <app-order-status [orderId]="activeOrderId"   [restaurantId]="restaurantId"></app-order-status>
         </div>
       }
 

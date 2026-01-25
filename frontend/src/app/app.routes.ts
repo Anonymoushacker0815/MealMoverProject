@@ -87,8 +87,11 @@ export const routes: Routes = [
       {
         path: 'summary/:restaurantId',
         loadComponent: () => import('./pages/user/order-summary/order-summary').then(m => m.OrderSummary)
+      },
+      {
+        path: 'review/:restaurantId',
+        loadComponent: () => import('./pages/user/review/review').then(m => m.ReviewComponent)
       }
-
     ]
   },
 
