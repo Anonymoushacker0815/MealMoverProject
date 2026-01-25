@@ -25,6 +25,33 @@ const generateToken = (user) => {
     );
 };
 
+const ensureUserStatuses = async () => {
+  await pool.query(
+    `
+    INSERT INTO u_status (name, description) VALUES
+      ('Active', 'Standard'),
+      ('Suspended', 'User violated terms of service'),
+      ('Pending', 'Restaurant account awaiting approval')
+    ON CONFLICT (name) DO NOTHING
+    `
+  );
+};
+
+const getStatusIdByName = async (name) => {
+  const r = await pool.query(`SELECT id FROM u_status WHERE name = $1`, [name]);
+  if (r.rowCount === 0) throw new Error(`Missing status in u_status: ${name}`);
+  return r.rows[0].id;
+};
+
+const logUserEvent = async ({ userId, type, actorUserId = null, meta = null, createdAt = null }) => {
+  await pool.query(
+    `
+    INSERT INTO user_activity_events (user_id, event_type, actor_user_id, meta, created_at)
+    VALUES ($1, $2, $3, $4, COALESCE($5, NOW()))
+    `,
+    [userId, type, actorUserId, meta, createdAt]
+  );
+};
 
 // ROUTE: Register
 router.post("/register", async (req, res) => {
@@ -42,15 +69,17 @@ router.post("/register", async (req, res) => {
         coordinates: [14.305472, 46.6243]
     };
 
-    const defaultStatus = 1;
+    const statusName = typeToSave === 'Restaurant' ? 'Pending' : 'Active';
 
     try {
+        await ensureUserStatuses();
+        const statusId = await getStatusIdByName(statusName);
         const query = `
             INSERT INTO users (email, password, location, user_type, status_id)
             VALUES ($1, $2, $3, $4, $5)
-                RETURNING *;
+            RETURNING *;
         `;
-        const values = [email, hashedPassword, locationToSave, typeToSave, defaultStatus];
+        const values = [email, hashedPassword, locationToSave, typeToSave, statusId];
 
         const result = await pool.query(query, values);
         const newUser = result.rows[0];
@@ -64,11 +93,20 @@ router.post("/register", async (req, res) => {
             await pool.query(
                 `INSERT INTO restaurants (name, email, phone, delivery_zone, opening_hours, user_id, status_id)
                 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                ['New Restaurant', newUser.email, '', null, null, newUser.id, 2]
+                ['New Restaurant', newUser.email, '', null, null, newUser.id, statusId]
             );
         }
 
         const token = generateToken(newUser);
+        try {
+            await logUserEvent({
+                userId: newUser.id,
+                type: 'register',
+                meta: { user_type: newUser.user_type }
+            });
+        } catch (e) {
+            console.warn('Failed to log register event', e);
+        }
 
         res.json({
             success: true,
@@ -116,6 +154,12 @@ router.post("/login", async (req, res) => {
 
         //Dont store password
         delete user.password;
+
+        try {
+            await logUserEvent({ userId: user.id, type: 'login' });
+        } catch (e) {
+            console.warn('Failed to log login event', e);
+        }
 
         res.json({
             success: true,
@@ -169,7 +213,5 @@ router.get("/verifyuser", authenticateToken, async (req, res) => {
         res.status(500).json({ error: "Server Error" });
     }
 });
-
-
 
 export default router;

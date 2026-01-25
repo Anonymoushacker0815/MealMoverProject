@@ -34,7 +34,8 @@ export class ManagerSettings  implements OnInit{
   settings: Settings[] = [];
   codes: DiscountCode[] = [];
 
-  isLoading = false;
+  isLoadingSettings = false;
+  isLoadingCodes = false;
   errorMsg: string | null = null;
   private API = 'http://localhost:3000';
 
@@ -54,7 +55,7 @@ export class ManagerSettings  implements OnInit{
   }
 
   loadSettings() {
-    this.isLoading = true;
+    this.isLoadingSettings = true;
     this.errorMsg = null;
 
     this.http.get<Settings[]>(
@@ -65,11 +66,11 @@ export class ManagerSettings  implements OnInit{
       next: (rows) => {
         console.log('loaded settings', rows);
         this.settings = rows ?? [];
-        this.isLoading = false;
+        this.isLoadingSettings = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.isLoading = false;
+        this.isLoadingSettings = false;
         if (this.handleAuthError(err))return;
         console.error(err);
         this.errorMsg = 'Error laoding settings';
@@ -98,7 +99,7 @@ export class ManagerSettings  implements OnInit{
   }
 
   loadDiscountCodes() {
-    this.isLoading = true;
+    this.isLoadingCodes = true;
     this.errorMsg = null;
 
     this.http.get<DiscountCode[]>(
@@ -109,11 +110,11 @@ export class ManagerSettings  implements OnInit{
       next: (rows) => {
         console.log('loaded discountCodes', rows);
         this.codes = rows ?? [];
-        this.isLoading = false;
+        this.isLoadingCodes = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.isLoading = false;
+        this.isLoadingCodes = false;
         if (this.handleAuthError(err))return;
         console.error(err);
         this.errorMsg = 'Error laoding Discount Codes';

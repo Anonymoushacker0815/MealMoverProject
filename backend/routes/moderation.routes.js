@@ -25,6 +25,16 @@ const requireModerationRole = (req, res, next) => {
   next();
 };
 
+const logUserEvent = async ({ userId, type, actorUserId = null, meta = null, createdAt = null }) => {
+  await pool.query(
+    `
+    INSERT INTO user_activity_events (user_id, event_type, actor_user_id, meta, created_at)
+    VALUES ($1, $2, $3, $4, COALESCE($5, NOW()))
+    `,
+    [userId, type, actorUserId, meta, createdAt]
+  );
+};
+
 /*
 GET /moderation/thread-reports?status=open
 Returns list of reports (default status=open)
@@ -102,7 +112,7 @@ router.get('/users', authenticateToken, requireModerationRole, async (req, res) 
         u.email,
         u.username,
         u.user_type,
-        COALESCE(s.name, 'Active') AS status
+        COALESCE(s.name, 'Unknown') AS status
       FROM users u
       LEFT JOIN u_status s ON s.id = u.status_id
       ORDER BY u.id ASC
@@ -117,7 +127,7 @@ router.get('/users', authenticateToken, requireModerationRole, async (req, res) 
 
 /*
 PATCH /moderation/users/:id/status
-Body: { status: "Active" | "Suspended" }
+Body: { status: "Active" | "Suspended" | "Pending" }
 */
 router.patch('/users/:id/status', authenticateToken, requireModerationRole, async (req, res) => {
   const userId = Number(req.params.id);
@@ -127,22 +137,45 @@ router.patch('/users/:id/status', authenticateToken, requireModerationRole, asyn
     return res.status(400).json({ error: 'Missing user id or status.' });
   }
 
-  const allowed = new Set(['Active', 'Suspended']);
+  const allowed = new Set(['Active', 'Suspended', 'Pending']);
   if (!allowed.has(status)) {
-    return res.status(400).json({ error: 'Invalid status. Allowed: Active, Suspended.' });
+    return res.status(400).json({ error: 'Invalid status. Allowed: Active, Suspended, Pending.' });
   }
 
   try {
-    const userRow = await pool.query(`SELECT user_type FROM users WHERE id = $1`, [userId]);
-    if (userRow.rowCount === 0) return res.status(404).json({ error: 'User not found.' });
-    if (userRow.rows[0].user_type === 'Admin') {
+    const before = await pool.query(
+      `
+      SELECT
+        u.user_type,
+        COALESCE(s.name, 'Unknown') AS status
+      FROM users u
+      LEFT JOIN u_status s ON s.id = u.status_id
+      WHERE u.id = $1
+      `,
+      [userId]
+    );
+
+    if (before.rowCount === 0) return res.status(404).json({ error: 'User not found.' });
+    if (before.rows[0].user_type === 'Admin') {
       return res.status(403).json({ error: 'Cannot change Admin status.' });
     }
+    const fromStatus = before.rows[0].status;
 
     const s = await pool.query(`SELECT id FROM u_status WHERE name = $1`, [status]);
     if (s.rowCount === 0) return res.status(400).json({ error: 'Status not found in u_status.' });
 
     await pool.query(`UPDATE users SET status_id = $1 WHERE id = $2`, [s.rows[0].id, userId]);
+    try {
+      await logUserEvent({
+        userId,
+        type: 'status_change',
+        actorUserId: req.user.id,
+        meta: { from: fromStatus, to: status },
+      });
+    } catch (e) {
+      console.warn('Failed to log status_change event', e);
+    }
+
 
     res.json({ ok: true, userId, status });
   } catch (err) {
@@ -151,5 +184,61 @@ router.patch('/users/:id/status', authenticateToken, requireModerationRole, asyn
   }
 });
 
+router.get('/report-stats', authenticateToken, requireModerationRole, async (req, res) => {
+  try {
+    const days = 7;
+
+    const pendingRes = await pool.query(`
+      SELECT COUNT(*)::int AS cnt
+      FROM users u
+      JOIN u_status s ON s.id = u.status_id
+      WHERE u.user_type = 'Restaurant' AND s.name = 'Pending'
+    `);
+
+    const totals = await pool.query(
+      `
+      SELECT
+        COUNT(*) FILTER (WHERE event_type='login')::int AS total_logins,
+        COUNT(*) FILTER (WHERE event_type='register')::int AS new_registrations,
+        COUNT(*) FILTER (WHERE event_type='status_change')::int AS status_changes,
+        COUNT(DISTINCT user_id) FILTER (WHERE event_type='login')::int AS active_users
+      FROM user_activity_events
+      WHERE created_at >= NOW() - ($1 || ' days')::interval
+      `,
+      [days]
+    );
+
+    const trend = await pool.query(
+      `
+      WITH d AS (
+        SELECT generate_series(
+          date_trunc('day', NOW()) - (($1 - 1) || ' days')::interval,
+          date_trunc('day', NOW()),
+          interval '1 day'
+        ) AS day
+      )
+      SELECT
+        to_char(d.day, 'DD.MM') AS label,
+        COALESCE(SUM(CASE WHEN e.event_type='login' THEN 1 ELSE 0 END), 0)::int AS logins
+      FROM d
+      LEFT JOIN user_activity_events e
+        ON date_trunc('day', e.created_at) = d.day
+      GROUP BY d.day
+      ORDER BY d.day ASC
+      `,
+      [days]
+    );
+
+    res.json({
+      periodDays: days,
+      pendingRestaurants: pendingRes.rows[0].cnt,
+      totals: totals.rows[0],
+      trend: trend.rows,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to load report stats' });
+  }
+});
 
 export default router;

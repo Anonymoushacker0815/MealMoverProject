@@ -1,6 +1,67 @@
 <app-navbar role="manager"></app-navbar>
-<main class="p-6">
-    <h1>dashboard works!</h1>
-    
-</main>
 
+<div class="min-h-screen bg-gray-100">
+  <div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
+
+    <h1 class="text-2xl font-semibold">Dashboard</h1>
+
+    <div class="bg-white border rounded p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold">Restaurant approvals</h2>
+
+        <button
+          type="button"
+          class="px-3 py-1.5 border rounded bg-white text-sm hover:bg-gray-50"
+          (click)="loadPendingRestaurants()"
+          [disabled]="isLoadingPending"
+        >
+          Refresh
+        </button>
+      </div>
+
+      <div *ngIf="pendingError" class="bg-red-50 border border-red-200 text-red-700 rounded p-3">
+        {{ pendingError }}
+      </div>
+
+      <div *ngIf="isLoadingPending" class="text-sm text-gray-600">
+        Loading pending restaurants...
+      </div>
+
+      <div *ngIf="!isLoadingPending" class="text-sm text-gray-700">
+        Pending restaurants:
+        <span class="font-semibold">{{ pendingCount }}</span>
+      </div>
+
+      <div *ngIf="!isLoadingPending && pendingCount === 0" class="text-sm text-gray-600">
+        No restaurants waiting for approval.
+      </div>
+
+      <div *ngIf="!isLoadingPending && pendingCount > 0" class="space-y-2">
+        <div
+          *ngFor="let r of pendingRestaurants | slice:0:5"
+          class="flex items-center justify-between border rounded p-2"
+        >
+          <div class="min-w-0">
+            <div class="font-medium truncate">{{ r.email }}</div>
+            <div class="text-xs text-gray-500">
+              User ID: {{ r.id }} • {{ r.username || '—' }}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="px-3 py-1.5 bg-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
+            (click)="goToUsers()"
+          >
+            Review
+          </button>
+        </div>
+
+        <div *ngIf="pendingCount > 5" class="text-xs text-gray-500">
+          Showing 5 of {{ pendingCount }}. Open Users to review all.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

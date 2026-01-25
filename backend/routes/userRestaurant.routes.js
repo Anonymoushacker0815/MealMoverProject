@@ -18,7 +18,9 @@ router.get("/", async (req, res) => {
                 COUNT(rev.id) as review_count,
                 COALESCE(AVG(rev.rating), 0)::numeric(10,1) as average_rating
             FROM restaurants r
-                     LEFT JOIN reviews rev ON r.id = rev.restaurant_id
+            JOIN u_status us ON us.id = r.status_id
+            LEFT JOIN reviews rev ON r.id = rev.restaurant_id
+            WHERE us.name = 'Active'
             GROUP BY r.id
             ORDER BY average_rating DESC
         `;

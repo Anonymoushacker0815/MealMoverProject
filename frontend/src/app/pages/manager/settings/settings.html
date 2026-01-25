@@ -1,7 +1,6 @@
 <app-navbar role="manager"></app-navbar>
 <main class="p-6">
-    <h1>settings works!</h1>
-    <div *ngIf="isLoading">
+    <div *ngIf="isLoadingSettings">
         Loading Settings ...
     </div>
     <div *ngIf="errorMsg">
@@ -14,6 +13,9 @@
                 {{item.delivery_distance}}, {{ item.discount}}, {{item.service_fee}}
             </li>
         </ul>
+        <div *ngIf="isLoadingCodes">
+            Loading Discount Codes ...
+        </div>
         <table>
             <thead>
                <th>code</th>
