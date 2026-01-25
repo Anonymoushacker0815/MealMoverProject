@@ -102,7 +102,7 @@ router.get('/users', authenticateToken, requireModerationRole, async (req, res) 
         u.email,
         u.username,
         u.user_type,
-        COALESCE(s.name, 'Active') AS status
+        COALESCE(s.name, 'Unknown') AS status
       FROM users u
       LEFT JOIN u_status s ON s.id = u.status_id
       ORDER BY u.id ASC
@@ -117,7 +117,7 @@ router.get('/users', authenticateToken, requireModerationRole, async (req, res) 
 
 /*
 PATCH /moderation/users/:id/status
-Body: { status: "Active" | "Suspended" }
+Body: { status: "Active" | "Suspended" | "Pending" }
 */
 router.patch('/users/:id/status', authenticateToken, requireModerationRole, async (req, res) => {
   const userId = Number(req.params.id);
@@ -127,9 +127,9 @@ router.patch('/users/:id/status', authenticateToken, requireModerationRole, asyn
     return res.status(400).json({ error: 'Missing user id or status.' });
   }
 
-  const allowed = new Set(['Active', 'Suspended']);
+  const allowed = new Set(['Active', 'Suspended', 'Pending']);
   if (!allowed.has(status)) {
-    return res.status(400).json({ error: 'Invalid status. Allowed: Active, Suspended.' });
+    return res.status(400).json({ error: 'Invalid status. Allowed: Active, Suspended, Pending.' });
   }
 
   try {
