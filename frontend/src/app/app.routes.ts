@@ -26,6 +26,12 @@ export const routes: Routes = [
         .then(m => m.ManagerModeration)
   },
   {
+    path: 'manager/users',
+    loadComponent: () =>
+      import('./pages/manager/users/users')
+        .then(m => m.ManagerUsers)
+  },
+  {
     path: 'manager/report',
     loadComponent: () =>
       import('./pages/manager/report/report')
