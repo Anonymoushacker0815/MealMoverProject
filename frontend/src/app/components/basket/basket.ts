@@ -21,6 +21,7 @@ export class BasketComponent {
   @Output() orderPlaced = new EventEmitter<number>();
 
   isSubmitting = false;
+  orderSuccess = false;
 
   get cartItems() { return this.cartService.cartItems; }
   get totalPrice() { return this.cartService.totalPrice; }
@@ -49,6 +50,7 @@ export class BasketComponent {
     }
 
     this.isSubmitting = true;
+    this.orderSuccess = false;
 
     this.cartService.placeOrder(user.id, this.restaurantId).subscribe({
       next: (response) => {
@@ -56,12 +58,15 @@ export class BasketComponent {
         this.cartService.clearCart();
         this.isSubmitting = false;
 
+        this.orderSuccess = true;
+
         this.orderPlaced.emit(response.orderId);
       },
       error: (error) => {
         console.error('Checkout error:', error);
         alert('Failed to place order. Please try again.');
         this.isSubmitting = false;
+        this.orderSuccess = false;
       }
     });
   }
