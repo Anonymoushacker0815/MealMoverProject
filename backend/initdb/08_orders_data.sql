@@ -3,7 +3,8 @@ INSERT INTO o_status (name, description) VALUES
 ('placed', 'order has been placed'),
 ('preparing', 'order is being prepared'),
 ('delivering', 'the order is on its way'),
-('completed', 'the order has been delivered');
+('completed', 'the order has been delivered'),
+('rejected', 'the order has been rejected');
 
 INSERT INTO orders (customer_id, restaurant_id, status_id, price, order_time) VALUES
 (3, 1, 4, 14.90, NOW() - INTERVAL '40 days'),
