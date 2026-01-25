@@ -90,7 +90,7 @@ export const routes: Routes = [
       },
       {
         path: 'review/:restaurantId',
-        loadComponent: () => import('./pages/user/review/review').then(m => m.ReviewComponent)
+        loadComponent: () => import('./pages/user/review/review').then(m => m.Review)
       }
     ]
   },

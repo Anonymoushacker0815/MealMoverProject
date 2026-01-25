@@ -9,7 +9,6 @@ export const NAV_ITEMS: Record<Role, NavItem[]> = {
   user: [
     { label: 'Order', route: '/user/order' },
     { label: 'Loyalty', route: '/user/loyalty' },
-    { label: 'Profile', route: '/user/profile' },
   ],
   manager: [
     { label: 'Dashboard', route: '/manager/dashboard' },

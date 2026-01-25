@@ -11,7 +11,7 @@ import { AuthService } from '../../../services/auth.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './review.html'
 })
-export class ReviewComponent {
+export class Review {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private restaurantService = inject(RestaurantService);
