@@ -40,6 +40,7 @@ export class ManagerSettings  implements OnInit{
 
   ngOnInit() {
     this.loadSettings();
+    this.loadDiscountCodes();
   }
 
   private getAuthHeaders(): { headers?: HttpHeaders } {
@@ -94,6 +95,31 @@ export class ManagerSettings  implements OnInit{
       }
     })
 
+  }
+
+  loadDiscountCodes() {
+    this.isLoading = true;
+    this.errorMsg = null;
+
+    this.http.get<DiscountCode[]>(
+      `http://localhost:3000/manager/discountCodes`,
+      this.getAuthHeaders()
+    )
+    .subscribe({
+      next: (rows) => {
+        console.log('loaded discountCodes', rows);
+        this.codes = rows ?? [];
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        if (this.handleAuthError(err))return;
+        console.error(err);
+        this.errorMsg = 'Error laoding Discount Codes';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   handleAuthError(err: any) {

@@ -14,6 +14,17 @@
                 {{item.delivery_distance}}, {{ item.discount}}, {{item.service_fee}}
             </li>
         </ul>
-        <p>{{settings}}</p>
+        <table>
+            <thead>
+               <th>code</th>
+               <th>percent</th>
+               <th>amount</th> 
+            </thead>
+            <tr *ngFor="let item of codes">
+                <td>{{item.code}}</td>
+                <td>{{item.percent}}</td>
+                <td>{{item.amount}}</td>
+            </tr>
+        </table>
     </div>
 </main>
