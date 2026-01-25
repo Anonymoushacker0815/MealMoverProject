@@ -23,7 +23,7 @@ const getRestaurantIdForUser = async (userId) => {
   return r.rows.length ? r.rows[0].id : null;
 };
 
-// GET: Analytics fürs eigene Restaurant (mit month switch + 0-days)
+// GET: Analytics fürs eigene Restaurant
 router.get("/analytics", authenticateToken, async (req, res) => {
   try {
     const restaurantId = await getRestaurantIdForUser(req.user.id);
@@ -31,7 +31,7 @@ router.get("/analytics", authenticateToken, async (req, res) => {
 
     const now = new Date();
     const year = Number.parseInt(req.query.year) || now.getFullYear();
-    const month = Number.parseInt(req.query.month) || (now.getMonth() + 1); // 1..12
+    const month = Number.parseInt(req.query.month) || (now.getMonth() + 1);
 
     // Order Counts (Tag/Woche/Monat)
     const countsQ = `
@@ -80,10 +80,10 @@ router.get("/analytics", authenticateToken, async (req, res) => {
 
     // Reviews fürs Restaurant
     const reviewsQ = `
-      SELECT id, rating
+      SELECT id, rating, created_at
       FROM reviews
       WHERE restaurant_id = $1
-      ORDER BY id ASC;
+      ORDER BY created_at DESC, id DESC;
     `;
     const reviewsR = await pool.query(reviewsQ, [restaurantId]);
 
@@ -94,9 +94,9 @@ router.get("/analytics", authenticateToken, async (req, res) => {
       monthly: monthlyR.rows,
       items: itemsR.rows,
       reviews: reviewsR.rows.map((r) => ({
-        id: r.id,                 
-        orderId: `Review-${r.id}`, 
-        date: "",
+        id: r.id,
+        orderId: `Review-${r.id}`,
+        date: r.created_at ? new Date(r.created_at).toISOString().slice(0, 10) : "",
         rating: r.rating,
       })),
     });
@@ -123,7 +123,8 @@ router.get("/reviews/:id", authenticateToken, async (req, res) => {
         r.user_id,
         u.username,
         r.dish_id,
-        d.name AS dish_name
+        d.name AS dish_name,
+        r.created_at
       FROM reviews r
       JOIN users u ON u.id = r.user_id
       LEFT JOIN r_dishes d ON d.id = r.dish_id
