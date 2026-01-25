@@ -1,7 +1,7 @@
 INSERT INTO u_status (name, description) VALUES
      ('Active', 'Standard'),
-     ('Suspended', 'User violated terms of service');
-
+     ('Suspended', 'User violated terms of service'),
+     ('Pending', 'Restaurant account awaiting approval');
 
 --Passwords must be prehashed - 10 rounds of salting with Bcrypt
 INSERT INTO users(email, password, username, user_type, status_id) VALUES

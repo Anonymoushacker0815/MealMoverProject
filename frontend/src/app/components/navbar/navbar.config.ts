@@ -14,6 +14,7 @@ export const NAV_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Dashboard', route: '/manager/dashboard' },
     { label: 'Moderation', route: '/manager/moderation' },
     { label: 'Users', route: '/manager/users' },
+    { label: 'Report', route: '/manager/report' },
     { label: 'Settings', route: '/manager/settings' },
   ],
   owner: [

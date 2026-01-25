@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Navbar } from '../../../components/navbar/navbar';
 import { AuthService } from '../../../services/auth.service';
 
-type UserStatus = 'Active' | 'Suspended';
+type UserStatus = 'Active' | 'Suspended' | 'Pending';
 
 type UserType = 'Customer' | 'Restaurant' | 'Admin';
 
@@ -34,7 +34,7 @@ export class ManagerUsers implements OnInit {
   isLoading = false;
   errorMsg: string | null = null;
 
-  readonly statuses: UserStatus[] = ['Active', 'Suspended'];
+  readonly statuses: UserStatus[] = ['Active', 'Suspended', 'Pending'];
 
   ngOnInit() {
     this.loadUsers();

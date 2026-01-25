@@ -1,4 +1,4 @@
-<app-navbar [role]="'manager'"></app-navbar>
+<app-navbar role="manager"></app-navbar>
 
 <div class="min-h-screen bg-gray-100">
   <div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
@@ -52,7 +52,8 @@
                 class="inline-flex items-center px-2 py-1 rounded border text-xs"
                 [ngClass]="{
                   'bg-green-50 border-green-200 text-green-800': u.status === 'Active',
-                  'bg-yellow-50 border-yellow-200 text-yellow-800': u.status === 'Suspended'
+                  'bg-yellow-50 border-yellow-200 text-yellow-800': u.status === 'Suspended',
+                  'bg-blue-50 border-blue-200 text-blue-800': u.status === 'Pending'
                 }"
               >
                 {{ u.status }}
