@@ -15,12 +15,6 @@ type UserCount = {
   count: number;
 }
 
-type PendingRegs = {
-  name: string;
-  email: string;
-  phone: string;
-}
-
 type OrderStats = {
   id: number;
   count: number;
