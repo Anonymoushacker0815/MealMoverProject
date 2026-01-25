@@ -37,7 +37,7 @@ router.put("/settings", async (req, res) => {
 });
 
 //get discount codes
-router.get("/discounts", async (req, res) => {
+router.get("/discountCodes", async (req, res) => {
     try{
         const query = `
         SELECT *
@@ -54,7 +54,7 @@ router.get("/discounts", async (req, res) => {
 
 //remove code
 //router.put("/discounts/:id", authenticateToken, async (req, res) => {
-router.put("/discounts/:id", async (req, res) => {
+router.put("/discountCodes/:id", async (req, res) => {
     try {
         if (req.user.user_type !== "Admin") {
         return res.status(403).json({ error: "Wrong Account" });
@@ -75,3 +75,5 @@ router.put("/discounts/:id", async (req, res) => {
         res.json(500).json({ error: "Server Error "});
     }
 });
+
+export default router;

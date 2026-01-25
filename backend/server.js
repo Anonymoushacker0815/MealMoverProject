@@ -10,6 +10,8 @@ import ownerMenuRoutes from './routes/ownerMenu.routes.js';
 import ownerProfileRoutes from './routes/ownerProfile.routes.js';
 import accountRouter from "./routes/account.routes.js";
 import ownerOrdersRouter from "./routes/ownerOrders.routes.js";
+import managerSettingsRouter from "./routes/managerSettings.routes.js";
+import managerDashboardRouter from "./routes/managerDashboard.routes.js";
 import ownerAnalyticsRoutes from "./routes/ownerAnalytics.routes.js";
 
 
@@ -43,8 +45,9 @@ app.use('/owner', ownerMenuRoutes);
 app.use('/owner', ownerProfileRoutes);
 app.use("/", accountRouter);
 app.use("/", ownerOrdersRouter);
+app.use("/manager", managerSettingsRouter);
+app.use("/manager/dashboard", managerDashboardRouter);
 app.use("/owner", ownerAnalyticsRoutes);
-
 
 
 app.use("/user-restaurants", userRestaurantRoutes);
