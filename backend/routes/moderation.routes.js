@@ -90,4 +90,66 @@ router.patch('/thread-reports/:id', authenticateToken, requireModerationRole, as
   }
 });
 
+/*
+GET /moderation/users
+List users + status name
+*/
+router.get('/users', authenticateToken, requireModerationRole, async (req, res) => {
+  try {
+    const q = `
+      SELECT
+        u.id,
+        u.email,
+        u.username,
+        u.user_type,
+        COALESCE(s.name, 'Active') AS status
+      FROM users u
+      LEFT JOIN u_status s ON s.id = u.status_id
+      ORDER BY u.id ASC
+    `;
+    const result = await pool.query(q);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch users.' });
+  }
+});
+
+/*
+PATCH /moderation/users/:id/status
+Body: { status: "Active" | "Suspended" }
+*/
+router.patch('/users/:id/status', authenticateToken, requireModerationRole, async (req, res) => {
+  const userId = Number(req.params.id);
+  const { status } = req.body;
+
+  if (!userId || !status) {
+    return res.status(400).json({ error: 'Missing user id or status.' });
+  }
+
+  const allowed = new Set(['Active', 'Suspended']);
+  if (!allowed.has(status)) {
+    return res.status(400).json({ error: 'Invalid status. Allowed: Active, Suspended.' });
+  }
+
+  try {
+    const userRow = await pool.query(`SELECT user_type FROM users WHERE id = $1`, [userId]);
+    if (userRow.rowCount === 0) return res.status(404).json({ error: 'User not found.' });
+    if (userRow.rows[0].user_type === 'Admin') {
+      return res.status(403).json({ error: 'Cannot change Admin status.' });
+    }
+
+    const s = await pool.query(`SELECT id FROM u_status WHERE name = $1`, [status]);
+    if (s.rowCount === 0) return res.status(400).json({ error: 'Status not found in u_status.' });
+
+    await pool.query(`UPDATE users SET status_id = $1 WHERE id = $2`, [s.rows[0].id, userId]);
+
+    res.json({ ok: true, userId, status });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update status.' });
+  }
+});
+
+
 export default router;
