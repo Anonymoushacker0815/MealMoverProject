@@ -89,3 +89,4 @@ router.get("/restaurants", async (req, res) => {
     }
 });
 
+export default router;
