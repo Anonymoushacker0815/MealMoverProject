@@ -43,6 +43,16 @@ const getStatusIdByName = async (name) => {
   return r.rows[0].id;
 };
 
+const logUserEvent = async ({ userId, type, actorUserId = null, meta = null, createdAt = null }) => {
+  await pool.query(
+    `
+    INSERT INTO user_activity_events (user_id, event_type, actor_user_id, meta, created_at)
+    VALUES ($1, $2, $3, $4, COALESCE($5, NOW()))
+    `,
+    [userId, type, actorUserId, meta, createdAt]
+  );
+};
+
 // ROUTE: Register
 router.post("/register", async (req, res) => {
     const { email, password, user_type, location } = req.body;
@@ -88,6 +98,15 @@ router.post("/register", async (req, res) => {
         }
 
         const token = generateToken(newUser);
+        try {
+            await logUserEvent({
+                userId: newUser.id,
+                type: 'register',
+                meta: { user_type: newUser.user_type }
+            });
+        } catch (e) {
+            console.warn('Failed to log register event', e);
+        }
 
         res.json({
             success: true,
@@ -135,6 +154,12 @@ router.post("/login", async (req, res) => {
 
         //Dont store password
         delete user.password;
+
+        try {
+            await logUserEvent({ userId: user.id, type: 'login' });
+        } catch (e) {
+            console.warn('Failed to log login event', e);
+        }
 
         res.json({
             success: true,
@@ -188,7 +213,5 @@ router.get("/verifyuser", authenticateToken, async (req, res) => {
         res.status(500).json({ error: "Server Error" });
     }
 });
-
-
 
 export default router;

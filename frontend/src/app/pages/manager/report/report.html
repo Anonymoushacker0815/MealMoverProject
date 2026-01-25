@@ -1,1 +1,105 @@
-<p>report works!</p>
+<app-navbar role="manager"></app-navbar>
+
+<div class="min-h-screen bg-gray-100">
+  <div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
+
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-semibold">Report</h1>
+
+      <button
+        type="button"
+        (click)="refresh()"
+        class="px-3 py-1.5 border rounded bg-white text-sm hover:bg-gray-50"
+        [disabled]="isLoading"
+      >
+        Refresh
+      </button>
+    </div>
+
+    <div *ngIf="errorMsg" class="bg-red-50 border border-red-200 text-red-700 rounded p-3">
+      {{ errorMsg }}
+    </div>
+
+    <div *ngIf="isLoading" class="bg-white border rounded p-4 text-gray-600">
+      Loading statistics...
+    </div>
+
+    <!-- User statistics block -->
+    <div class="bg-white border rounded p-4 space-y-4" *ngIf="!isLoading">
+      <h2 class="text-lg font-semibold">User statistics</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div class="border rounded p-3 bg-white">
+          <div class="text-xs text-gray-500">Total logins</div>
+          <div class="text-xl font-semibold">
+            {{ stats.totalLogins ?? '—' }}
+          </div>
+        </div>
+
+        <div class="border rounded p-3 bg-white">
+          <div class="text-xs text-gray-500">New registrations</div>
+          <div class="text-xl font-semibold">
+            {{ stats.newRegistrations ?? '—' }}
+          </div>
+        </div>
+
+        <div class="border rounded p-3 bg-white">
+          <div class="text-xs text-gray-500">Status changes</div>
+          <div class="text-xl font-semibold">
+            {{ stats.statusChanges ?? '—' }}
+          </div>
+        </div>
+
+        <div class="border rounded p-3 bg-white">
+          <div class="text-xs text-gray-500">Active users</div>
+          <div class="text-xl font-semibold">
+            {{ stats.activeUsers ?? '—' }}
+          </div>
+        </div>
+
+        <div class="border rounded p-3 bg-white">
+          <div class="text-xs text-gray-500">Pending restaurants</div>
+          <div class="text-xl font-semibold">
+            {{ stats.pendingRestaurants ?? '—' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="bg-white border rounded p-4">
+        <div class="flex items-center justify-between mb-2">
+            <div class="font-medium text-gray-800">Activity trend (last 7 days)</div>
+            <div class="text-sm text-gray-500">{{ trendMinMaxLabel }}</div>
+        </div>
+
+        <svg
+            class="w-full"
+            [attr.viewBox]="'0 0 ' + trendSvgWidth + ' ' + trendSvgHeight"
+            preserveAspectRatio="none"
+        >
+            <!-- line -->
+            <polyline
+            [attr.points]="trendPoints"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            class="text-gray-800"
+            ></polyline>
+
+            <!-- x labels -->
+            <g *ngFor="let t of trendLabelTicks">
+            <text
+                [attr.x]="t.x"
+                [attr.y]="150"
+                text-anchor="middle"
+                font-size="11"
+                fill="#6B7280"
+            >
+                {{ t.label }}
+            </text>
+            </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
