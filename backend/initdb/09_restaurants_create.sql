@@ -45,3 +45,22 @@ ADD COLUMN IF NOT EXISTS sort_index int;
 
 UPDATE categories SET sort_index = id WHERE sort_index IS NULL;
 UPDATE r_dishes  SET sort_index = id WHERE sort_index IS NULL;
+
+-- REPORTS (gemeldete Reviews)
+CREATE TABLE IF NOT EXISTS review_reports(
+  id serial PRIMARY KEY,
+  review_id int NOT NULL,
+  restaurant_id int NOT NULL,
+  reported_by_user_id int NOT NULL,
+  reason text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT fk_report_review
+    FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
+
+  CONSTRAINT fk_report_restaurant
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE,
+
+  CONSTRAINT fk_report_user
+    FOREIGN KEY (reported_by_user_id) REFERENCES users(id) ON DELETE CASCADE
+);

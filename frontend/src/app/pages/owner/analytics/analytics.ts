@@ -1,40 +1,24 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Navbar } from '../../../components/navbar/navbar';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
 
 import { BaseChartDirective } from 'ng2-charts';
-import {
-  Chart,
-  ChartConfiguration,
-  ChartData,
-  ChartOptions,
-  registerables,
-} from 'chart.js';
+import { Chart, ChartConfiguration, ChartData, ChartOptions, registerables } from 'chart.js';
 
-// Chart.js initialisieren
 Chart.register(...registerables);
-
 
 // Tageswert für Monatsdiagramm
 type MonthlyPoint = { day: number; value: number };
 
 // Beliebteste Gerichte
-type PopularItem = {
-  name: string;
-  sold: number;
-  revenue: number;
-};
+type PopularItem = { name: string; sold: number; revenue: number };
 
 // Review-Übersicht
-type Review = {
-  id: number;
-  orderId: string;
-  date: string;
-  rating: number;
-};
+type Review = { id: number; orderId: string; date: string; rating: number };
 
 // Review-Detailansicht
 type ReviewDetails = {
@@ -45,16 +29,16 @@ type ReviewDetails = {
   username: string;
   dish_id: number | null;
   dish_name: string | null;
+  created_at?: string;
 };
 
 @Component({
   standalone: true,
   selector: 'app-owner-analytics',
-  imports: [CommonModule, Navbar, BaseChartDirective],
+  imports: [CommonModule, Navbar, FormsModule, BaseChartDirective],
   templateUrl: './analytics.html',
 })
 export class OwnerAnalytics implements OnInit {
-
   // Angular Services
   private http = inject(HttpClient);
   private authService = inject(AuthService);
@@ -81,19 +65,22 @@ export class OwnerAnalytics implements OnInit {
   isReviewLoading = false;
   selectedReview: ReviewDetails | null = null;
 
+  // Report-Modal Status
+  isReportModalOpen = false;
+  isReportSending = false;
+  reportText = '';
+  reportTarget: Review | null = null;
 
   // Initiales Laden der Analytics
   ngOnInit() {
     this.loadAnalytics();
   }
 
-
   // Authorization Header
   private headers() {
     const token = localStorage.getItem('token') ?? '';
     return new HttpHeaders({ Authorization: token });
   }
-
 
   // Anzeige-Label für aktuellen Monat
   get monthLabel(): string {
@@ -102,7 +89,6 @@ export class OwnerAnalytics implements OnInit {
       year: 'numeric',
     });
   }
-
 
   // Zum vorherigen Monat wechseln
   prevMonth() {
@@ -114,7 +100,6 @@ export class OwnerAnalytics implements OnInit {
     this.loadAnalytics();
   }
 
-
   // Zum nächsten Monat wechseln
   nextMonth() {
     this.currentMonth++;
@@ -125,45 +110,26 @@ export class OwnerAnalytics implements OnInit {
     this.loadAnalytics();
   }
 
-
   // Sortierte Liste der beliebtesten Gerichte
   get popularItems(): PopularItem[] {
     return [...this.items].sort((a, b) => b.sold - a.sold);
   }
 
-
   // Chart-Daten
   public monthlyChartData: ChartData<'line'> = { labels: [], datasets: [] };
-
 
   // Chart-Konfiguration
   public monthlyChartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: { enabled: true },
-    },
+    plugins: { legend: { display: false }, tooltip: { enabled: true } },
     scales: {
-      y: {
-        title: { display: true, text: 'Orders' },
-        ticks: { precision: 0 },
-        grid: { color: 'rgba(0,0,0,0.12)' },
-      },
-      x: {
-        ticks: {
-          maxRotation: 0,
-          autoSkip: true,
-          maxTicksLimit: 10,
-        },
-        grid: { display: false },
-      },
+      y: { title: { display: true, text: 'Orders' }, ticks: { precision: 0 }, grid: { color: 'rgba(0,0,0,0.12)' } },
+      x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }, grid: { display: false } },
     },
   };
 
-  // Chart-Typ
   public monthlyChartType: ChartConfiguration<'line'>['type'] = 'line';
-
 
   // Baut das Monatsdiagramm neu auf
   private rebuildChart() {
@@ -187,7 +153,6 @@ export class OwnerAnalytics implements OnInit {
     this.cdr.detectChanges();
   }
 
-
   // Lädt alle Analytics-Daten vom Backend
   loadAnalytics() {
     this.isLoading = true;
@@ -197,30 +162,24 @@ export class OwnerAnalytics implements OnInit {
 
     this.http.get<any>(url, { headers: this.headers() }).subscribe({
       next: (res) => {
-
-        // Monat/Jahr ggf. vom Backend korrigieren
         if (res?.selected?.year && res?.selected?.month) {
           this.currentYear = Number(res.selected.year);
           this.currentMonth = Number(res.selected.month);
         }
 
-        // Zähler
         this.orderCounts = res.orderCounts ?? { day: 0, week: 0, month: 0 };
 
-        // Monatsdiagramm
         this.monthly = (res.monthly ?? []).map((x: any) => ({
           day: Number(x.day),
           value: Number(x.value),
         }));
 
-        // Beliebteste Gerichte
         this.items = (res.items ?? []).map((x: any) => ({
           name: x.name,
           sold: Number(x.sold ?? 0),
           revenue: Number(x.revenue ?? 0),
         }));
 
-        // Reviews
         this.reviews = (res.reviews ?? []).map((r: any) => ({
           id: Number(r.id),
           orderId: r.orderId,
@@ -238,14 +197,11 @@ export class OwnerAnalytics implements OnInit {
         this.isLoading = false;
         this.cdr.detectChanges();
 
-        if (err.status === 401 || err.status === 403) {
-          this.authService.logout();
-        }
+        if (err.status === 401 || err.status === 403) this.authService.logout();
         alert(err.error?.error || 'Failed to load analytics');
       },
     });
   }
-
 
   // Öffnet Review-Modal und lädt Details
   viewReview(r: Review) {
@@ -269,8 +225,6 @@ export class OwnerAnalytics implements OnInit {
     });
   }
 
-
-  // Schließt das Review-Modal
   closeReviewModal() {
     this.isReviewModalOpen = false;
     this.isReviewLoading = false;
@@ -278,9 +232,51 @@ export class OwnerAnalytics implements OnInit {
     this.cdr.detectChanges();
   }
 
+  // Report Modal öffnen
+  openReport(r: Review) {
+    this.reportTarget = r;
+    this.reportText = '';
+    this.isReportModalOpen = true;
+    this.isReportSending = false;
+    this.cdr.detectChanges();
+  }
 
-  // Review melden (Placeholder)
-  reportReview(r: Review) {
-    alert(`Report review ${r.orderId}`);
+  closeReportModal() {
+    this.isReportModalOpen = false;
+    this.isReportSending = false;
+    this.reportText = '';
+    this.reportTarget = null;
+    this.cdr.detectChanges();
+  }
+
+  // Report senden an Backend
+  submitReport() {
+    const r = this.reportTarget;
+    const reason = this.reportText.trim();
+    if (!r) return;
+    if (!reason) {
+      alert('Please write a reason.');
+      return;
+    }
+
+    this.isReportSending = true;
+    this.cdr.detectChanges();
+
+    this.http
+      .post<any>(`${this.API}/owner/reviews/${r.id}/report`, { reason }, { headers: this.headers() })
+      .subscribe({
+        next: () => {
+          this.isReportSending = false;
+          this.cdr.detectChanges();
+          alert('Report sent!');
+          this.closeReportModal();
+        },
+        error: (err) => {
+          console.log('REPORT ERROR', err);
+          this.isReportSending = false;
+          this.cdr.detectChanges();
+          alert(err.error?.error || 'Failed to send report');
+        },
+      });
   }
 }

@@ -42,7 +42,7 @@ router.get("/analytics", authenticateToken, async (req, res) => {
     `;
     const countsR = await pool.query(countsQ, [restaurantId]);
 
-    // Monthly Overview (gewählter Monat) - inkl. 0 Tage
+    // Monthly Overview (gewählter Monat)
     const monthlyQ = `
       WITH days AS (
         SELECT generate_series(
@@ -140,6 +140,46 @@ router.get("/reviews/:id", authenticateToken, async (req, res) => {
     res.json({ success: true, review: result.rows[0] });
   } catch (err) {
     console.error("GET /owner/reviews/:id error:", err);
+    res.status(500).json({ error: "Server Error" });
+  }
+});
+
+// POST: Review reporten
+router.post("/reviews/:id/report", authenticateToken, async (req, res) => {
+  try {
+    const restaurantId = await getRestaurantIdForUser(req.user.id);
+    if (!restaurantId) return res.status(404).json({ error: "Restaurant not found for this user." });
+
+    const reviewId = Number.parseInt(req.params.id);
+    if (!reviewId) return res.status(400).json({ error: "Invalid review id" });
+
+    const reason = String(req.body?.reason ?? "").trim();
+    if (!reason) return res.status(400).json({ error: "Reason is required." });
+    if (reason.length > 1000) return res.status(400).json({ error: "Reason too long (max 1000 chars)." });
+
+    // ensure review belongs to this restaurant
+    const chk = await pool.query(
+      "SELECT id FROM reviews WHERE id = $1 AND restaurant_id = $2 LIMIT 1",
+      [reviewId, restaurantId]
+    );
+    if (chk.rows.length === 0) return res.status(404).json({ error: "Review not found for this restaurant." });
+
+    // insert report
+    const ins = await pool.query(
+      `
+      INSERT INTO review_reports (review_id, restaurant_id, reported_by_user_id, reason)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, created_at;
+      `,
+      [reviewId, restaurantId, req.user.id, reason]
+    );
+
+    res.status(201).json({ success: true, report: ins.rows[0] });
+  } catch (err) {
+    if (err?.code === "23505") {
+      return res.status(409).json({ error: "You already reported this review." });
+    }
+    console.error("POST /owner/reviews/:id/report error:", err);
     res.status(500).json({ error: "Server Error" });
   }
 });
