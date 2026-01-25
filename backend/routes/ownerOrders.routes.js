@@ -4,7 +4,6 @@ import { pool } from "../db.js";
 import { config } from "../config.js";
 
 const JWT_SECRET = config.JWT_SECRET;
-
 const router = express.Router();
 
 // Token-Authentifizierung (Authorization: <token>)
@@ -27,8 +26,8 @@ const getRestaurantIdForUser = async (userId) => {
 
 // Status-Mapping Frontend -> DB (o_status.name)
 const mapUiStatusToDbStatusName = (uiStatus) => {
-  // UI: new | preparing | ready | complete
-  // DB: placed | preparing | delivering | completed
+  // UI: new | preparing | ready | complete | rejected
+  // DB: placed | preparing | delivering | completed | rejected
   switch (uiStatus) {
     case "new":
       return "placed";
@@ -38,6 +37,8 @@ const mapUiStatusToDbStatusName = (uiStatus) => {
       return "delivering";
     case "complete":
       return "completed";
+    case "rejected":
+      return "rejected";
     default:
       return null;
   }
@@ -54,6 +55,8 @@ const mapDbStatusToUiStatus = (dbStatus) => {
       return "ready";
     case "completed":
       return "complete";
+    case "rejected":
+      return "rejected";
     default:
       return "new";
   }
@@ -69,7 +72,6 @@ router.get("/owner/orders", authenticateToken, async (req, res) => {
     const restaurantId = await getRestaurantIdForUser(req.user.id);
     if (!restaurantId) return res.status(404).json({ error: "Restaurant not found for this user." });
 
-    // Orders + Customer + Status + Items (o_dishes -> r_dishes)
     const q = `
       SELECT
         o.id AS order_id,
@@ -101,7 +103,6 @@ router.get("/owner/orders", authenticateToken, async (req, res) => {
 
     const r = await pool.query(q, [restaurantId]);
 
-    // In UI-Format umwandeln
     const orders = r.rows.map((row) => {
       const displayId = `ORDER-${String(row.order_id).padStart(4, "0")}`;
       const uiStatus = mapDbStatusToUiStatus(row.status_name);
@@ -130,7 +131,7 @@ router.get("/owner/orders", authenticateToken, async (req, res) => {
   }
 });
 
-// Order-Status updaten (Start Preparing / Ready / Complete)
+// Order-Status updaten
 router.patch("/owner/orders/:orderId/status", authenticateToken, async (req, res) => {
   const { orderId } = req.params;
   const { status } = req.body;
@@ -146,13 +147,11 @@ router.patch("/owner/orders/:orderId/status", authenticateToken, async (req, res
     const dbStatusName = mapUiStatusToDbStatusName(status);
     if (!dbStatusName) return res.status(400).json({ error: "Invalid status." });
 
-    // status_id für o_status.name holen
     const s = await pool.query("SELECT id FROM o_status WHERE name = $1", [dbStatusName]);
     if (s.rows.length === 0) return res.status(400).json({ error: "Status not found in DB." });
 
     const statusId = s.rows[0].id;
 
-    // Update nur wenn Order zu diesem Restaurant gehört
     const upd = await pool.query(
       `
       UPDATE orders
@@ -174,7 +173,7 @@ router.patch("/owner/orders/:orderId/status", authenticateToken, async (req, res
   }
 });
 
-// Order ablehnen (löscht Order + Items)
+// Reject: NICHT löschen, sondern Status = rejected setzen
 router.delete("/owner/orders/:orderId", authenticateToken, async (req, res) => {
   const { orderId } = req.params;
 
@@ -186,22 +185,28 @@ router.delete("/owner/orders/:orderId", authenticateToken, async (req, res) => {
     const restaurantId = await getRestaurantIdForUser(req.user.id);
     if (!restaurantId) return res.status(404).json({ error: "Restaurant not found for this user." });
 
-    // Sicherstellen: Order gehört Restaurant
-    const chk = await pool.query("SELECT id FROM orders WHERE id = $1 AND restaurant_id = $2", [
-      Number(orderId),
-      restaurantId,
-    ]);
-    if (chk.rows.length === 0) return res.status(404).json({ error: "Order not found for this restaurant." });
+    // rejected status_id holen
+    const s = await pool.query("SELECT id FROM o_status WHERE name = 'rejected' LIMIT 1");
+    if (s.rows.length === 0) return res.status(400).json({ error: "Rejected status not found in DB." });
 
-    await pool.query("BEGIN");
-    await pool.query("DELETE FROM o_dishes WHERE order_id = $1", [Number(orderId)]);
-    await pool.query("DELETE FROM orders WHERE id = $1 AND restaurant_id = $2", [Number(orderId), restaurantId]);
-    await pool.query("COMMIT");
+    const rejectedStatusId = s.rows[0].id;
 
-    res.json({ success: true });
+    // Update nur wenn Order zu diesem Restaurant gehört
+    const upd = await pool.query(
+      `
+      UPDATE orders
+      SET status_id = $1
+      WHERE id = $2 AND restaurant_id = $3
+      RETURNING id;
+      `,
+      [rejectedStatusId, Number(orderId), restaurantId]
+    );
+
+    if (upd.rows.length === 0) return res.status(404).json({ error: "Order not found for this restaurant." });
+
+    res.json({ success: true, rejected: true });
   } catch (err) {
-    await pool.query("ROLLBACK").catch(() => {});
-    console.error("DELETE /owner/orders/:id error:", err);
+    console.error("DELETE (REJECT) /owner/orders/:id error:", err);
     res.status(500).json({ error: "Reject failed" });
   }
 });

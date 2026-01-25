@@ -51,6 +51,15 @@
         Complete
       </button>
 
+      <button
+        (click)="setFilter('rejected')"
+        [ngClass]="activeFilter === 'rejected' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
+        class="px-4 py-2 rounded-xl border transition bg-white hover:border-[#9B1C1F]"
+        type="button"
+      >
+        Rejected
+      </button>
+
       <!-- SEARCH -->
       <div class="relative ml-4">
         <input
@@ -112,7 +121,6 @@
       <!-- ACTIONS -->
       <div class="flex gap-3 p-4">
 
-        <!-- NEW -->
         <button
           *ngIf="order.status === 'new'"
           (click)="startPreparing(order)"
@@ -123,7 +131,6 @@
           Start Preparing
         </button>
 
-        <!-- PREPARING -->
         <button
           *ngIf="order.status === 'preparing'"
           (click)="markReady(order)"
@@ -134,7 +141,6 @@
           Ready
         </button>
 
-        <!-- READY -->
         <button
           *ngIf="order.status === 'ready'"
           (click)="completeOrder(order)"
