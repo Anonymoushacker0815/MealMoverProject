@@ -14,13 +14,15 @@ import { AuthService } from '../../services/auth.service';
 import { UserMap } from '../../components/user-map/user-map';
 import { MapService } from '../../services/map.service';
 
+import { Navbar } from '../../components/navbar/navbar';
+
 // GeoJSON Typ für Location
 type GeoJsonPoint = { type: 'Point'; coordinates: [number, number] };
 
 @Component({
   selector: 'app-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserMap],
+  imports: [CommonModule, FormsModule, UserMap, Navbar],
   templateUrl: './account.html',
 })
 export class Account implements OnInit {
@@ -237,5 +239,12 @@ export class Account implements OnInit {
   doLogout() {
     this.authService.logout();
     this.router.navigate(['/']);
+  }
+
+  get navbarRole(): 'user' | 'owner' | 'manager' {
+    const t = this.user?.user_type;
+    if (t === 'Admin') return 'manager';
+    if (t === 'Restaurant') return 'owner';
+    return 'user';
   }
 }
