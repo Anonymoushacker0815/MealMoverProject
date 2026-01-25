@@ -5,7 +5,7 @@ import { pool } from "../db.js";
 const router = express.Router();
 const JWT_SECRET = "MealMover";
 
-// Auth bleibt GENAU gleich: Authorization: <token>
+// Authorization: <token>
 const authenticateToken = (req, res, next) => {
   const token = req.headers["authorization"];
   if (!token) return res.status(401).json({ error: "No Token." });
@@ -78,7 +78,7 @@ router.get("/analytics", authenticateToken, async (req, res) => {
     `;
     const itemsR = await pool.query(itemsQ, [restaurantId]);
 
-    // Reviews fürs Restaurant (Liste; Details holen wir extra über /owner/reviews/:id)
+    // Reviews fürs Restaurant
     const reviewsQ = `
       SELECT id, rating
       FROM reviews
@@ -94,8 +94,8 @@ router.get("/analytics", authenticateToken, async (req, res) => {
       monthly: monthlyR.rows,
       items: itemsR.rows,
       reviews: reviewsR.rows.map((r) => ({
-        id: r.id,                 // <-- wichtig für View-Details
-        orderId: `Review-${r.id}`, // Anzeige
+        id: r.id,                 
+        orderId: `Review-${r.id}`, 
         date: "",
         rating: r.rating,
       })),
@@ -115,8 +115,6 @@ router.get("/reviews/:id", authenticateToken, async (req, res) => {
     const reviewId = Number.parseInt(req.params.id);
     if (!reviewId) return res.status(400).json({ error: "Invalid review id" });
 
-    // Review nur erlauben, wenn sie zu diesem Restaurant gehört
-    // Dish ist optional (LEFT JOIN), User-Email optional (JOIN users)
     const q = `
       SELECT
         r.id,

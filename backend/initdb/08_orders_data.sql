@@ -10,7 +10,9 @@ INSERT INTO orders (customer_id, restaurant_id, status_id, price, order_time) VA
 (3, 1, 4, 39.99, NOW() - INTERVAL '19 days'),
 (2, 1, 4, 20.00, NOW() - INTERVAL '19 days'),
 (2, 1, 4, 18.50, NOW() - INTERVAL '17 days'),
-(3, 1, 4, 14.90, NOW() - INTERVAL '17 days');
+(3, 1, 4, 14.90, NOW() - INTERVAL '17 days'),
+(3, 1, 1, 14.90, NOW());
+
 
 INSERT INTO o_dishes (order_id, dish_id, ammount) VALUES
 (1,2,5),
@@ -21,4 +23,5 @@ INSERT INTO o_dishes (order_id, dish_id, ammount) VALUES
 (4,3,1),
 (4,4,2),
 (5,1,2),
-(5,2,1);
+(5,2,1),
+(6,2,1);

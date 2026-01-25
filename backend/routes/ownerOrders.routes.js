@@ -59,7 +59,7 @@ const mapDbStatusToUiStatus = (dbStatus) => {
   }
 };
 
-// Orders für Owner (Restaurant) laden
+// Orders für Owner (Restaurant) laden (NUR HEUTIGE)
 router.get("/owner/orders", authenticateToken, async (req, res) => {
   try {
     if (req.user.user_type !== "Restaurant" && req.user.user_type !== "Admin") {
@@ -93,6 +93,8 @@ router.get("/owner/orders", authenticateToken, async (req, res) => {
       LEFT JOIN o_dishes od ON od.order_id = o.id
       LEFT JOIN r_dishes d ON d.id = od.dish_id
       WHERE o.restaurant_id = $1
+        AND o.order_time >= CURRENT_DATE
+        AND o.order_time < CURRENT_DATE + INTERVAL '1 day'
       GROUP BY o.id, os.name, u.username, u.email, u.location
       ORDER BY o.order_time ASC, o.id ASC;
     `;
@@ -111,8 +113,8 @@ router.get("/owner/orders", authenticateToken, async (req, res) => {
       }
 
       return {
-        _id: row.order_id, // numeric id für API calls
-        id: displayId, // Anzeige
+        _id: row.order_id,
+        id: displayId,
         customerName: row.customer_username || row.customer_email,
         address,
         location: row.customer_location,
@@ -131,7 +133,7 @@ router.get("/owner/orders", authenticateToken, async (req, res) => {
 // Order-Status updaten (Start Preparing / Ready / Complete)
 router.patch("/owner/orders/:orderId/status", authenticateToken, async (req, res) => {
   const { orderId } = req.params;
-  const { status } = req.body; // UI status: new|preparing|ready|complete
+  const { status } = req.body;
 
   try {
     if (req.user.user_type !== "Restaurant" && req.user.user_type !== "Admin") {
@@ -161,7 +163,9 @@ router.patch("/owner/orders/:orderId/status", authenticateToken, async (req, res
       [statusId, Number(orderId), restaurantId]
     );
 
-    if (upd.rows.length === 0) return res.status(404).json({ error: "Order not found for this restaurant." });
+    if (upd.rows.length === 0) {
+      return res.status(404).json({ error: "Order not found for this restaurant." });
+    }
 
     res.json({ success: true });
   } catch (err) {
