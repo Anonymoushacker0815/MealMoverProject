@@ -35,7 +35,9 @@ export class ManagerSettings  implements OnInit{
   codes: DiscountCode[] = [];
 
   isLoadingSettings = false;
+  isEditingSettings = false;
   isLoadingCodes = false;
+  isEditingCodes = false;
   errorMsg: string | null = null;
   private API = 'http://localhost:3000';
 
@@ -121,6 +123,34 @@ export class ManagerSettings  implements OnInit{
         this.cdr.detectChanges();
       }
     });
+  }
+
+  updateDiscountCode(){
+    this.isEditingCodes = true;
+    this.cdr.detectChanges();
+  }
+
+  saveDiscountCode(){
+    this.isEditingCodes = false;
+  }
+
+  deleteDiscountCode(){
+  }
+
+  startEditSettings(){
+    this.isEditingSettings = true;
+  }
+
+  saveSettings(){
+    this.isEditingSettings = false;
+  }
+
+  cancelEditSettings(){
+    this.isEditingSettings = false;
+  }
+
+  addDiscountCode(){
+
   }
 
   handleAuthError(err: any) {
