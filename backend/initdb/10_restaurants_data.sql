@@ -29,7 +29,7 @@ INSERT INTO restaurants (
             "sun": {"label":"Sun","closed":true,"open":"00:00","close":"00:00"}
           }'::jsonb,
           4,
-          2,
+          1,
           '{"type":"Point","coordinates":[14.299591003901329,46.62504993899363]}'
       ),
       (
@@ -47,7 +47,7 @@ INSERT INTO restaurants (
             "sun": {"label":"Sun","closed":true,"open":"00:00","close":"00:00"}
           }'::jsonb,
           5,
-          1,
+          2,
           '{"type":"Point","coordinates":[14.295221891287628,46.602274114923205]}'
       );
 
