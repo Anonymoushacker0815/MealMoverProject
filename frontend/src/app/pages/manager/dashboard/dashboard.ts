@@ -29,6 +29,7 @@ type Restaurant = {
   opening_hours: string;
   status: string;
 }
+
 type UserStatus = 'Active' | 'Suspended' | 'Pending';
 type UserType = 'Customer' | 'Restaurant' | 'Admin';
 
