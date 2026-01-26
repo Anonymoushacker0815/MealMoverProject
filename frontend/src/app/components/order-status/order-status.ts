@@ -44,12 +44,23 @@ export class OrderStatusComponent implements OnInit, OnDestroy {
             this.lastUpdated.set(new Date());
             this.loading.set(false);
 
-            if (res.order.status === 'completed' && !this.hasRedirected) {
-              this.hasRedirected = true;
+            if (!this.hasRedirected) {
 
-              setTimeout(() => {
-                this.router.navigate(['/user/order/review', this.restaurantId]);
-              }, 2000);
+
+              if (res.order.status === 'completed') {
+                this.hasRedirected = true;
+                setTimeout(() => {
+                  this.router.navigate(['/user/order/review', this.restaurantId]);
+                }, 2000);
+              }
+
+
+              if (res.order.status === 'rejected') {
+                this.hasRedirected = true;
+                setTimeout(() => {
+                  this.router.navigate(['/user/order/restaurants']);
+                }, 3000);
+              }
             }
           }
         },
@@ -65,6 +76,9 @@ export class OrderStatusComponent implements OnInit, OnDestroy {
 
   getStepClass(stepKey: string): string {
     const current = this.status();
+
+    if (current === 'rejected') return 'pending';
+
     const keys = this.steps.map(s => s.key);
     const currentIndex = keys.indexOf(current);
     const stepIndex = keys.indexOf(stepKey);
