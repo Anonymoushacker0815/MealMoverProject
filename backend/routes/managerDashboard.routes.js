@@ -7,7 +7,7 @@ const router = express.Router();
 router.get("/income", async (req, res) => {
     try{
         const query = `
-        SELECT SUM(price)
+        SELECT SUM(price) AS amount
         FROM orders
         `;
         
@@ -59,7 +59,7 @@ router.get("/pendingRegistrations", async (req, res) => {
 router.get("/orders", async (req, res) => {
     try {
         const query = `
-        SELECT restaurant_id, COUNT(id) AS amount, SUM(price) AS income
+        SELECT restaurant_id AS id, COUNT(id) AS amount, SUM(price) AS income
         FROM orders
         GROUP BY restaurant_id
         `;

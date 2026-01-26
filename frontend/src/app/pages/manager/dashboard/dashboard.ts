@@ -11,14 +11,14 @@ type Income = {
 }
 
 type UserCount = {
-  status: string;
-  count: number;
+  name: string;
+  amount: number;
 }
 
 type OrderStats = {
   id: number;
-  count: number;
-  sum: number;
+  amount: number;
+  income: number;
 }
 
 type Restaurant = {
@@ -53,15 +53,37 @@ export class ManagerDashboard implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private api = 'http://localhost:3000';
 
   pendingRestaurants: ModerationUser[] = [];
   pendingCount = 0;
 
+  incomes: Income[] = [];
+  userCounts: UserCount[] = [];
+  orderStats: OrderStats[] = [];
+  restaurants: Restaurant[] = [];
+
   isLoadingPending = false;
   pendingError: string | null = null;
 
+  isLoadingIncome = false;
+  incomeError: string | null = null;
+
+  isLoadingUserCount = false;
+  userCountError: string | null = null;
+
+  isLoadingOrderStats = false;
+  orderStatsError: string | null = null;
+
+  isLoadingAllRestaurants = false;
+  allRestaurantsError: string | null = null;
+
   ngOnInit() {
     this.loadPendingRestaurants();
+    this.loadGlobalIncome();
+    this.loadingUserCount();
+    this.loadOrderStats();
+    this.loadAllRestaurants();
   }
 
   private getAuthHeaders(): { headers?: HttpHeaders } {
@@ -104,6 +126,104 @@ export class ManagerDashboard implements OnInit {
           this.cdr.detectChanges();
         },
       });
+  }
+
+  loadGlobalIncome() {
+    this.isLoadingIncome = true;
+    this.incomeError = null;
+
+    this.http.get<Income[]>(
+      `${this.api}/manager/dashboard/income`,
+      this.getAuthHeaders()
+    )
+    .subscribe({
+      next: (rows) => {
+        this.incomes = rows ?? [];
+        this.isLoadingIncome = false;
+        console.log(this.incomes[0].amount);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoadingIncome = false;
+        if (this.handleAuthError(err)) return;
+        console.error(err);
+        this.incomeError = 'Error loading Income';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadingUserCount() {
+    this.isLoadingUserCount = true;
+    this.userCountError = null;
+
+    this.http.get<UserCount[]>(
+      `${this.api}/manager/dashboard/usercount`,
+      this.getAuthHeaders()
+    )
+    .subscribe({
+      next: (rows) => {
+        this.userCounts = rows ?? [];
+        this.isLoadingUserCount = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoadingUserCount = false;
+        if (this.handleAuthError(err)) return;
+        console.error(err);
+        this.userCountError = 'Error loading User Counts';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadOrderStats() {
+    this.isLoadingOrderStats = true;
+    this.orderStatsError = null;
+
+    this.http.get<OrderStats[]>(
+      `${this.api}/manager/dashboard/orders`,
+      this.getAuthHeaders()
+    )
+    .subscribe({
+      next: (rows) => {
+        this.orderStats = rows ?? [];
+        this.isLoadingOrderStats = false;
+        console.log(this.orderStats);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoadingOrderStats = false;
+        if (this.handleAuthError(err)) return;
+        console.error(err);
+        this.orderStatsError = 'Error loading Order Stats';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadAllRestaurants() {
+    this.isLoadingAllRestaurants = true;
+    this.allRestaurantsError = null;
+
+    this.http.get<Restaurant[]>(
+      `${this.api}/manager/dashboard/usercount`,
+      this.getAuthHeaders()
+    )
+    .subscribe({
+      next: (rows) => {
+        this.restaurants = rows ?? [];
+        this.isLoadingAllRestaurants = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoadingAllRestaurants = false;
+        if (this.handleAuthError(err)) return;
+        console.error(err);
+        this.allRestaurantsError = 'Error loading All Restaurants';
+        this.cdr.detectChanges();
+      }
+    })
   }
 
   goToUsers() {
