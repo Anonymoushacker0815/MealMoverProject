@@ -12,7 +12,9 @@ INSERT INTO restaurants (
     opening_hours,
     user_id,
     status_id,
-    location
+    location,
+    logo_path,
+    cover_path
 ) VALUES
       (
           'SpeedEat',
@@ -30,7 +32,9 @@ INSERT INTO restaurants (
           }'::jsonb,
           4,
           1,
-          '{"type":"Point","coordinates":[14.299591003901329,46.62504993899363]}'
+          '{"type":"Point","coordinates":[14.299591003901329,46.62504993899363]}',
+          '/uploads/restaurants/seed_speedeat_logo.jpg',
+          '/uploads/restaurants/seed_speedeat_cover.jpg'
       ),
       (
           'Gimme Foods',
@@ -48,7 +52,9 @@ INSERT INTO restaurants (
           }'::jsonb,
           5,
           2,
-          '{"type":"Point","coordinates":[14.295221891287628,46.602274114923205]}'
+          '{"type":"Point","coordinates":[14.295221891287628,46.602274114923205]}',
+          '/uploads/restaurants/seed_gimme_logo.jpg',
+          '/uploads/restaurants/seed_gimme_cover.jpg'
       );
 
 

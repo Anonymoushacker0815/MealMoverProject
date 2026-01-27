@@ -46,6 +46,12 @@ ADD COLUMN IF NOT EXISTS sort_index int;
 UPDATE categories SET sort_index = id WHERE sort_index IS NULL;
 UPDATE r_dishes  SET sort_index = id WHERE sort_index IS NULL;
 
+ALTER TABLE restaurants
+ADD COLUMN IF NOT EXISTS logo_path varchar(255);
+
+ALTER TABLE restaurants
+ADD COLUMN IF NOT EXISTS cover_path varchar(255);
+
 -- REPORTS (gemeldete Reviews)
 CREATE TABLE IF NOT EXISTS review_reports(
   id serial PRIMARY KEY,

@@ -44,8 +44,8 @@ const pool = new Pool({
 });
 
 
-// SEED IMAGE RESTORE
-// Kopiert fehlende Seed-Bilder beim Serverstart in uploads, damit Seed-Dishes Bilder behalten
+// SEED IMAGE RESTORE (DISHES)
+// Kopiert fehlende Seed-Dish-Bilder beim Serverstart nach /uploads/dishes
 function restoreSeedDishImages() {
   const seedDir = path.join(process.cwd(), "seed_images", "dishes");
   const uploadsDir = path.join(process.cwd(), "uploads", "dishes");
@@ -57,19 +57,19 @@ function restoreSeedDishImages() {
 
   fs.mkdirSync(uploadsDir, { recursive: true });
 
-  const seedFiles = fs.readdirSync(seedDir).filter((f) => !!f);
+  const seedFiles = fs.readdirSync(seedDir).filter(Boolean);
   let copied = 0;
 
   for (const file of seedFiles) {
     const from = path.join(seedDir, file);
     const to = path.join(uploadsDir, file);
 
+    // Nur kopieren, wenn Datei noch nicht existiert
     if (!fs.existsSync(to)) {
       try {
         fs.copyFileSync(from, to);
         copied++;
-      } catch {
-      }
+      } catch {}
     }
   }
 
@@ -77,16 +77,48 @@ function restoreSeedDishImages() {
 }
 
 
-// ORPHAN IMAGE CLEANUP
+// SEED IMAGE RESTORE (RESTAURANTS)
+// Kopiert fehlende Restaurant Seed-Bilder (Logo & Cover)
+// von /seed_images/restaurants nach /uploads/restaurants
+function restoreSeedRestaurantImages() {
+  const seedDir = path.join(process.cwd(), "seed_images", "restaurants");
+  const uploadsDir = path.join(process.cwd(), "uploads", "restaurants");
+
+  if (!fs.existsSync(seedDir)) {
+    console.log("[seed-images] No seed_images/restaurants folder found, skipping restore");
+    return;
+  }
+
+  fs.mkdirSync(uploadsDir, { recursive: true });
+
+  const seedFiles = fs.readdirSync(seedDir).filter(Boolean);
+  let copied = 0;
+
+  for (const file of seedFiles) {
+    const from = path.join(seedDir, file);
+    const to = path.join(uploadsDir, file);
+
+    // Nur kopieren, wenn Datei noch nicht existiert
+    if (!fs.existsSync(to)) {
+      try {
+        fs.copyFileSync(from, to);
+        copied++;
+      } catch {}
+    }
+  }
+
+  console.log(`[seed-images] Restored ${copied} seed restaurant images`);
+}
+
+
+// ORPHAN IMAGE CLEANUP (DISHES)
 // Löscht Upload-Dateien, die nicht mehr in r_dishes.picture_path referenziert sind
 async function cleanupOrphanDishImages() {
   const dishesDir = path.join(process.cwd(), "uploads", "dishes");
 
-  if (!fs.existsSync(dishesDir)) {
-    return;
-  }
+  if (!fs.existsSync(dishesDir)) return;
 
-  const filesOnDisk = fs.readdirSync(dishesDir).filter((f) => !!f);
+  const filesOnDisk = fs.readdirSync(dishesDir).filter(Boolean);
 
   const dbRes = await pool.query(
     "SELECT picture_path FROM r_dishes WHERE picture_path IS NOT NULL"
@@ -106,8 +138,7 @@ async function cleanupOrphanDishImages() {
       try {
         fs.unlinkSync(path.join(dishesDir, file));
         removed++;
-      } catch {
-      }
+      } catch {}
     }
   }
 
@@ -115,16 +146,57 @@ async function cleanupOrphanDishImages() {
 }
 
 
+// ORPHAN IMAGE CLEANUP (RESTAURANTS)
+// Löscht Restaurant-Uploads, die weder als logo_path noch cover_path referenziert sind
+async function cleanupOrphanRestaurantImages() {
+  const dir = path.join(process.cwd(), "uploads", "restaurants");
+
+  if (!fs.existsSync(dir)) return;
+
+  const filesOnDisk = fs.readdirSync(dir).filter(Boolean);
+
+  const dbRes = await pool.query(`
+    SELECT logo_path, cover_path
+    FROM restaurants
+    WHERE logo_path IS NOT NULL OR cover_path IS NOT NULL
+  `);
+
+  const referencedFilenames = new Set();
+
+  for (const row of dbRes.rows) {
+    if (row.logo_path) referencedFilenames.add(path.basename(String(row.logo_path)));
+    if (row.cover_path) referencedFilenames.add(path.basename(String(row.cover_path)));
+  }
+
+  let removed = 0;
+
+  for (const file of filesOnDisk) {
+    if (!referencedFilenames.has(file)) {
+      try {
+        fs.unlinkSync(path.join(dir, file));
+        removed++;
+      } catch {}
+    }
+  }
+
+  console.log(`[cleanup] Removed ${removed} orphan restaurant images`);
+}
+
+
 // DATABASE CONNECTION CHECK
-// Prüft DB Verbindung beim Serverstart und startet danach Restore und Cleanup
+// Prüft DB Verbindung beim Serverstart und führt danach Restore & Cleanup aus
 pool
   .query("SELECT 1")
   .then(async () => {
     console.log("Database connected");
 
+    // 1) Seed-Bilder wiederherstellen
     restoreSeedDishImages();
+    restoreSeedRestaurantImages();
 
+    // 2) Nicht referenzierte Uploads aufräumen
     await cleanupOrphanDishImages();
+    await cleanupOrphanRestaurantImages();
   })
   .catch((err) => console.error("Database connection error:", err));
 

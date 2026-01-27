@@ -25,8 +25,9 @@ type OpeningDay = {
   close: string;
 };
 
+
 // BACKEND RESPONSE MODEL
-// Rückgabeformat vom Backend für das Restaurant-Profil
+// Rückgabeformat vom Backend für das Restaurant-Profil inklusive Bildpfade
 type ProfileResponse = {
   id: number;
   name: string;
@@ -34,6 +35,9 @@ type ProfileResponse = {
   phone: string;
   delivery_zone: string;
   opening_hours: Record<DayKey, OpeningDay>;
+
+  logo_path?: string | null;
+  cover_path?: string | null;
 };
 
 
@@ -89,6 +93,22 @@ export class OwnerProfile implements OnInit {
     sun: { label: 'Sun', closed: true, open: '00:00', close: '00:00' },
   };
 
+  // RESTAURANT IMAGES
+  // Speichert Pfade und URL-Varianten sowie lokale Preview-URLs
+  logo_path: string | null = null;
+  cover_path: string | null = null;
+
+  logoUrl: string | null = null;
+  coverUrl: string | null = null;
+
+  logoPreviewUrl: string | null = null;
+  coverPreviewUrl: string | null = null;
+
+  // IMAGE UPLOAD STATE
+  // Flags für laufende Uploads damit UI gesperrt werden kann
+  uploadingLogo = false;
+  uploadingCover = false;
+
   // BACKUP STATE
   // Snapshot zum Zurücksetzen, wenn Edit abgebrochen wird
   private backup: any = null;
@@ -109,6 +129,13 @@ export class OwnerProfile implements OnInit {
     return { headers: { Authorization: `Bearer ${token}` } };
   }
 
+  // IMAGE URL BUILDER
+  // Baut eine volle URL aus einem gespeicherten /uploads/... Pfad
+  private toFullUrl(p: string | null | undefined): string | null {
+    if (!p) return null;
+    return `${this.baseUrl}${p}`;
+  }
+
   // PROFILE LOAD
   // Lädt Profil + Opening Hours aus dem Backend und mappt es ins UI-Modell
   loadProfile() {
@@ -127,8 +154,14 @@ export class OwnerProfile implements OnInit {
 
           this.openingHours = data?.opening_hours ?? this.openingHours;
 
-          this.isLoading = false;
+          // IMAGE STATE MAP
+          this.logo_path = data?.logo_path ?? null;
+          this.cover_path = data?.cover_path ?? null;
 
+          this.logoUrl = this.toFullUrl(this.logo_path);
+          this.coverUrl = this.toFullUrl(this.cover_path);
+
+          this.isLoading = false;
           this.cdr.detectChanges();
         },
         error: (err) => {
@@ -146,8 +179,13 @@ export class OwnerProfile implements OnInit {
     this.backup = {
       profile: JSON.parse(JSON.stringify(this.profile)),
       openingHours: JSON.parse(JSON.stringify(this.openingHours)),
+      logo_path: this.logo_path,
+      cover_path: this.cover_path,
+      logoUrl: this.logoUrl,
+      coverUrl: this.coverUrl,
     };
     this.isEditing = true;
+    this.cdr.detectChanges();
   }
 
   // EDIT MODE CANCEL
@@ -156,8 +194,21 @@ export class OwnerProfile implements OnInit {
     if (this.backup) {
       this.profile = this.backup.profile;
       this.openingHours = this.backup.openingHours;
+
+      this.logo_path = this.backup.logo_path;
+      this.cover_path = this.backup.cover_path;
+      this.logoUrl = this.backup.logoUrl;
+      this.coverUrl = this.backup.coverUrl;
     }
+
+    // PREVIEW CLEANUP
+    if (this.logoPreviewUrl) URL.revokeObjectURL(this.logoPreviewUrl);
+    if (this.coverPreviewUrl) URL.revokeObjectURL(this.coverPreviewUrl);
+    this.logoPreviewUrl = null;
+    this.coverPreviewUrl = null;
+
     this.isEditing = false;
+    this.cdr.detectChanges();
   }
 
   // PROFILE SAVE
@@ -175,6 +226,13 @@ export class OwnerProfile implements OnInit {
       .subscribe({
         next: () => {
           this.isEditing = false;
+
+          // PREVIEW CLEANUP
+          if (this.logoPreviewUrl) URL.revokeObjectURL(this.logoPreviewUrl);
+          if (this.coverPreviewUrl) URL.revokeObjectURL(this.coverPreviewUrl);
+          this.logoPreviewUrl = null;
+          this.coverPreviewUrl = null;
+
           this.loadProfile();
         },
         error: (err) => {
@@ -192,5 +250,111 @@ export class OwnerProfile implements OnInit {
       this.openingHours[d].open = open;
       this.openingHours[d].close = close;
     });
+  }
+
+  // FILE PICKER HELPERS
+  // Öffnet versteckte File Inputs für Logo oder Cover
+  triggerLogoPicker(input: HTMLInputElement) {
+    input.click();
+  }
+
+  triggerCoverPicker(input: HTMLInputElement) {
+    input.click();
+  }
+
+  // LOGO UPLOAD
+  // Erstellt lokale Preview und lädt Logo zu POST /owner/profile/logo hoch
+  onLogoSelected(event: Event) {
+    if (!this.isEditing || this.uploadingLogo) return;
+
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (this.logoPreviewUrl) URL.revokeObjectURL(this.logoPreviewUrl);
+    this.logoPreviewUrl = URL.createObjectURL(file);
+    this.cdr.detectChanges();
+
+    const form = new FormData();
+    form.append('image', file);
+
+    this.uploadingLogo = true;
+    this.cdr.detectChanges();
+
+    this.http
+      .post<any>(`${this.baseUrl}/owner/profile/logo`, form, this.authHeaders())
+      .subscribe({
+        next: (res) => {
+          const p = res?.picture_path ?? null;
+
+          this.logo_path = p;
+          this.logoUrl = this.toFullUrl(p);
+
+          if (this.logoPreviewUrl) {
+            URL.revokeObjectURL(this.logoPreviewUrl);
+            this.logoPreviewUrl = null;
+          }
+
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+          alert(err.error?.error || 'Could not upload logo');
+          this.cdr.detectChanges();
+        },
+        complete: () => {
+          this.uploadingLogo = false;
+          input.value = '';
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  // COVER UPLOAD
+  // Erstellt lokale Preview und lädt Cover zu POST /owner/profile/cover hoch
+  onCoverSelected(event: Event) {
+    if (!this.isEditing || this.uploadingCover) return;
+
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (this.coverPreviewUrl) URL.revokeObjectURL(this.coverPreviewUrl);
+    this.coverPreviewUrl = URL.createObjectURL(file);
+    this.cdr.detectChanges();
+
+    const form = new FormData();
+    form.append('image', file);
+
+    this.uploadingCover = true;
+    this.cdr.detectChanges();
+
+    this.http
+      .post<any>(`${this.baseUrl}/owner/profile/cover`, form, this.authHeaders())
+      .subscribe({
+        next: (res) => {
+          const p = res?.picture_path ?? null;
+
+          this.cover_path = p;
+          this.coverUrl = this.toFullUrl(p);
+
+          if (this.coverPreviewUrl) {
+            URL.revokeObjectURL(this.coverPreviewUrl);
+            this.coverPreviewUrl = null;
+          }
+
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+          alert(err.error?.error || 'Could not upload cover image');
+          this.cdr.detectChanges();
+        },
+        complete: () => {
+          this.uploadingCover = false;
+          input.value = '';
+          this.cdr.detectChanges();
+        }
+      });
   }
 }
