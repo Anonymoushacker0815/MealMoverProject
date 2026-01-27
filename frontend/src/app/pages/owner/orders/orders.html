@@ -1,11 +1,18 @@
+<!-- OWNER NAVIGATION -->
+<!-- Navigationsleiste für Restaurant-Owner mit rollenbasierter Anzeige -->
 <app-navbar role="owner"></app-navbar>
 
+<!-- MAIN CONTAINER -->
+<!-- Hauptcontainer für die gesamte Bestellübersicht -->
 <div class="px-6 py-4">
 
   <!-- TOP FILTER BAR -->
+  <!-- Filter-Buttons für Bestellstatus sowie Suchfeld -->
   <div class="flex justify-center mb-6">
     <div class="flex items-center gap-4 flex-wrap">
 
+      <!-- FILTER: ALL ORDERS -->
+      <!-- Zeigt alle Bestellungen unabhängig vom Status -->
       <button
         (click)="setFilter('all')"
         [ngClass]="activeFilter === 'all' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
@@ -15,6 +22,8 @@
         All Orders
       </button>
 
+      <!-- FILTER: NEW -->
+      <!-- Zeigt neu eingegangene Bestellungen -->
       <button
         (click)="setFilter('new')"
         [ngClass]="activeFilter === 'new' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
@@ -24,6 +33,8 @@
         New Order
       </button>
 
+      <!-- FILTER: PREPARING -->
+      <!-- Zeigt Bestellungen in Zubereitung -->
       <button
         (click)="setFilter('preparing')"
         [ngClass]="activeFilter === 'preparing' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
@@ -33,6 +44,8 @@
         Preparing
       </button>
 
+      <!-- FILTER: READY -->
+      <!-- Zeigt Bestellungen, die zur Abholung bereit sind -->
       <button
         (click)="setFilter('ready')"
         [ngClass]="activeFilter === 'ready' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
@@ -42,6 +55,8 @@
         Ready
       </button>
 
+      <!-- FILTER: COMPLETE -->
+      <!-- Zeigt abgeschlossene Bestellungen -->
       <button
         (click)="setFilter('complete')"
         [ngClass]="activeFilter === 'complete' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
@@ -51,6 +66,8 @@
         Complete
       </button>
 
+      <!-- FILTER: REJECTED -->
+      <!-- Zeigt abgelehnte Bestellungen -->
       <button
         (click)="setFilter('rejected')"
         [ngClass]="activeFilter === 'rejected' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
@@ -60,7 +77,8 @@
         Rejected
       </button>
 
-      <!-- SEARCH -->
+      <!-- SEARCH INPUT -->
+      <!-- Suchfeld zum Filtern nach Order-ID oder Kundenname -->
       <div class="relative ml-4">
         <input
           [(ngModel)]="searchTerm"
@@ -76,19 +94,25 @@
     </div>
   </div>
 
-  <!-- LOADING -->
+  <!-- LOADING STATE -->
+  <!-- Anzeige während Bestellungen vom Backend geladen werden -->
   <div *ngIf="isLoading" class="text-center text-gray-500 mb-4">
     Loading orders...
   </div>
 
   <!-- ORDERS GRID -->
+  <!-- Grid-Darstellung aller gefilterten Bestellungen -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+    <!-- ORDER CARD -->
+    <!-- Einzelne Bestellung -->
     <div
       *ngFor="let order of filteredOrders()"
       class="border border-gray-300 rounded-lg overflow-hidden bg-white"
     >
-      <!-- HEADER -->
+
+      <!-- ORDER HEADER -->
+      <!-- Bestell-ID und aktueller Status -->
       <div class="bg-[#9B1C1F] text-white px-4 py-2 flex justify-between items-center">
         <span class="font-semibold">{{ order.id }}</span>
 
@@ -97,8 +121,12 @@
         </span>
       </div>
 
-      <!-- BODY -->
+      <!-- ORDER BODY -->
+      <!-- Kundeninformationen und Bestellinhalt -->
       <div class="p-4 space-y-4">
+
+        <!-- CUSTOMER INFO -->
+        <!-- Name und Adresse des Kunden -->
         <div class="flex gap-3 items-start">
           <div class="w-10 h-10 bg-[#9B1C1F]/15 rounded"></div>
 
@@ -108,6 +136,8 @@
           </div>
         </div>
 
+        <!-- ORDER ITEMS -->
+        <!-- Liste der bestellten Gerichte -->
         <div class="bg-[#9B1C1F]/10 p-3 rounded-md border border-[#9B1C1F]/20">
           <p class="font-semibold text-sm mb-1 text-gray-900">ORDER ITEMS</p>
           <ul class="text-sm list-disc ml-4 text-gray-800">
@@ -118,9 +148,12 @@
         </div>
       </div>
 
-      <!-- ACTIONS -->
+      <!-- ORDER ACTIONS -->
+      <!-- Statusabhängige Aktionsbuttons -->
       <div class="flex gap-3 p-4">
 
+        <!-- ACTION: START PREPARING -->
+        <!-- Setzt Status von "new" auf "preparing" -->
         <button
           *ngIf="order.status === 'new'"
           (click)="startPreparing(order)"
@@ -131,6 +164,8 @@
           Start Preparing
         </button>
 
+        <!-- ACTION: READY -->
+        <!-- Setzt Status von "preparing" auf "ready" -->
         <button
           *ngIf="order.status === 'preparing'"
           (click)="markReady(order)"
@@ -141,6 +176,8 @@
           Ready
         </button>
 
+        <!-- ACTION: COMPLETE -->
+        <!-- Setzt Status von "ready" auf "complete" -->
         <button
           *ngIf="order.status === 'ready'"
           (click)="completeOrder(order)"
@@ -151,7 +188,8 @@
           Complete
         </button>
 
-        <!-- REJECT -->
+        <!-- ACTION: REJECT -->
+        <!-- Lehnt eine neue Bestellung ab -->
         <button
           *ngIf="order.status === 'new'"
           (click)="rejectOrder(order)"
@@ -165,7 +203,8 @@
       </div>
     </div>
 
-    <!-- NO ORDERS -->
+    <!-- EMPTY STATE -->
+    <!-- Hinweis, wenn keine Bestellungen gefunden wurden -->
     <div
       *ngIf="!isLoading && filteredOrders().length === 0"
       class="col-span-full text-center text-gray-500 mt-10"

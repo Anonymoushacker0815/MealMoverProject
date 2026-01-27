@@ -1,18 +1,26 @@
+<!-- OWNER NAVIGATION -->
+<!-- Navbar-Komponente mit dynamischer Rolle -->
 <app-navbar [role]="navbarRole"></app-navbar>
-<!-- Seiten-Container -->
+
+<!-- PAGE LAYOUT -->
+<!-- Seiten-Container für zentrierte Darstellung der Account-Ansicht -->
 <main class="flex flex-col items-center justify-center gap-6 min-h-[70vh] px-6 py-6">
 
-  <!-- Account Card -->
+  <!-- ACCOUNT CARD -->
+  <!-- Hauptkarte mit Account-Details, Edit-Funktionen und Aktionen -->
   <div class="w-full max-w-3xl border border-gray-300 rounded-2xl overflow-hidden shadow-sm bg-white">
 
-    <!-- Header mit Titel & Aktionen -->
+    <!-- CARD HEADER -->
+    <!-- Header mit Titel, Edit-Status und Save/Cancel Buttons -->
     <div class="bg-[#9B1C1F] text-white px-5 py-3 flex justify-between items-center">
 
-      <!-- Titel & Status -->
+      <!-- HEADER TITLE -->
+      <!-- Titelbereich inklusive Edit-Status Badge -->
       <div class="flex items-center gap-3">
         <span class="font-semibold text-lg">Account</span>
 
-        <!-- Edit-Status Anzeige -->
+        <!-- EDIT STATUS -->
+        <!-- Anzeige, ob gerade Bearbeitungsmodus aktiv ist -->
         @if (isEditing) {
           <span class="text-xs px-3 py-1 rounded-full bg-white/10 border border-white/70">
             Editing…
@@ -20,10 +28,12 @@
         }
       </div>
 
-      <!-- Header Buttons -->
+      <!-- HEADER ACTIONS -->
+      <!-- Edit-Button oder Save/Cancel Buttons abhängig vom Modus -->
       <div class="flex gap-2">
 
-        <!-- Edit Button -->
+        <!-- START EDIT -->
+        <!-- Aktiviert Bearbeitungsmodus -->
         @if (!isEditing) {
           <button
             type="button"
@@ -34,7 +44,8 @@
           </button>
         }
 
-        <!-- Save / Cancel Buttons -->
+        <!-- SAVE OR CANCEL -->
+        <!-- Speichert Änderungen oder bricht Bearbeitung ab -->
         @else {
           <button
             type="button"
@@ -54,22 +65,28 @@
       </div>
     </div>
 
-    <!-- Hauptinhalt -->
+    <!-- CARD CONTENT -->
+    <!-- Container für Profilanzeige, Bearbeiten, Passwortwechsel und Location -->
     <div class="p-6 space-y-6">
 
+      <!-- USER LOADED -->
+      <!-- Zeigt Inhalte nur an, wenn User-Daten geladen wurden -->
       @if (user) {
 
-        <!-- Ansicht: Profil anzeigen -->
+        <!-- VIEW MODE -->
+        <!-- Profil anzeigen, solange nicht im Bearbeitungsmodus -->
         @if (!isEditing) {
 
-          <!-- Benutzerinformationen -->
+          <!-- USER INFO -->
+          <!-- Anzeige der Basisdaten (Email, Username, Role, ID) -->
           <div class="space-y-2 text-center">
             <p><span class="font-semibold">Email:</span> {{ user.email }}</p>
             <p><span class="font-semibold">Username:</span> {{ user.username }}</p>
             <p><span class="font-semibold">Role:</span> {{ user.user_type }}</p>
             <p><span class="font-semibold">ID:</span> {{ user.id }}</p>
 
-            <!-- Adresse -->
+            <!-- ADDRESS DISPLAY -->
+            <!-- Zeigt die umgewandelte Adresse zur Location oder Ladezustand -->
             <div class="pt-2 text-sm text-gray-600">
               <span class="font-semibold">Location:</span>
 
@@ -85,10 +102,12 @@
             </div>
           </div>
 
-          <!-- Aktionen -->
+          <!-- VIEW ACTIONS -->
+          <!-- Buttons für Passwort ändern und Logout -->
           <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
 
-            <!-- Passwort ändern -->
+            <!-- TOGGLE PASSWORD CHANGE -->
+            <!-- Öffnet oder schließt die Passwort-Änderung -->
             <button
               type="button"
               (click)="togglePasswordChange()"
@@ -98,7 +117,8 @@
               Change Password
             </button>
 
-            <!-- Logout -->
+            <!-- LOGOUT -->
+            <!-- Loggt den Benutzer aus -->
             <button
               type="button"
               (click)="doLogout()"
@@ -108,14 +128,18 @@
             </button>
           </div>
 
-          <!-- Passwort-Änderung -->
+          <!-- PASSWORD CHANGE PANEL -->
+          <!-- Formular zur Passwort-Änderung (nur wenn aktiviert) -->
           @if (isChangingPassword) {
 
             <div class="border border-gray-200 rounded-2xl p-5 bg-gray-50 space-y-4">
 
+              <!-- PASSWORD TITLE -->
+              <!-- Überschrift für den Passwortbereich -->
               <h2 class="text-lg font-semibold text-gray-900">Change Password</h2>
 
-              <!-- Aktuelles Passwort -->
+              <!-- CURRENT PASSWORD -->
+              <!-- Eingabe für aktuelles Passwort -->
               <input
                 type="password"
                 placeholder="Current password"
@@ -125,7 +149,8 @@
                        focus:outline-none transition"
               />
 
-              <!-- Neues Passwort -->
+              <!-- NEW PASSWORD -->
+              <!-- Eingabe für neues Passwort -->
               <input
                 type="password"
                 placeholder="New password"
@@ -135,7 +160,8 @@
                        focus:outline-none transition"
               />
 
-              <!-- Neues Passwort bestätigen -->
+              <!-- CONFIRM NEW PASSWORD -->
+              <!-- Bestätigung des neuen Passworts -->
               <input
                 type="password"
                 placeholder="Confirm new password"
@@ -145,7 +171,8 @@
                        focus:outline-none transition"
               />
 
-              <!-- Passwort-Buttons -->
+              <!-- PASSWORD ACTIONS -->
+              <!-- Speichern oder Abbrechen der Passwort-Änderung -->
               <div class="flex gap-3">
                 <button
                   type="button"
@@ -167,12 +194,14 @@
           }
         }
 
-        <!-- Ansicht: Profil bearbeiten -->
+        <!-- EDIT MODE -->
+        <!-- Profil bearbeiten inklusive Email, Username und Location -->
         @if (isEditing) {
 
           <div class="space-y-5">
 
-            <!-- Email bearbeiten -->
+            <!-- EDIT EMAIL -->
+            <!-- Eingabefeld zum Bearbeiten der Email -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
               <div class="text-sm font-semibold text-gray-700">Email</div>
               <div class="sm:col-span-2">
@@ -186,7 +215,8 @@
               </div>
             </div>
 
-            <!-- Username bearbeiten -->
+            <!-- EDIT USERNAME -->
+            <!-- Eingabefeld zum Bearbeiten des Usernames -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
               <div class="text-sm font-semibold text-gray-700">Username</div>
               <div class="sm:col-span-2">
@@ -200,14 +230,17 @@
               </div>
             </div>
 
-            <!-- Location bearbeiten -->
+            <!-- LOCATION EDIT -->
+            <!-- Bereich zum Anzeigen und Ändern der Location über die Karte -->
             <div class="border border-gray-200 rounded-2xl p-5 bg-gray-50 space-y-3">
 
-              <!-- Location Header -->
+              <!-- LOCATION HEADER -->
+              <!-- Titel, Adresse und Koordinaten -->
               <div class="flex items-center justify-between gap-4">
                 <h2 class="text-lg font-semibold text-gray-900">Location</h2>
 
-                <!-- Aktuelle Adresse -->
+                <!-- CURRENT ADDRESS -->
+                <!-- Anzeige der aktuellen Adresse oder Ladezustand -->
                 <div class="text-sm text-gray-600 text-right">
                   @if (isAddressLoading) {
                     <span class="italic">Loading address…</span>
@@ -219,7 +252,8 @@
                     }
                   }
 
-                  <!-- Koordinaten -->
+                  <!-- COORDINATES -->
+                  <!-- Anzeige der gespeicherten Koordinaten -->
                   @if (edit.location) {
                     <div class="text-xs text-gray-400">
                       ({{ edit.location.coordinates[1] }}, {{ edit.location.coordinates[0] }})
@@ -228,24 +262,28 @@
                 </div>
               </div>
 
-              <!-- Hinweis -->
+              <!-- LOCATION HINT -->
+              <!-- Hinweistext zum Setzen der Location -->
               <p class="text-sm text-gray-600">
                 Click on the map to update your location.
               </p>
 
-              <!-- Karten-Component -->
+              <!-- MAP PICKER -->
+              <!-- Karten-Komponente für das Auswählen neuer Koordinaten -->
               <app-user-map
                 mode="picker"
                 (locationSelected)="onLocationSelected($event)"
               ></app-user-map>
 
-              <!-- Location gesetzt -->
+              <!-- LOCATION CONFIRMATION -->
+              <!-- Bestätigung, wenn Location gesetzt wurde -->
               @if (edit.location) {
                 <p class="text-sm font-semibold text-[#9B1C1F]">Location set.</p>
               }
             </div>
 
-            <!-- Logout im Edit-Modus -->
+            <!-- LOGOUT IN EDIT MODE -->
+            <!-- Logout-Button auch im Bearbeitungsmodus -->
             <div class="flex justify-center pt-2">
               <button
                 type="button"
@@ -260,7 +298,9 @@
         }
 
       } @else {
-        <!-- Ladeanzeige -->
+
+        <!-- LOADING USER -->
+        <!-- Anzeige, solange User noch nicht geladen wurde -->
         <p class="text-center text-gray-600">Loading...</p>
       }
 

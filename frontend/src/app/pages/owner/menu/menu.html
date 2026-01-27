@@ -1,13 +1,17 @@
-<!-- Owner-Navigation mit rollenbasierter Anzeige -->
+<!-- OWNER NAVIGATION -->
+<!-- Navigationsleiste für Restaurant-Owner mit rollenbasierter Anzeige -->
 <app-navbar role="owner"></app-navbar>
 
-<!-- Hauptcontainer für die gesamte Menüverwaltung -->
+<!-- MAIN CONTAINER -->
+<!-- Hauptcontainer für die komplette Menüverwaltung -->
 <div class="px-6 py-4">
 
-  <!-- Obere Leiste mit Suche und Kategorie-hinzufügen -->
+  <!-- TOP BAR -->
+  <!-- Suchfeld und Button zum Erstellen neuer Kategorien -->
   <div class="flex items-center justify-center gap-4 mb-6 flex-wrap">
 
-    <!-- Suchfeld für Kategorien und Gerichte -->
+    <!-- SEARCH INPUT -->
+    <!-- Suchfeld zum Filtern von Kategorien und Gerichten -->
     <div class="relative w-full max-w-3xl">
       <input
         [(ngModel)]="searchTerm"
@@ -19,7 +23,8 @@
       <span class="absolute right-3 top-2.5">🔍</span>
     </div>
 
-    <!-- Button zum Öffnen des Kategorie-Formulars -->
+    <!-- ADD CATEGORY BUTTON -->
+    <!-- Öffnet das Formular zum Hinzufügen einer neuen Kategorie -->
     <button
       (click)="toggleAddCategory()"
       class="px-4 py-2 rounded-xl border border-gray-300 bg-white font-medium transition
@@ -30,16 +35,19 @@
     </button>
   </div>
 
-  <!-- Hinweis: Drag & Drop ist deaktiviert, solange gesucht wird -->
+  <!-- SEARCH INFO -->
+  <!-- Hinweis: Drag & Drop ist deaktiviert, solange ein Suchbegriff aktiv ist -->
   <div *ngIf="searchTerm.trim()" class="text-center text-sm text-gray-500 mb-6">
     Clear search to reorder categories and dishes (drag & drop).
   </div>
 
-  <!-- Formular zum Hinzufügen einer neuen Kategorie -->
+  <!-- ADD CATEGORY FORM -->
+  <!-- Formular zum Erstellen einer neuen Kategorie -->
   <div *ngIf="showAddCategory" class="flex justify-center mb-6">
     <div class="w-full max-w-3xl flex gap-3 flex-wrap">
 
-      <!-- Eingabefeld für Kategorienamen -->
+      <!-- CATEGORY NAME INPUT -->
+      <!-- Eingabefeld für den Kategorienamen -->
       <input
         [(ngModel)]="newCategoryName"
         type="text"
@@ -48,7 +56,8 @@
                focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
       />
 
-      <!-- Kategorie speichern -->
+      <!-- SAVE CATEGORY -->
+      <!-- Speichert die neue Kategorie im Backend -->
       <button
         (click)="addCategory()"
         class="px-4 py-2 rounded-xl bg-[#9B1C1F] text-white font-medium hover:opacity-95 transition"
@@ -57,7 +66,8 @@
         Add
       </button>
 
-      <!-- Formular abbrechen -->
+      <!-- CANCEL CATEGORY -->
+      <!-- Bricht das Kategorie-Formular ab -->
       <button
         (click)="toggleAddCategory()"
         class="px-4 py-2 rounded-xl border border-gray-300 bg-white hover:border-gray-400 transition"
@@ -68,15 +78,18 @@
     </div>
   </div>
 
-  <!-- Ladeanzeige während Menü vom Backend geladen wird -->
+  <!-- LOADING STATE -->
+  <!-- Anzeige während das Menü vom Backend geladen wird -->
   <div *ngIf="isLoading" class="text-center text-gray-500 mb-6">
     Loading menu...
   </div>
 
+  <!-- CATEGORY LIST -->
   <!-- Container für alle Kategorien -->
   <div class="space-y-6">
 
-    <!-- Drag & Drop Liste für Kategorien -->
+    <!-- CATEGORY DRAG LIST -->
+    <!-- Drag & Drop Container für Kategorien -->
     <div
       cdkDropList
       [cdkDropListData]="categories"
@@ -85,22 +98,24 @@
       [cdkDropListDisabled]="!!searchTerm.trim()"
     >
 
-      <!-- Einzelne Kategorie -->
+      <!-- CATEGORY CARD -->
+      <!-- Einzelne Kategorie als Drag-Element -->
       <div
         *ngFor="let cat of filteredCategories(); trackBy: trackByCategoryId"
         cdkDrag
         class="border border-gray-300 rounded-lg overflow-hidden bg-white"
       >
 
-        <!-- Kopfbereich der Kategorie -->
+        <!-- CATEGORY HEADER -->
+        <!-- Kopfbereich mit Name, Drag-Handle und Aktionen -->
         <div class="bg-[#9B1C1F] text-white px-4 py-2 flex justify-between items-center">
 
-          <!-- Kategorie-Name und Drag-Handle -->
+          <!-- CATEGORY TITLE -->
+          <!-- Kategoriename mit Drag-Handle -->
           <div class="flex items-center gap-3">
             <span
               cdkDragHandle
               class="cursor-grab select-none text-white/80 text-xl leading-none"
-              title="Drag to reorder category"
             >
               ☰
             </span>
@@ -109,7 +124,8 @@
               {{ cat.name }} ({{ cat.dishes.length }} items)
             </span>
 
-            <!-- Statusanzeige beim Speichern der Reihenfolge -->
+            <!-- CATEGORY SAVE STATUS -->
+            <!-- Anzeige während Kategorien-Reihenfolge gespeichert wird -->
             <span
               *ngIf="isSavingCategoryOrder"
               class="text-xs px-3 py-1 rounded-full bg-white/10 border border-white/60"
@@ -118,10 +134,12 @@
             </span>
           </div>
 
-          <!-- Aktionen für Kategorie -->
+          <!-- CATEGORY ACTIONS -->
+          <!-- Aktionen für Hinzufügen und Löschen -->
           <div class="flex gap-2 items-center">
 
-            <!-- Öffnet Formular zum Hinzufügen eines Gerichts -->
+            <!-- ADD DISH BUTTON -->
+            <!-- Öffnet das Formular zum Hinzufügen eines Gerichts -->
             <button
               (click)="toggleDishForm(cat.id)"
               class="px-3 py-1 rounded-full border border-white/70 bg-white/10
@@ -131,12 +149,12 @@
               + Add Dish
             </button>
 
-            <!-- Löscht die gesamte Kategorie -->
+            <!-- DELETE CATEGORY -->
+            <!-- Löscht die Kategorie inklusive aller Gerichte -->
             <button
               (click)="removeCategory(cat.id)"
               class="w-9 h-9 flex items-center justify-center rounded-full border border-white/70 bg-white/10
                      hover:bg-white hover:text-[#9B1C1F] transition"
-              title="Delete Category"
               type="button"
             >
               ✕
@@ -144,152 +162,83 @@
           </div>
         </div>
 
-        <!-- Formular zum Hinzufügen eines neuen Gerichts -->
+        <!-- DISH FORM -->
+        <!-- Formular zum Erstellen eines neuen Gerichts -->
         <div *ngIf="openDishFormForCategoryId === cat.id" class="p-4 bg-white border-t border-gray-200">
 
-          <!-- Eingabefelder für Gerichtsdaten -->
+          <!-- DISH INPUTS -->
+          <!-- Eingabefelder für Name, Beschreibung und Preis -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <input [(ngModel)]="newDish.name" type="text" placeholder="Dish name" class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300 bg-white" />
+            <input [(ngModel)]="newDish.description" type="text" placeholder="Description" class="md:col-span-2 pl-4 py-2 rounded-xl border border-gray-300 bg-white" />
+            <input [(ngModel)]="newDish.price" type="number" placeholder="Price" class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300 bg-white" />
 
-            <input
-              [(ngModel)]="newDish.name"
-              type="text"
-              placeholder="Dish name"
-              class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300 bg-white"
-            />
-
-            <input
-              [(ngModel)]="newDish.description"
-              type="text"
-              placeholder="Description"
-              class="md:col-span-2 pl-4 py-2 rounded-xl border border-gray-300 bg-white"
-            />
-
-            <input
-              [(ngModel)]="newDish.price"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Price"
-              class="md:col-span-1 pl-4 py-2 rounded-xl border border-gray-300 bg-white"
-            />
-
-            <!-- Aktionen für Dish-Formular -->
-            <div class="md:col-span-4 flex gap-3 justify-end flex-wrap">
-              <button
-                (click)="addDish(cat.id)"
-                class="px-4 py-2 rounded-xl bg-[#9B1C1F] text-white font-medium"
-                type="button"
-              >
-                Add Dish
-              </button>
-
-              <button
-                (click)="toggleDishForm(cat.id)"
-                class="px-4 py-2 rounded-xl border border-gray-300 bg-white"
-                type="button"
-              >
-                Cancel
-              </button>
+            <!-- DISH FORM ACTIONS -->
+            <!-- Speichern oder Abbrechen des neuen Gerichts -->
+            <div class="md:col-span-4 flex gap-3 justify-end">
+              <button (click)="addDish(cat.id)" class="px-4 py-2 rounded-xl bg-[#9B1C1F] text-white">Add Dish</button>
+              <button (click)="toggleDishForm(cat.id)" class="px-4 py-2 rounded-xl border">Cancel</button>
             </div>
           </div>
         </div>
 
-        <!-- Liste der Gerichte innerhalb einer Kategorie -->
+        <!-- DISH LIST -->
+        <!-- Liste aller Gerichte innerhalb der Kategorie -->
         <div class="p-4 space-y-4 bg-white">
 
-          <!-- Drag & Drop Liste für Gerichte -->
-          <div
-            cdkDropList
-            [cdkDropListData]="cat.dishes"
-            (cdkDropListDropped)="dropDish(cat, $event)"
-            class="space-y-4"
-            [cdkDropListDisabled]="!!searchTerm.trim()"
-          >
+          <!-- DISH DRAG LIST -->
+          <!-- Drag & Drop Container für Gerichte -->
+          <div cdkDropList [cdkDropListData]="cat.dishes" (cdkDropListDropped)="dropDish(cat, $event)" class="space-y-4">
 
-            <!-- Einzelnes Gericht -->
-            <div
-              *ngFor="let dish of cat.dishes; trackBy: trackByDishId"
-              cdkDrag
-              class="flex gap-3 items-start bg-[#9B1C1F]/10 p-3 rounded-md border"
-            >
+            <!-- DISH ITEM -->
+            <!-- Einzelnes Gericht als Drag-Element -->
+            <div *ngFor="let dish of cat.dishes; trackBy: trackByDishId" cdkDrag class="flex gap-3 items-start p-3 rounded-md border">
 
-              <!-- Klickbarer Bereich zum Anzeigen oder Hochladen eines Bildes -->
-              <div
-                class="w-16 h-16 rounded overflow-hidden cursor-pointer relative"
-                (click)="!uploadingDishImage[dish.id] && triggerDishFilePicker(dishFileInput)"
-              >
+              <!-- DISH IMAGE -->
+              <!-- Klickbarer Bildbereich mit Vorschau und Upload-Trigger -->
+              <div class="w-16 h-16 rounded overflow-hidden cursor-pointer relative"
+                   (click)="!uploadingDishImage[dish.id] && triggerDishFilePicker(dishFileInput)">
 
-                <!-- Vorschau oder gespeichertes Bild -->
-                <img
-                  *ngIf="dish._previewUrl || dish.pictureUrl; else noImg"
-                  [src]="dish._previewUrl || dish.pictureUrl!"
-                  class="w-full h-full object-cover"
-                />
+                <img *ngIf="dish._previewUrl || dish.pictureUrl; else noImg"
+                     [src]="dish._previewUrl || dish.pictureUrl!" class="w-full h-full object-cover" />
 
-                <!-- Platzhalter wenn kein Bild vorhanden ist -->
                 <ng-template #noImg>
                   <div class="w-full h-full flex items-center justify-center text-[10px]">
                     Click to add
                   </div>
                 </ng-template>
 
-                <!-- Overlay während Bild hochgeladen wird -->
-                <div
-                  *ngIf="uploadingDishImage[dish.id]"
-                  class="absolute inset-0 flex items-center justify-center text-xs"
-                >
+                <!-- UPLOAD OVERLAY -->
+                <!-- Overlay während der Upload-Request läuft -->
+                <div *ngIf="uploadingDishImage[dish.id]" class="absolute inset-0 flex items-center justify-center text-xs">
                   Uploading…
                 </div>
 
-                <!-- Verstecktes File-Input für Bildauswahl -->
-                <input
-                  #dishFileInput
-                  type="file"
-                  accept="image/*"
-                  class="hidden"
-                  (change)="onDishImageSelected(dish, $event)"
-                  [disabled]="uploadingDishImage[dish.id]"
-                />
+                <!-- FILE INPUT -->
+                <!-- Verstecktes File-Input für Bildauswahl und Upload -->
+                <input #dishFileInput type="file" accept="image/*" class="hidden"
+                       (change)="onDishImageSelected(dish, $event)" />
               </div>
 
-              <!-- Textinformationen des Gerichts -->
+              <!-- DISH INFO -->
+              <!-- Textinformationen zum Gericht -->
               <div class="flex-1">
                 <p class="font-medium">{{ dish.name }}</p>
                 <p class="text-sm">{{ dish.description }}</p>
-                <p class="font-semibold mt-1">
-                  {{ dish.price | currency:'USD':'symbol' }}
-                </p>
-
-                <!-- Statusanzeige beim Speichern der Dish-Reihenfolge -->
-                <div *ngIf="isSavingDishOrder" class="text-xs">
-                  Saving order…
-                </div>
+                <p class="font-semibold mt-1">{{ dish.price | currency:'USD':'symbol' }}</p>
               </div>
 
-              <!-- Aktionen für einzelnes Gericht -->
+              <!-- DISH ACTIONS -->
+              <!-- Löschen und Drag-Handle -->
               <div class="flex flex-col items-end gap-2">
-
-                <!-- Gericht löschen -->
-                <button
-                  (click)="removeDish(cat.id, dish.id)"
-                  class="w-8 h-8 flex items-center justify-center rounded-full border"
-                  type="button"
-                >
-                  ✕
-                </button>
-
-                <!-- Drag-Handle für Gericht -->
-                <span
-                  cdkDragHandle
-                  class="cursor-grab select-none px-2 py-1 rounded border"
-                >
-                  ⠿
-                </span>
+                <button (click)="removeDish(cat.id, dish.id)" class="w-8 h-8 rounded-full border">✕</button>
+                <span cdkDragHandle class="cursor-grab px-2 py-1 rounded border">⠿</span>
               </div>
             </div>
           </div>
 
-          <!-- Hinweis, wenn Kategorie keine Gerichte enthält -->
+          <!-- EMPTY CATEGORY INFO -->
+          <!-- Hinweis wenn eine Kategorie keine Gerichte enthält -->
           <div *ngIf="cat.dishes.length === 0" class="text-sm text-gray-500">
             No dishes yet. Click “+ Add Dish”.
           </div>
@@ -297,7 +246,8 @@
       </div>
     </div>
 
-    <!-- Hinweis, wenn keine Kategorien vorhanden sind -->
+    <!-- EMPTY MENU INFO -->
+    <!-- Hinweis wenn keine Kategorien vorhanden sind -->
     <div *ngIf="!isLoading && filteredCategories().length === 0" class="text-center text-gray-500 mt-10">
       No categories found. Click “+ Add Category”.
     </div>

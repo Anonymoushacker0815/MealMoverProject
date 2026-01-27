@@ -1,23 +1,40 @@
+// ANGULAR CORE & LIFECYCLE
+// Basisfunktionen für Komponenten, Lifecycle Hooks, Cleanup und Change Detection
 import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+
+// ANGULAR COMMON MODULES
+// Grundlegende Direktiven und Template-Formulare
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+// HTTP
+// HTTP Client und Header für API-Requests
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+// UI COMPONENTS & SERVICES
+// Navbar-Komponente sowie Auth-Service und MapService für Adressauflösung
 import { Navbar } from '../../../components/navbar/navbar';
 import { AuthService } from '../../../services/auth.service';
 import { MapService } from '../../../services/map.service';
 
-// Einzelnes Order-Item
+
+// ORDER ITEM MODEL
+// Ein einzelnes Item innerhalb einer Bestellung
 type OrderItem = {
   name: string;
   quantity: number;
 };
 
-// UI Status (jetzt inkl. rejected)
+// ORDER STATUS MODEL
+// UI-Status für Bestellungen inklusive rejected
 type OrderStatus = 'new' | 'preparing' | 'ready' | 'complete' | 'rejected';
 
+// LOCATION MODEL
+// GeoJSON Point Typ für Kunden-Location
 type GeoJsonPoint = { type: 'Point'; coordinates: [number, number] };
 
+// ORDER MODEL
+// Datenmodell einer Bestellung inkl. Items, Status und optionaler Location
 type Order = {
   _id: number;
   id: string;
@@ -28,6 +45,9 @@ type Order = {
   location?: GeoJsonPoint | any;
 };
 
+
+// COMPONENT DEFINITION
+// Standalone Owner-Orders Seite zum Anzeigen, Filtern und Updaten von Bestellungen
 @Component({
   standalone: true,
   selector: 'app-owner-orders',
@@ -35,49 +55,74 @@ type Order = {
   templateUrl: './orders.html',
 })
 export class OwnerOrders implements OnInit, OnDestroy {
+
+  // SERVICE INJECTIONS
+  // HTTP für API-Aufrufe, Auth für Logout bei 401/403, MapService für Reverse-Geocoding, ChangeDetector für UI-Updates
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private mapService = inject(MapService);
   private cdr = inject(ChangeDetectorRef);
 
+  // BACKEND CONFIG
+  // Basis-URL für Owner Orders Endpunkte
   private API = 'http://localhost:3000';
 
+  // FILTER STATE
+  // Aktiver Status-Filter und Suchbegriff für Orders
   activeFilter: 'all' | OrderStatus = 'all';
   searchTerm = '';
 
+  // ORDERS DATA
+  // Geladene Orders sowie Ladezustand
   orders: Order[] = [];
   isLoading = false;
 
+  // ADDRESS CACHE
+  // Zwischenspeicher für aufgelöste Adressen pro Order-ID
   private addressCache = new Map<number, string>();
 
+  // AUTO REFRESH
+  // Timer für periodisches Nachladen der Orders
   private refreshTimer: any = null;
   private readonly REFRESH_MS = 5000;
 
+  // LIFECYCLE HOOK
+  // Lädt initial die Orders und startet Auto-Refresh
   ngOnInit() {
     this.loadOrders(true);
     this.startAutoRefresh();
   }
 
+  // LIFECYCLE CLEANUP
+  // Stoppt den Auto-Refresh beim Verlassen der Komponente
   ngOnDestroy() {
     this.stopAutoRefresh();
   }
 
+  // AUTH HEADER HELPER
+  // Erstellt Authorization Header mit JWT (ohne Bearer, passend zu deinem Backend)
   private headers() {
     const token = localStorage.getItem('token') ?? '';
     return new HttpHeaders({ Authorization: token });
   }
 
+  // ADDRESS FORMATTER
+  // Kürzt eine volle Adresse auf den Straßenanteil vor dem ersten Komma
   private formatStreetOnly(fullAddress: string): string {
     if (!fullAddress) return '';
     const firstPart = fullAddress.split(',')[0]?.trim();
     return firstPart || fullAddress.trim();
   }
 
+  // AUTO REFRESH START
+  // Startet Intervall-Refresh und verhindert doppelte Timer
   private startAutoRefresh() {
     this.stopAutoRefresh();
     this.refreshTimer = setInterval(() => this.loadOrders(false), this.REFRESH_MS);
   }
 
+  // AUTO REFRESH STOP
+  // Stoppt den Intervall-Refresh sicher
   private stopAutoRefresh() {
     if (this.refreshTimer) {
       clearInterval(this.refreshTimer);
@@ -85,6 +130,8 @@ export class OwnerOrders implements OnInit, OnDestroy {
     }
   }
 
+  // ORDERS LOAD
+  // Lädt Orders vom Backend und startet danach die Adressauflösung
   loadOrders(showLoading: boolean) {
     if (showLoading) {
       this.isLoading = true;
@@ -115,6 +162,8 @@ export class OwnerOrders implements OnInit, OnDestroy {
     });
   }
 
+  // ADDRESS RESOLVE
+  // Wandelt Koordinaten per MapService in eine lesbare Adresse um und cached das Ergebnis
   private resolveAddressesForOrders(orders: Order[]) {
     for (const order of orders) {
       const cached = this.addressCache.get(order._id);
@@ -158,11 +207,15 @@ export class OwnerOrders implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  // FILTER SET
+  // Setzt den aktiven Status-Filter für die Anzeige
   setFilter(filter: 'all' | OrderStatus) {
     this.activeFilter = filter;
     this.cdr.detectChanges();
   }
 
+  // FILTERED ORDERS
+  // Filtert Orders nach Status und Suchbegriff (ID, Kunde, Adresse)
   filteredOrders(): Order[] {
     return this.orders.filter((order) => {
       const matchesFilter = this.activeFilter === 'all' || order.status === this.activeFilter;
@@ -178,6 +231,8 @@ export class OwnerOrders implements OnInit, OnDestroy {
     });
   }
 
+  // STATUS UPDATE HELPER
+  // Aktualisiert Status optimistisch in der UI und speichert ihn danach im Backend
   private updateStatus(order: Order, newStatus: OrderStatus) {
     const oldStatus = order.status;
     order.status = newStatus;
@@ -203,6 +258,8 @@ export class OwnerOrders implements OnInit, OnDestroy {
       });
   }
 
+  // STATUS ACTIONS
+  // Convenience-Methoden für die Buttons im UI
   startPreparing(order: Order) {
     this.updateStatus(order, 'preparing');
   }
@@ -215,15 +272,14 @@ export class OwnerOrders implements OnInit, OnDestroy {
     this.updateStatus(order, 'complete');
   }
 
-  // Reject: setzt Status auf rejected (statt löschen)
+  // REJECT ORDER
+  // Setzt Order auf rejected (UI sofort) und nutzt Backend-DELETE, das intern ein Status-Update macht
   rejectOrder(order: Order) {
     const oldStatus = order.status;
 
-    // sofort rejected anzeigen
     order.status = 'rejected';
     this.cdr.detectChanges();
 
-    // Backend: wird als DELETE gelassen macht aber update
     this.http.delete<any>(`${this.API}/owner/orders/${order._id}`, { headers: this.headers() }).subscribe({
       next: () => {
         this.loadOrders(false);
@@ -238,6 +294,8 @@ export class OwnerOrders implements OnInit, OnDestroy {
     });
   }
 
+  // STATUS LABEL
+  // Wandelt Status in eine Anzeige-Form (aktuell einfach Uppercase)
   statusLabel(status: OrderStatus): string {
     return status.toUpperCase();
   }

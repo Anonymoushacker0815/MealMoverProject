@@ -1,26 +1,43 @@
+// ANGULAR CORE & LIFECYCLE
+// Basisfunktionen für Komponenten, Lifecycle und Dependency Injection
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+
+// ANGULAR COMMON MODULES
+// Grundlegende Direktiven und Formularunterstützung
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+// UI COMPONENTS
+// Navbar-Komponente für die Owner-Navigation
 import { Navbar } from '../../../components/navbar/navbar';
 
+// HTTP & AUTH SERVICES
+// HttpClient und HttpHeaders für API-Calls, AuthService für Logout bei Token-Problemen
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
 
+// CHARTS INTEGRATION
+// ng2-charts Directive und Chart.js Setup für das Monatsdiagramm
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, ChartData, ChartOptions, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-// Tageswert für Monatsdiagramm
+
+// MONTHLY POINT MODEL
+// Datenmodell für Tageswerte im Monatsdiagramm
 type MonthlyPoint = { day: number; value: number };
 
-// Beliebteste Gerichte
+// POPULAR ITEM MODEL
+// Datenmodell für beliebte Gerichte inklusive Umsatz
 type PopularItem = { name: string; sold: number; revenue: number };
 
-// Review-Übersicht
+// REVIEW LIST MODEL
+// Datenmodell für die Review-Liste im Table-View
 type Review = { id: number; orderId: string; date: string; rating: number };
 
-// Review-Detailansicht
+// REVIEW DETAILS MODEL
+// Datenmodell für Detailinformationen im Review-Modal
 type ReviewDetails = {
   id: number;
   rating: number;
@@ -32,6 +49,9 @@ type ReviewDetails = {
   created_at?: string;
 };
 
+
+// COMPONENT DEFINITION
+// Standalone-Komponente für Analytics im Owner-Bereich
 @Component({
   standalone: true,
   selector: 'app-owner-analytics',
@@ -39,50 +59,61 @@ type ReviewDetails = {
   templateUrl: './analytics.html',
 })
 export class OwnerAnalytics implements OnInit {
-  // Angular Services
+
+  // SERVICE INJECTIONS
+  // HTTP für API-Aufrufe, AuthService für Session-Handling, ChangeDetector für UI-Updates
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
-  // Backend Basis-URL
+  // BACKEND CONFIG
+  // Basis-URL für Owner Analytics Endpoints
   private API = 'http://localhost:3000';
 
-  // Ladezustand
+  // LOADING STATE
+  // Zeigt an ob Analytics gerade geladen werden
   isLoading = false;
 
-  // Aktuell ausgewählter Monat / Jahr
+  // MONTH SELECTION STATE
+  // Aktuell ausgewählter Monat und Jahr für das Diagramm
   currentYear = new Date().getFullYear();
   currentMonth = new Date().getMonth() + 1;
 
-  // Analytics-Daten
+  // ANALYTICS STATE
+  // Speichert Counts, Monatswerte, Popular Items und Reviews aus dem Backend
   orderCounts = { day: 0, week: 0, month: 0 };
   monthly: MonthlyPoint[] = [];
   items: PopularItem[] = [];
   reviews: Review[] = [];
 
-  // Review-Modal Status
+  // REVIEW MODAL STATE
+  // Zustand und Daten für Review-Details Modal
   isReviewModalOpen = false;
   isReviewLoading = false;
   selectedReview: ReviewDetails | null = null;
 
-  // Report-Modal Status
+  // REPORT MODAL STATE
+  // Zustand und Daten für das Report-Modal
   isReportModalOpen = false;
   isReportSending = false;
   reportText = '';
   reportTarget: Review | null = null;
 
-  // Initiales Laden der Analytics
+  // LIFECYCLE HOOK
+  // Lädt die Analytics-Daten beim Start der Komponente
   ngOnInit() {
     this.loadAnalytics();
   }
 
-  // Authorization Header
+  // AUTH HEADER HELPER
+  // Erstellt Authorization Header mit Token aus dem localStorage
   private headers() {
     const token = localStorage.getItem('token') ?? '';
     return new HttpHeaders({ Authorization: token });
   }
 
-  // Anzeige-Label für aktuellen Monat
+  // MONTH LABEL
+  // Erzeugt ein Monatslabel für die UI basierend auf currentYear und currentMonth
   get monthLabel(): string {
     return new Date(this.currentYear, this.currentMonth - 1).toLocaleString('en-US', {
       month: 'long',
@@ -90,7 +121,8 @@ export class OwnerAnalytics implements OnInit {
     });
   }
 
-  // Zum vorherigen Monat wechseln
+  // MONTH NAVIGATION
+  // Wechselt zum vorherigen Monat und lädt Daten neu
   prevMonth() {
     this.currentMonth--;
     if (this.currentMonth < 1) {
@@ -100,7 +132,8 @@ export class OwnerAnalytics implements OnInit {
     this.loadAnalytics();
   }
 
-  // Zum nächsten Monat wechseln
+  // MONTH NAVIGATION
+  // Wechselt zum nächsten Monat und lädt Daten neu
   nextMonth() {
     this.currentMonth++;
     if (this.currentMonth > 12) {
@@ -110,15 +143,18 @@ export class OwnerAnalytics implements OnInit {
     this.loadAnalytics();
   }
 
-  // Sortierte Liste der beliebtesten Gerichte
+  // POPULAR ITEMS SORT
+  // Liefert eine sortierte Kopie der Popular Items nach Verkaufsmengen
   get popularItems(): PopularItem[] {
     return [...this.items].sort((a, b) => b.sold - a.sold);
   }
 
-  // Chart-Daten
+  // CHART STATE
+  // Datencontainer für das ChartJS Liniendiagramm
   public monthlyChartData: ChartData<'line'> = { labels: [], datasets: [] };
 
-  // Chart-Konfiguration
+  // CHART OPTIONS
+  // Konfiguration für Achsen, Layout und Tooltip-Verhalten
   public monthlyChartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -129,9 +165,12 @@ export class OwnerAnalytics implements OnInit {
     },
   };
 
+  // CHART TYPE
+  // Definiert den Diagrammtyp als line
   public monthlyChartType: ChartConfiguration<'line'>['type'] = 'line';
 
-  // Baut das Monatsdiagramm neu auf
+  // CHART REBUILD
+  // Baut Labels und Dataset neu aus monthly[] und triggert UI-Update
   private rebuildChart() {
     this.monthlyChartData = {
       labels: this.monthly.map((m) => m.day.toString()),
@@ -153,7 +192,8 @@ export class OwnerAnalytics implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // Lädt alle Analytics-Daten vom Backend
+  // ANALYTICS LOAD
+  // Lädt Analytics vom Backend für das ausgewählte Jahr und den ausgewählten Monat
   loadAnalytics() {
     this.isLoading = true;
     this.cdr.detectChanges();
@@ -203,7 +243,8 @@ export class OwnerAnalytics implements OnInit {
     });
   }
 
-  // Öffnet Review-Modal und lädt Details
+  // REVIEW DETAILS LOAD
+  // Öffnet das Review-Modal und lädt die Details für die ausgewählte Review-ID
   viewReview(r: Review) {
     this.isReviewModalOpen = true;
     this.isReviewLoading = true;
@@ -225,6 +266,8 @@ export class OwnerAnalytics implements OnInit {
     });
   }
 
+  // REVIEW MODAL CLOSE
+  // Schließt das Review-Modal und setzt die Detaildaten zurück
   closeReviewModal() {
     this.isReviewModalOpen = false;
     this.isReviewLoading = false;
@@ -232,7 +275,8 @@ export class OwnerAnalytics implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // Report Modal öffnen
+  // REPORT MODAL OPEN
+  // Öffnet das Report-Modal und setzt Eingabefelder zurück
   openReport(r: Review) {
     this.reportTarget = r;
     this.reportText = '';
@@ -241,6 +285,8 @@ export class OwnerAnalytics implements OnInit {
     this.cdr.detectChanges();
   }
 
+  // REPORT MODAL CLOSE
+  // Schließt das Report-Modal und setzt Status und Eingaben zurück
   closeReportModal() {
     this.isReportModalOpen = false;
     this.isReportSending = false;
@@ -249,7 +295,8 @@ export class OwnerAnalytics implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // Report senden an Backend
+  // REPORT SUBMIT
+  // Sendet einen Report für eine Review an das Backend
   submitReport() {
     const r = this.reportTarget;
     const reason = this.reportText.trim();

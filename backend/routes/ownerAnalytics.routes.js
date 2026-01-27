@@ -1,11 +1,19 @@
+// CORE DEPENDENCIES
 import express from "express";
 import jwt from "jsonwebtoken";
 import { pool } from "../db.js";
+import { config } from "../config.js";
 
+// ROUTER SETUP
+// Erstellt Router-Instanz für alle Analytics-Endpunkte
 const router = express.Router();
-const JWT_SECRET = "MealMover";
 
-// Authorization: <token>
+// JWT CONFIG
+// JWT Secret wird aus zentraler Konfiguration geladen
+const JWT_SECRET = config.JWT_SECRET;
+
+// AUTHENTICATION MIDDLEWARE
+// Prüft ob ein Token vorhanden ist und setzt den User in req.user
 const authenticateToken = (req, res, next) => {
   const token = req.headers["authorization"];
   if (!token) return res.status(401).json({ error: "No Token." });
@@ -17,13 +25,17 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Restaurant-ID für eingeloggten User holen
+
+// RESTAURANT LOOKUP HELPER
+// Holt die Restaurant-ID, die zum eingeloggten User gehört
 const getRestaurantIdForUser = async (userId) => {
   const r = await pool.query("SELECT id FROM restaurants WHERE user_id = $1", [userId]);
   return r.rows.length ? r.rows[0].id : null;
 };
 
-// GET: Analytics fürs eigene Restaurant
+
+// ANALYTICS OVERVIEW
+// Liefert Order-Counts, Monatsübersicht, beliebte Gerichte und Reviews für das eigene Restaurant
 router.get("/analytics", authenticateToken, async (req, res) => {
   try {
     const restaurantId = await getRestaurantIdForUser(req.user.id);
@@ -33,7 +45,8 @@ router.get("/analytics", authenticateToken, async (req, res) => {
     const year = Number.parseInt(req.query.year) || now.getFullYear();
     const month = Number.parseInt(req.query.month) || (now.getMonth() + 1);
 
-    // Order Counts (Tag/Woche/Monat)
+    // ORDER COUNTS QUERY
+    // Zählt Bestellungen der letzten 1, 7 und 30 Tage
     const countsQ = `
       SELECT
         (SELECT COUNT(*) FROM orders WHERE restaurant_id = $1 AND order_time >= NOW() - INTERVAL '1 day')::int AS day,
@@ -42,7 +55,8 @@ router.get("/analytics", authenticateToken, async (req, res) => {
     `;
     const countsR = await pool.query(countsQ, [restaurantId]);
 
-    // Monthly Overview (gewählter Monat)
+    // MONTHLY OVERVIEW QUERY
+    // Erstellt eine Tagesliste für den Monat und zählt Orders pro Tag
     const monthlyQ = `
       WITH days AS (
         SELECT generate_series(
@@ -63,7 +77,8 @@ router.get("/analytics", authenticateToken, async (req, res) => {
     `;
     const monthlyR = await pool.query(monthlyQ, [restaurantId, year, month]);
 
-    // Popular Items
+    // POPULAR ITEMS QUERY
+    // Aggregiert verkaufte Mengen und Umsatz pro Gericht
     const itemsQ = `
       SELECT
         d.name AS name,
@@ -78,7 +93,8 @@ router.get("/analytics", authenticateToken, async (req, res) => {
     `;
     const itemsR = await pool.query(itemsQ, [restaurantId]);
 
-    // Reviews fürs Restaurant
+    // REVIEWS LIST QUERY
+    // Lädt alle Reviews des Restaurants für die Anzeige in einer Liste
     const reviewsQ = `
       SELECT id, rating, created_at
       FROM reviews
@@ -87,6 +103,8 @@ router.get("/analytics", authenticateToken, async (req, res) => {
     `;
     const reviewsR = await pool.query(reviewsQ, [restaurantId]);
 
+    // RESPONSE MAPPING
+    // Formatiert Daten für das Frontend inklusive vereinfachter Review-Darstellung
     res.json({
       success: true,
       selected: { year, month },
@@ -106,7 +124,9 @@ router.get("/analytics", authenticateToken, async (req, res) => {
   }
 });
 
-// GET: Review-Details fürs Modal
+
+// REVIEW DETAILS
+// Liefert vollständige Review-Details für ein bestimmtes Review
 router.get("/reviews/:id", authenticateToken, async (req, res) => {
   try {
     const restaurantId = await getRestaurantIdForUser(req.user.id);
@@ -115,6 +135,8 @@ router.get("/reviews/:id", authenticateToken, async (req, res) => {
     const reviewId = Number.parseInt(req.params.id);
     if (!reviewId) return res.status(400).json({ error: "Invalid review id" });
 
+    // REVIEW DETAILS QUERY
+    // Lädt Review-Daten inklusive Username und optionalem Dish-Namen
     const q = `
       SELECT
         r.id,
@@ -144,7 +166,9 @@ router.get("/reviews/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// POST: Review reporten
+
+// REVIEW REPORT
+// Erstellt einen Report für ein Review, damit es später moderiert werden kann
 router.post("/reviews/:id/report", authenticateToken, async (req, res) => {
   try {
     const restaurantId = await getRestaurantIdForUser(req.user.id);
@@ -157,14 +181,18 @@ router.post("/reviews/:id/report", authenticateToken, async (req, res) => {
     if (!reason) return res.status(400).json({ error: "Reason is required." });
     if (reason.length > 1000) return res.status(400).json({ error: "Reason too long (max 1000 chars)." });
 
-    // ensure review belongs to this restaurant
+    // REVIEW OWNERSHIP CHECK
+    // Stellt sicher, dass das Review zu diesem Restaurant gehört
     const chk = await pool.query(
       "SELECT id FROM reviews WHERE id = $1 AND restaurant_id = $2 LIMIT 1",
       [reviewId, restaurantId]
     );
-    if (chk.rows.length === 0) return res.status(404).json({ error: "Review not found for this restaurant." });
+    if (chk.rows.length === 0) {
+      return res.status(404).json({ error: "Review not found for this restaurant." });
+    }
 
-    // insert report
+    // REPORT INSERT
+    // Speichert den Report in review_reports mit dem Grund und dem meldenden User
     const ins = await pool.query(
       `
       INSERT INTO review_reports (review_id, restaurant_id, reported_by_user_id, reason)
@@ -184,4 +212,7 @@ router.post("/reviews/:id/report", authenticateToken, async (req, res) => {
   }
 });
 
+
+// ROUTER EXPORT
+// Exportiert den Router für die Einbindung in server.js
 export default router;

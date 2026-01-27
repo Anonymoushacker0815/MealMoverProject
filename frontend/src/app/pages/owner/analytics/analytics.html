@@ -2,48 +2,58 @@
 
 <div class="px-6 py-4">
 
-  <!-- LOADING -->
+  <!-- LOADING STATE -->
+  <!-- Zeigt eine Ladeanzeige solange Daten vom Backend geladen werden -->
   <div *ngIf="isLoading" class="text-center text-gray-500 mb-4">
     Loading analytics...
   </div>
 
   <!-- TOP ROW -->
+  <!-- Oberer Bereich mit zwei Karten: Order Counts und Monthly Overview -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-    <!-- Order Counts -->
+    <!-- ORDER COUNTS CARD -->
+    <!-- Zeigt Bestellungen der letzten 1, 7 und 30 Tage -->
     <div class="border border-gray-300 rounded-lg overflow-hidden bg-white">
       <div class="bg-[#9B1C1F] text-white px-4 py-2 font-semibold">
         Order Counts
       </div>
 
+      <!-- ORDER COUNTS CONTENT -->
+      <!-- Zeigt die Anzahl der Bestellungen für Today, Last 7 Days und Last 30 Days -->
       <div class="p-5">
         <div class="grid grid-cols-3 gap-4">
           <div class="bg-[#9B1C1F]/10 border border-[#9B1C1F]/20 p-8 text-center rounded-md">
             <div class="text-4xl font-semibold text-gray-900">{{ orderCounts.day }}</div>
-            <div class="mt-2 font-semibold text-gray-900">Day</div>
+            <div class="mt-2 font-semibold text-gray-900">Today</div>
           </div>
 
           <div class="bg-[#9B1C1F]/10 border border-[#9B1C1F]/20 p-8 text-center rounded-md">
             <div class="text-4xl font-semibold text-gray-900">{{ orderCounts.week }}</div>
-            <div class="mt-2 font-semibold text-gray-900">Week</div>
+            <div class="mt-2 font-semibold text-gray-900">Last 7 days</div>
           </div>
 
           <div class="bg-[#9B1C1F]/10 border border-[#9B1C1F]/20 p-8 text-center rounded-md">
             <div class="text-4xl font-semibold text-gray-900">{{ orderCounts.month }}</div>
-            <div class="mt-2 font-semibold text-gray-900">Month</div>
+            <div class="mt-2 font-semibold text-gray-900">Last 30 days</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Monthly Overview -->
+    <!-- MONTHLY OVERVIEW CARD -->
+    <!-- Zeigt Chart mit Bestellungen pro Tag im ausgewählten Monat -->
     <div class="border border-gray-300 rounded-lg overflow-hidden bg-white">
       <div class="bg-[#9B1C1F] text-white px-4 py-2 font-semibold">
         Monthly Overview
       </div>
 
+      <!-- MONTHLY OVERVIEW CONTENT -->
+      <!-- Monat wechseln und Chart anzeigen -->
       <div class="p-5">
-        <!-- Month Switch -->
+
+        <!-- MONTH SWITCH -->
+        <!-- Buttons wechseln Monat und Label zeigt den aktuellen Monat -->
         <div class="flex items-center justify-between mb-3">
           <button
             (click)="prevMonth()"
@@ -53,6 +63,8 @@
             ←
           </button>
 
+          <!-- CURRENT MONTH LABEL -->
+          <!-- Text kommt aus monthLabel in der Component -->
           <div class="font-semibold text-lg text-gray-900">
             {{ monthLabel }}
           </div>
@@ -66,6 +78,8 @@
           </button>
         </div>
 
+        <!-- MONTHLY CHART -->
+        <!-- ChartJS Canvas mit Daten aus monthlyChartData -->
         <div class="border border-gray-300 p-3 rounded-md bg-white">
           <div class="w-full h-56">
             <canvas
@@ -81,12 +95,15 @@
 
   </div>
 
-  <!-- Popular Items -->
+  <!-- POPULAR ITEMS CARD -->
+  <!-- Tabelle mit meistverkauften Gerichten inkl. Umsatz -->
   <div class="border border-gray-300 rounded-lg overflow-hidden bg-white mt-6">
     <div class="bg-[#9B1C1F] text-white px-4 py-2 font-semibold">
       Popular Items
     </div>
 
+    <!-- POPULAR ITEMS TABLE -->
+    <!-- Listet items aus popularItems -->
     <div class="px-4 pb-4">
       <table class="w-full text-left table-fixed border-collapse">
         <thead>
@@ -99,6 +116,8 @@
         </thead>
 
         <tbody>
+          <!-- POPULAR ITEMS ROWS -->
+          <!-- Zeigt jedes item aus popularItems -->
           <tr
             *ngFor="let item of popularItems; let i = index"
             class="border-b border-gray-200 hover:bg-[#9B1C1F]/5 transition"
@@ -109,6 +128,8 @@
             <td class="py-4 text-center font-semibold">€{{ item.revenue | number:'1.0-2' }}</td>
           </tr>
 
+          <!-- POPULAR ITEMS EMPTY STATE -->
+          <!-- Wird gezeigt wenn es keine Daten gibt -->
           <tr *ngIf="popularItems.length === 0">
             <td colspan="4" class="py-8 text-center text-gray-500">
               No items yet.
@@ -119,12 +140,15 @@
     </div>
   </div>
 
-  <!-- Reviews -->
+  <!-- REVIEWS CARD -->
+  <!-- Tabelle mit Reviews und Aktionen View und Report -->
   <div class="border border-gray-300 rounded-lg overflow-hidden bg-white mt-6">
     <div class="bg-[#9B1C1F] text-white px-4 py-2 font-semibold">
       Reviews
     </div>
 
+    <!-- REVIEWS TABLE -->
+    <!-- Listet reviews aus der Component -->
     <div class="px-4 pb-4">
       <table class="w-full text-left table-fixed border-collapse">
         <thead>
@@ -137,6 +161,8 @@
         </thead>
 
         <tbody>
+          <!-- REVIEW ROWS -->
+          <!-- Zeigt jede Review-Zeile mit Buttons -->
           <tr
             *ngFor="let r of reviews"
             class="border-b border-gray-200 hover:bg-[#9B1C1F]/5 transition"
@@ -145,6 +171,8 @@
             <td class="py-4 text-center">{{ r.date }}</td>
             <td class="py-4 text-center font-semibold">{{ r.rating }}</td>
 
+            <!-- REVIEW ACTIONS -->
+            <!-- Öffnet Review-Modal oder Report-Modal -->
             <td class="py-4">
               <div class="flex items-center justify-center gap-3">
                 <button
@@ -168,6 +196,8 @@
             </td>
           </tr>
 
+          <!-- REVIEWS EMPTY STATE -->
+          <!-- Wird gezeigt wenn es noch keine Reviews gibt -->
           <tr *ngIf="reviews.length === 0">
             <td colspan="4" class="py-8 text-center text-gray-500">
               No reviews yet.
@@ -181,15 +211,20 @@
 </div>
 
 <!-- REVIEW MODAL -->
+<!-- Modal für Details eines Reviews -->
 <div
   *ngIf="isReviewModalOpen"
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
   (click)="closeReviewModal()"
 >
+  <!-- REVIEW MODAL CONTENT -->
+  <!-- Stoppt Click-Propagation damit das Modal nicht schließt -->
   <div
     class="w-full max-w-xl rounded-2xl bg-white border border-gray-200 shadow-lg overflow-hidden"
     (click)="$event.stopPropagation()"
   >
+    <!-- REVIEW MODAL HEADER -->
+    <!-- Titel und Close Button -->
     <div class="bg-[#9B1C1F] text-white px-5 py-3 flex items-center justify-between">
       <div class="font-semibold text-lg">Review Details</div>
       <button
@@ -201,11 +236,15 @@
       </button>
     </div>
 
+    <!-- REVIEW MODAL BODY -->
+    <!-- Zeigt Loading State oder Review-Details -->
     <div class="p-6 space-y-4">
       <div *ngIf="isReviewLoading" class="text-center text-gray-500">
         Loading review...
       </div>
 
+      <!-- REVIEW DETAILS -->
+      <!-- Zeigt Review-Daten wenn geladen -->
       <div *ngIf="!isReviewLoading && selectedReview" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
@@ -231,6 +270,8 @@
           </p>
         </div>
 
+        <!-- REVIEW MODAL FOOTER -->
+        <!-- Close Button zum Schließen des Modals -->
         <div class="flex justify-end gap-3 pt-2">
           <button
             type="button"
@@ -246,15 +287,20 @@
 </div>
 
 <!-- REPORT MODAL -->
+<!-- Modal zum Melden eines Reviews mit Textfeld -->
 <div
   *ngIf="isReportModalOpen"
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
   (click)="closeReportModal()"
 >
+  <!-- REPORT MODAL CONTENT -->
+  <!-- Stoppt Click-Propagation damit das Modal nicht schließt -->
   <div
     class="w-full max-w-xl rounded-2xl bg-white border border-gray-200 shadow-lg overflow-hidden"
     (click)="$event.stopPropagation()"
   >
+    <!-- REPORT MODAL HEADER -->
+    <!-- Titel und Close Button -->
     <div class="bg-[#9B1C1F] text-white px-5 py-3 flex items-center justify-between">
       <div class="font-semibold text-lg">Report Review</div>
       <button
@@ -266,11 +312,15 @@
       </button>
     </div>
 
+    <!-- REPORT MODAL BODY -->
+    <!-- Textarea für Report-Grund und Buttons -->
     <div class="p-6 space-y-4">
       <div class="text-sm text-gray-600">
         Write why you want to report <span class="font-semibold text-gray-900">{{ reportTarget?.orderId }}</span>.
       </div>
 
+      <!-- REPORT INPUT -->
+      <!-- Bindet reportText an das Textfeld -->
       <textarea
         [(ngModel)]="reportText"
         rows="5"
@@ -278,6 +328,8 @@
         placeholder="Reason..."
       ></textarea>
 
+      <!-- REPORT ACTIONS -->
+      <!-- Abbrechen oder Report senden -->
       <div class="flex justify-end gap-3">
         <button
           type="button"

@@ -1,20 +1,28 @@
-// Express Router
+// CORE DEPENDENCIES
 import express from "express";
 
-// Security & Auth
+// SECURITY & AUTH
+// bcrypt für Passwort-Hashing und jwt für Token-Verifikation
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-// Database
+// DATABASE
 import { pool } from "../db.js";
 
+// CONFIG
+// Lädt zentrale Konfiguration für Secrets
 import { config } from "../config.js";
 
+// JWT CONFIG
+// JWT Secret wird aus zentraler Konfiguration geladen
 const JWT_SECRET = config.JWT_SECRET;
 
+// ROUTER SETUP
+// Erstellt Router-Instanz für Account-Endpunkte
 const router = express.Router();
 
-// Token-Authentifizierung (Authorization: <token>)
+// AUTHENTICATION MIDDLEWARE
+// Prüft Token aus dem Authorization Header und setzt req.user
 const authenticateToken = (req, res, next) => {
   const token = req.headers["authorization"];
   if (!token) return res.status(401).json({ error: "No Token." });
@@ -26,15 +34,17 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Account anzeigen (User aus DB laden)
+// ACCOUNT READ
+// Lädt den eingeloggten User aus der Datenbank und gibt Basisdaten zurück
 router.get("/me", authenticateToken, async (req, res) => {
   try {
     const q =
       "SELECT id, email, username, user_type, location, loyalty_points, status_id FROM users WHERE id = $1";
     const r = await pool.query(q, [req.user.id]);
 
-    if (r.rows.length === 0)
+    if (r.rows.length === 0) {
       return res.status(404).json({ error: "User not found" });
+    }
 
     res.json({ success: true, user: r.rows[0] });
   } catch (err) {
@@ -43,7 +53,8 @@ router.get("/me", authenticateToken, async (req, res) => {
   }
 });
 
-// Profildaten ändern (email, username, location)
+// ACCOUNT UPDATE
+// Aktualisiert Profildaten wie email, username und location dynamisch je nach Request-Body
 router.patch("/me", authenticateToken, async (req, res) => {
   const { email, username, location } = req.body;
 
@@ -89,7 +100,8 @@ router.patch("/me", authenticateToken, async (req, res) => {
   }
 });
 
-// Passwort ändern
+// PASSWORD UPDATE
+// Prüft aktuelles Passwort, hasht neues Passwort und speichert es in der DB
 router.patch("/me/password", authenticateToken, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
@@ -103,12 +115,14 @@ router.patch("/me/password", authenticateToken, async (req, res) => {
       [req.user.id]
     );
 
-    if (r.rows.length === 0)
+    if (r.rows.length === 0) {
       return res.status(404).json({ error: "User not found" });
+    }
 
     const ok = await bcrypt.compare(currentPassword, r.rows[0].password);
-    if (!ok)
+    if (!ok) {
       return res.status(401).json({ error: "Current password is wrong" });
+    }
 
     const hashed = await bcrypt.hash(newPassword, 10);
     await pool.query(
@@ -123,5 +137,6 @@ router.patch("/me/password", authenticateToken, async (req, res) => {
   }
 });
 
-// Export Router
+// ROUTER EXPORT
+// Exportiert den Router für die Einbindung in server.js
 export default router;

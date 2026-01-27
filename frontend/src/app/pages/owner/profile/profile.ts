@@ -1,10 +1,21 @@
+// ANGULAR CORE & LIFECYCLE
+// Basisfunktionen für Komponenten, Lifecycle und Dependency Injection
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+
+// ANGULAR COMMON MODULES
+// Grundlegende Direktiven und Template-Formulare
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+// UI COMPONENTS & SERVICES
+// Navbar-Komponente sowie HTTP-Client und Auth-Service
 import { Navbar } from '../../../components/navbar/navbar';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
 
+
+// OPENING HOURS TYPES
+// Typen für Wochentage und die Opening-Hours Struktur
 type DayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
 
 type OpeningDay = {
@@ -14,6 +25,8 @@ type OpeningDay = {
   close: string;
 };
 
+// BACKEND RESPONSE MODEL
+// Rückgabeformat vom Backend für das Restaurant-Profil
 type ProfileResponse = {
   id: number;
   name: string;
@@ -23,6 +36,9 @@ type ProfileResponse = {
   opening_hours: Record<DayKey, OpeningDay>;
 };
 
+
+// COMPONENT DEFINITION
+// Standalone Owner-Profilseite zum Anzeigen und Bearbeiten der Restaurantdaten
 @Component({
   standalone: true,
   selector: 'app-owner-profile',
@@ -30,21 +46,30 @@ type ProfileResponse = {
   templateUrl: './profile.html',
 })
 export class OwnerProfile implements OnInit {
+
+  // SERVICE INJECTIONS
+  // HTTP für API-Aufrufe, Auth für Token, ChangeDetector für manuelle UI-Updates
   private http = inject(HttpClient);
   private auth = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
+  // BACKEND CONFIG
+  // Basis-URL für Owner-Profil Endpunkte
   private baseUrl = 'http://localhost:3000';
 
-  // UI state
+  // UI STATE
+  // Steuert Edit-Modus, Ladeanzeige und Error-Text
   isEditing = false;
   isLoading = true;
   loadError: string | null = null;
 
+  // DAYS LIST
+  // Reihenfolge der Wochentage + trackBy für performantes Rendering
   days: DayKey[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   trackByDay = (_: number, day: DayKey) => day;
 
-  // Default values
+  // PROFILE VIEW MODEL
+  // UI-freundliches Modell (Restaurant Name, Email, Phone, Delivery Zone)
   profile = {
     restaurantName: 'Loading...',
     email: 'Loading...',
@@ -52,6 +77,8 @@ export class OwnerProfile implements OnInit {
     deliveryZone: 'Loading...',
   };
 
+  // OPENING HOURS MODEL
+  // Default Opening Hours als Fallback, falls Backend keine liefert
   openingHours: Record<DayKey, OpeningDay> = {
     mon: { label: 'Mon', closed: false, open: '09:00', close: '18:00' },
     tue: { label: 'Tue', closed: false, open: '09:00', close: '18:00' },
@@ -62,12 +89,18 @@ export class OwnerProfile implements OnInit {
     sun: { label: 'Sun', closed: true, open: '00:00', close: '00:00' },
   };
 
+  // BACKUP STATE
+  // Snapshot zum Zurücksetzen, wenn Edit abgebrochen wird
   private backup: any = null;
 
+  // LIFECYCLE HOOK
+  // Lädt Profil beim Start der Komponente
   ngOnInit(): void {
     this.loadProfile();
   }
 
+  // AUTH HEADER HELPER
+  // Erstellt Authorization Header mit JWT (Bearer Token)
   private authHeaders() {
     const token =
       (this.auth as any).getToken?.() ||
@@ -76,7 +109,8 @@ export class OwnerProfile implements OnInit {
     return { headers: { Authorization: `Bearer ${token}` } };
   }
 
-  // Load from backend
+  // PROFILE LOAD
+  // Lädt Profil + Opening Hours aus dem Backend und mappt es ins UI-Modell
   loadProfile() {
     this.isLoading = true;
     this.loadError = null;
@@ -106,6 +140,8 @@ export class OwnerProfile implements OnInit {
       });
   }
 
+  // EDIT MODE START
+  // Sichert aktuellen State als Backup und aktiviert den Edit-Modus
   startEdit() {
     this.backup = {
       profile: JSON.parse(JSON.stringify(this.profile)),
@@ -114,6 +150,8 @@ export class OwnerProfile implements OnInit {
     this.isEditing = true;
   }
 
+  // EDIT MODE CANCEL
+  // Stellt Backup wieder her und verlässt den Edit-Modus ohne zu speichern
   cancelEdit() {
     if (this.backup) {
       this.profile = this.backup.profile;
@@ -122,6 +160,8 @@ export class OwnerProfile implements OnInit {
     this.isEditing = false;
   }
 
+  // PROFILE SAVE
+  // Baut Payload aus UI-Modell und speichert via PUT /owner/profile
   saveProfile() {
     const payload = {
       name: this.profile.restaurantName,
@@ -144,6 +184,8 @@ export class OwnerProfile implements OnInit {
       });
   }
 
+  // QUICK SET WEEKDAYS
+  // Setzt Mo–Fr auf fixe Zeiten und markiert diese Tage als geöffnet
   setAllWeekdays(open: string, close: string) {
     (['mon', 'tue', 'wed', 'thu', 'fri'] as DayKey[]).forEach(d => {
       this.openingHours[d].closed = false;

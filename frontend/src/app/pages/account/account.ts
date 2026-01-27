@@ -1,24 +1,31 @@
-// Angular Core + Change Detection
+// ANGULAR CORE & CHANGE DETECTION
+// Basisfunktionen für Komponenten, Lifecycle und manuelle UI-Updates
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 
-// Angular Basics
+// ANGULAR COMMON MODULES
+// Grundlegende Direktiven und Template-Formulare
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-// Routing & HTTP
+// ROUTING & HTTP
+// Navigation zwischen Seiten sowie HTTP-Requests inkl. Headern
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-// App Services & Components
+// APP SERVICES & COMPONENTS
+// Auth-Handling, Map-Komponente, Reverse-Geocoding Service und Navbar
 import { AuthService } from '../../services/auth.service';
 import { UserMap } from '../../components/user-map/user-map';
 import { MapService } from '../../services/map.service';
-
 import { Navbar } from '../../components/navbar/navbar';
 
-// GeoJSON Typ für Location
+// GEOJSON LOCATION MODEL
+// Standort als GeoJSON Point (lng/lat) für DB und Map-Komponenten
 type GeoJsonPoint = { type: 'Point'; coordinates: [number, number] };
 
+
+// COMPONENT DEFINITION
+// Standalone Account-Seite zum Anzeigen und Bearbeiten des User-Profils
 @Component({
   selector: 'app-account',
   standalone: true,
@@ -27,42 +34,50 @@ type GeoJsonPoint = { type: 'Point'; coordinates: [number, number] };
 })
 export class Account implements OnInit {
 
-  // Services
+  // SERVICE INJECTIONS
+  // HTTP für API, Router für Navigation, Auth für Session, MapService für Adresse, ChangeDetector für UI
   private http = inject(HttpClient);
   private router = inject(Router);
   private authService = inject(AuthService);
   private mapService = inject(MapService);
   private cdr = inject(ChangeDetectorRef);
 
-  // Backend URL
+  // BACKEND CONFIG
+  // Basis-URL für alle Account-API Calls
   private API = 'http://localhost:3000';
 
-  // Aktueller User
+  // USER STATE
+  // Aktuell eingeloggter User
   user: any = null;
 
-  // Anzeigename der Adresse
+  // ADDRESS DISPLAY STATE
+  // Menschlich lesbare Adresse + Ladezustand für Reverse-Geocoding
   addressLabel = '';
   isAddressLoading = false;
 
-  // UI Status
+  // UI MODE STATE
+  // Steuert ob gerade Profil bearbeitet wird oder Passwort geändert wird
   isEditing = false;
   isChangingPassword = false;
 
-  // Editierbare Profildaten
+  // EDIT FORM MODEL
+  // Temporäre Kopie der Profildaten für das Edit-Formular
   edit = {
     email: '',
     username: '',
     location: null as GeoJsonPoint | null,
   };
 
-  // Passwort-Änderung
+  // PASSWORD FORM MODEL
+  // Temporäre Felder für Passwort-Änderung im UI
   pw = {
     currentPassword: '',
     newPassword: '',
     confirmNewPassword: '',
   };
 
-  // Initialisierung der Seite
+  // LIFECYCLE INIT
+  // Prüft Login-Status und lädt Userdaten beim Start
   ngOnInit() {
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/authentication']);
@@ -71,13 +86,15 @@ export class Account implements OnInit {
     this.loadMe();
   }
 
-  // Authorization Header (ohne Bearer)
+  // AUTH HEADER HELPER
+  // Baut Authorization Header aus lokal gespeichertem JWT (ohne Bearer Prefix)
   private headers() {
     const token = localStorage.getItem('token') ?? '';
     return new HttpHeaders({ Authorization: token });
   }
 
-  // Koordinaten in Adresse umwandeln
+  // LOCATION -> ADDRESS
+  // Wandelt Koordinaten per MapService in eine lesbare Adresse um
   private updateAddressFromLocation(location: GeoJsonPoint | null) {
     if (!location?.coordinates) {
       this.addressLabel = '';
@@ -105,7 +122,8 @@ export class Account implements OnInit {
     });
   }
 
-  // Userdaten aus DB laden
+  // LOAD CURRENT USER
+  // Lädt Userprofil aus DB über /me und synchronisiert Edit-Model + Address
   private loadMe() {
     this.http.get<any>(`${this.API}/me`, { headers: this.headers() }).subscribe({
       next: (res) => {
@@ -127,7 +145,8 @@ export class Account implements OnInit {
     });
   }
 
-  // Edit-Modus starten
+  // START EDIT MODE
+  // Aktiviert Edit-Modus und befüllt das Formular mit aktuellen Userdaten
   startEdit() {
     this.isEditing = true;
     this.isChangingPassword = false;
@@ -140,7 +159,8 @@ export class Account implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // Edit-Modus abbrechen
+  // CANCEL EDIT MODE
+  // Bricht Edit-Modus ab, setzt Formulare zurück und zeigt wieder Originaldaten
   cancelEdit() {
     this.isEditing = false;
     this.isChangingPassword = false;
@@ -155,14 +175,16 @@ export class Account implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // Neue Location aus Map übernehmen
+  // MAP LOCATION PICKER
+  // Übernimmt neue Location aus Map-Komponente ins Edit-Model
   onLocationSelected(data: any) {
     this.edit.location = data?.geojson ?? null;
     this.updateAddressFromLocation(this.edit.location);
     this.cdr.detectChanges();
   }
 
-  // Profildaten speichern
+  // SAVE PROFILE
+  // Validiert Eingaben und speichert Profiländerungen via PATCH /me
   saveProfile() {
     if (!this.edit.email || !this.edit.username) {
       alert('Please enter email and username.');
@@ -197,14 +219,16 @@ export class Account implements OnInit {
     });
   }
 
-  // Passwort-Änderung anzeigen/verstecken
+  // PASSWORD UI TOGGLE
+  // Öffnet oder schließt den Passwort-Dialog und leert die Passwortfelder
   togglePasswordChange() {
     this.isChangingPassword = !this.isChangingPassword;
     this.pw = { currentPassword: '', newPassword: '', confirmNewPassword: '' };
     this.cdr.detectChanges();
   }
 
-  // Passwort ändern
+  // CHANGE PASSWORD
+  // Validiert neue Passwörter und sendet Änderung an PATCH /me/password
   changePassword() {
     if (!this.pw.currentPassword || !this.pw.newPassword) {
       alert('Please fill current and new password.');
@@ -235,12 +259,15 @@ export class Account implements OnInit {
     });
   }
 
-  // Logout
+  // LOGOUT
+  // Loggt aus und navigiert zur Startseite
   doLogout() {
     this.authService.logout();
     this.router.navigate(['/']);
   }
 
+  // NAVBAR ROLE RESOLVER
+  // Leitet UserType auf passende Navbar-Rolle um (user/owner/manager)
   get navbarRole(): 'user' | 'owner' | 'manager' {
     const t = this.user?.user_type;
     if (t === 'Admin') return 'manager';

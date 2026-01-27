@@ -1,14 +1,20 @@
+<!-- OWNER NAVIGATION -->
+<!-- Navbar für Owner-Bereich -->
 <app-navbar role="owner"></app-navbar>
 
+<!-- PAGE CONTAINER -->
+<!-- Seiten-Wrapper mit Padding für die Profilseite -->
 <div class="px-6 py-4">
   <div class="border border-gray-300 rounded-2xl overflow-hidden shadow-sm bg-white">
 
     <!-- HEADER -->
+    <!-- Kopfbereich mit Titel, Edit-Status und Aktionen -->
     <div class="bg-[#9B1C1F] text-white px-5 py-3 flex justify-between items-center">
       <div class="flex items-center gap-3">
         <span class="font-semibold text-lg">Profile</span>
 
-        <!-- Editing badge -->
+        <!-- EDITING BADGE -->
+        <!-- Badge wird nur im Edit-Modus angezeigt -->
         <span
           *ngIf="isEditing"
           class="text-xs px-3 py-1 rounded-full bg-white/10 border border-white/70 text-white"
@@ -17,6 +23,8 @@
         </span>
       </div>
 
+      <!-- HEADER ACTIONS -->
+      <!-- Buttons wechseln zwischen View- und Edit-Modus -->
       <div class="flex gap-2">
         <button
           *ngIf="!isEditing"
@@ -49,13 +57,16 @@
       </div>
     </div>
 
-    <!-- BODY (Fix: 2 columns erst ab XL + min-w-0 gegen Überlappen) -->
+    <!-- BODY LAYOUT -->
+    <!-- Grid-Layout: Links Profilinfos, Rechts Öffnungszeiten -->
     <div class="p-6 grid grid-cols-1 xl:grid-cols-12 gap-8">
 
-      <!-- LEFT: Avatar + Profile Data -->
+      <!-- LEFT COLUMN -->
+      <!-- Avatar und Restaurantdaten in einer flexiblen Spalte -->
       <div class="xl:col-span-8 flex flex-col xl:flex-row gap-8 items-start min-w-0">
 
-        <!-- Avatar -->
+        <!-- AVATAR SECTION -->
+        <!-- Platzhalter-Avatar für Restaurant Logo -->
         <div class="shrink-0 w-full xl:w-auto flex justify-center xl:justify-start">
           <div class="relative">
             <div
@@ -74,12 +85,14 @@
           </div>
         </div>
 
-        <!-- PROFILE DATA -->
+        <!-- PROFILE DATA CARD -->
+        <!-- Restaurant-Stammdaten mit View- und Edit-Ansicht -->
         <div class="flex-1 w-full min-w-0">
           <div class="rounded-2xl border border-[#9B1C1F]/20 bg-[#9B1C1F]/5 p-6">
             <div class="space-y-6">
 
-              <!-- Restaurant Name -->
+              <!-- RESTAURANT NAME -->
+              <!-- Anzeigen oder Bearbeiten des Restaurantnamens -->
               <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                 <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-700">
                   Restaurant Name
@@ -100,9 +113,12 @@
                 </div>
               </div>
 
+              <!-- SECTION DIVIDER -->
+              <!-- Visuelle Trennlinie zwischen Profilfeldern -->
               <div class="h-px bg-[#9B1C1F]/15"></div>
 
-              <!-- Email -->
+              <!-- EMAIL -->
+              <!-- Anzeigen oder Bearbeiten der Email-Adresse -->
               <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                 <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-700">
                   Email
@@ -124,9 +140,12 @@
                 </div>
               </div>
 
+              <!-- SECTION DIVIDER -->
+              <!-- Visuelle Trennlinie zwischen Profilfeldern -->
               <div class="h-px bg-[#9B1C1F]/15"></div>
 
-              <!-- Phone -->
+              <!-- PHONE -->
+              <!-- Anzeigen oder Bearbeiten der Telefonnummer -->
               <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                 <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-700">
                   Phone
@@ -148,9 +167,12 @@
                 </div>
               </div>
 
+              <!-- SECTION DIVIDER -->
+              <!-- Visuelle Trennlinie zwischen Profilfeldern -->
               <div class="h-px bg-[#9B1C1F]/15"></div>
 
-              <!-- Delivery Zone -->
+              <!-- DELIVERY ZONE -->
+              <!-- Anzeigen oder Bearbeiten der Delivery Zone -->
               <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
                 <div class="sm:w-56 whitespace-nowrap text-sm font-semibold text-gray-700">
                   Delivery Zone
@@ -171,16 +193,19 @@
                   />
                 </div>
               </div>
+
             </div>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT: OPENING HOURS -->
+      <!-- RIGHT COLUMN -->
+      <!-- Öffnungszeiten in eigener Card, View/Edit Umschaltung -->
       <div class="xl:col-span-4 min-w-0">
         <div class="bg-[#9B1C1F]/5 rounded-2xl p-6 border border-[#9B1C1F]/20 shadow-sm">
 
-          <!-- Header -->
+          <!-- OPENING HOURS HEADER -->
+          <!-- Titel + Quick-Button zum Setzen der Werktage -->
           <div class="flex flex-col items-center gap-3 mb-6">
             <p class="font-semibold text-xl text-gray-900">Opening Hours</p>
 
@@ -195,7 +220,8 @@
             </button>
           </div>
 
-          <!-- VIEW MODE -->
+          <!-- OPENING HOURS VIEW -->
+          <!-- Nur Anzeige der Öffnungszeiten im View-Modus -->
           <div *ngIf="!isEditing" class="space-y-3 flex flex-col items-center text-base">
             <div
               *ngFor="let day of days; trackBy: trackByDay"
@@ -215,7 +241,8 @@
             </div>
           </div>
 
-          <!-- EDIT MODE -->
+          <!-- OPENING HOURS EDIT -->
+          <!-- Editierbare Inputs für Closed, Open und Close Zeiten -->
           <div *ngIf="isEditing" class="space-y-4 flex flex-col items-center">
             <div
               *ngFor="let day of days; trackBy: trackByDay"
@@ -253,6 +280,7 @@
               />
             </div>
           </div>
+
         </div>
       </div>
     </div>

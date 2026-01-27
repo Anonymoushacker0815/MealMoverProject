@@ -1,13 +1,21 @@
+// CORE DEPENDENCIES
+// Express Router, JWT für Tokenprüfung, DB Pool und App-Konfiguration
 import express from "express";
 import jwt from "jsonwebtoken";
 import { pool } from "../db.js";
 import { config } from "../config.js";
 
+// JWT CONFIG
+// JWT Secret wird aus zentraler Konfiguration geladen
 const JWT_SECRET = config.JWT_SECRET;
 
+// ROUTER SETUP
+// Erstellt Router-Instanz für alle Owner-Profile Endpunkte
 const router = express.Router();
 
-// Middleware: Bearer Token akzeptieren
+
+// AUTHENTICATION MIDDLEWARE
+// Akzeptiert Bearer Token und setzt den User in req.user
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
@@ -21,13 +29,20 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// helper: restaurant id vom eingeloggten user
+
+// RESTAURANT LOOKUP HELPER
+// Holt die Restaurant-ID, die zum eingeloggten User gehört
 async function getRestaurantIdByUserId(userId) {
-  const r = await pool.query("SELECT id FROM restaurants WHERE user_id = $1 LIMIT 1", [userId]);
+  const r = await pool.query(
+    "SELECT id FROM restaurants WHERE user_id = $1 LIMIT 1",
+    [userId]
+  );
   return r.rows.length ? r.rows[0].id : null;
 }
 
-// default opening hours
+
+// DEFAULT OPENING HOURS
+// Fallback-Öffnungszeiten, falls keine im DB Feld vorhanden sind
 const DEFAULT_OPENING_HOURS = {
   mon: { label: "Mon", closed: false, open: "09:00", close: "18:00" },
   tue: { label: "Tue", closed: false, open: "09:00", close: "18:00" },
@@ -38,8 +53,9 @@ const DEFAULT_OPENING_HOURS = {
   sun: { label: "Sun", closed: true, open: "00:00", close: "00:00" },
 };
 
-// GET /owner/profile
-// returns restaurant profile for logged-in Restaurant user
+
+// PROFILE READ
+// Lädt Restaurant-Profil für den eingeloggten Restaurant-User
 router.get("/profile", authenticateToken, async (req, res) => {
   try {
     if (req.user.user_type !== "Restaurant") {
@@ -73,8 +89,9 @@ router.get("/profile", authenticateToken, async (req, res) => {
   }
 });
 
-// PUT /owner/profile
-// body: { name, email, phone, delivery_zone, opening_hours }
+
+// PROFILE UPDATE
+// Aktualisiert Profilfelder und Öffnungszeiten des eingeloggten Restaurants
 router.put("/profile", authenticateToken, async (req, res) => {
   try {
     if (req.user.user_type !== "Restaurant") {
@@ -111,4 +128,7 @@ router.put("/profile", authenticateToken, async (req, res) => {
   }
 });
 
+
+// ROUTER EXPORT
+// Exportiert den Router für die Einbindung in server.js
 export default router;
