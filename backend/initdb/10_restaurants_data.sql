@@ -60,8 +60,8 @@ INSERT INTO categories (name, description, restaurant_id) VALUES
 ('pasta', 'part of the past collection', 2),
 ('dessert', 'part of the dessert collection', 2);
 
-INSERT INTO r_dishes (name, description, price, restaurant_id, category_id) VALUES
-('sweet treat', 'strawberry cheese cake', 1.50, 2, 6),
-('spaghetti', 'spaghetti cabonara', 2.67, 2, 5),
-('mixed salat', 'karrots, radish, cabage in one salat', 0.90, 1, 2),
-('fish sticks', 'sticks of very tasty fish', 3.50, 1, 1);
+INSERT INTO r_dishes (name, description, price, restaurant_id, category_id, picture_path) VALUES
+('sweet treat', 'strawberry cheese cake', 1.50, 2, 6, '/uploads/dishes/seed_sweet_treat.jpg'),
+('spaghetti', 'spaghetti cabonara', 2.67, 2, 5, '/uploads/dishes/seed_spaghetti.jpg'),
+('mixed salat', 'karrots, radish, cabage in one salat', 0.90, 1, 2, '/uploads/dishes/seed_mixed_salat.jpg'),
+('fish sticks', 'sticks of very tasty fish', 3.50, 1, 1, '/uploads/dishes/seed_fish_sticks.jpg');

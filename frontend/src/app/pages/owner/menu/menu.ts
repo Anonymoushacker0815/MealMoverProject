@@ -1,26 +1,48 @@
+// ANGULAR CORE & LIFECYCLE
+// Basisfunktionen für Komponenten, Lifecycle und Dependency Injection
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+
+// ANGULAR COMMON MODULES
+// Grundlegende Direktiven und Formularunterstützung
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+// UI COMPONENTS & SERVICES
+// Navbar-Komponente sowie HTTP- und Authentifizierungsservices
 import { Navbar } from '../../../components/navbar/navbar';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
+
+// ANGULAR CDK DRAG & DROP
+// Funktionen für Drag-and-Drop von Kategorien und Gerichten
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
-// Dish Model
+
+// DISH MODEL
+// Datenmodell für ein Gericht inklusive Bildpfad, Bild-URL und lokaler Vorschau
 type Dish = {
   id: number;
   name: string;
   description: string;
   price: number;
+
+  picture_path?: string | null;
+  pictureUrl?: string | null;
+  _previewUrl?: string | null;
 };
 
-// Category Model
+
+// CATEGORY MODEL
+// Datenmodell für eine Kategorie mit zugehörigen Gerichten
 type Category = {
   id: number;
   name: string;
   dishes: Dish[];
 };
 
+
+// COMPONENT DEFINITION
+// Standalone-Komponente zur Menüverwaltung für Restaurant-Owner
 @Component({
   standalone: true,
   selector: 'app-owner-menu',
@@ -28,47 +50,68 @@ type Category = {
   templateUrl: './menu.html',
 })
 export class OwnerMenu implements OnInit {
-  // Angular Services
+
+  // SERVICE INJECTIONS
+  // HTTP für API-Aufrufe, Auth für Token, ChangeDetector für manuelle UI-Updates
   private http = inject(HttpClient);
   private auth = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
-  // Backend Base URL
-  private baseUrl = 'http://localhost:3000';
+  // BACKEND CONFIG
+  // Basis-URL für API-Endpunkte und Bildzugriffe
+  baseUrl = 'http://localhost:3000';
 
-  // UI Search
+  // SEARCH STATE
+  // Suchbegriff zum Filtern von Kategorien und Gerichten
   searchTerm = '';
 
-  // Add Category UI
+  // CATEGORY FORM STATE
+  // UI-Status und Eingabewert für neue Kategorien
   showAddCategory = false;
   newCategoryName = '';
 
-  // Add Dish UI
+  // DISH FORM STATE
+  // Kategorie-ID, für die aktuell ein Gericht erstellt wird
   openDishFormForCategoryId: number | null = null;
+
+  // NEW DISH DATA
+  // Temporäre Eingabedaten für ein neues Gericht
   newDish: { name: string; description: string; price: number | null } = {
     name: '',
     description: '',
     price: null,
   };
 
-  // Menu Data
+  // MENU DATA
+  // Geladene Kategorien inklusive aller Gerichte
   categories: Category[] = [];
+
+  // LOADING STATE
+  // Zeigt an, ob das Menü aktuell geladen wird
   isLoading = false;
 
-  // Saving State
+  // SAVE STATES
+  // Statusanzeigen für laufende Reorder-Operationen
   isSavingCategoryOrder = false;
   isSavingDishOrder = false;
 
-  // Anti-Stuck: Request Tokens
+  // IMAGE UPLOAD STATE
+  // Verfolgt laufende Bild-Uploads pro Gericht
+  uploadingDishImage: Record<number, boolean> = {};
+
+  // REQUEST TOKENS
+  // Schutz vor Race Conditions bei Reorder-Requests
   private categoryReorderReqToken = 0;
   private dishReorderReqToken = 0;
 
-  // Lifecycle
+  // LIFECYCLE HOOK
+  // Lädt das Menü beim Initialisieren der Komponente
   ngOnInit(): void {
     this.loadMenu();
   }
 
-  // Auth Header Helper
+  // AUTH HEADER HELPER
+  // Erstellt Authorization Header mit JWT für geschützte API-Endpunkte
   private authHeaders() {
     const token = localStorage.getItem('token') ?? '';
     return {
@@ -78,19 +121,25 @@ export class OwnerMenu implements OnInit {
     };
   }
 
-  // Menü laden
+  // MENU LOAD
+  // Lädt Kategorien und Gerichte vom Backend und bereitet Bild-URLs auf
   loadMenu() {
     this.isLoading = true;
     this.cdr.detectChanges();
 
     this.http.get<Category[]>(`${this.baseUrl}/owner/menu`, this.authHeaders()).subscribe({
-      next: (data) => {
-        this.categories = (data || []).map((c) => ({
+      next: (data: any) => {
+        this.categories = (data || []).map((c: any) => ({
           ...c,
-          dishes: (c.dishes || []).map((d) => ({
-            ...d,
-            price: Number((d as any).price),
-          })),
+          dishes: (c.dishes || []).map((d: any) => {
+            const picture_path = d.picture_path ?? null;
+            return {
+              ...d,
+              price: Number(d.price),
+              picture_path,
+              pictureUrl: picture_path ? `${this.baseUrl}${picture_path}` : null,
+            } as Dish;
+          }),
         }));
 
         this.isLoading = false;
@@ -105,14 +154,16 @@ export class OwnerMenu implements OnInit {
     });
   }
 
-  // Category Form Toggle
+  // CATEGORY FORM TOGGLE
+  // Öffnet oder schließt das Formular zum Hinzufügen einer Kategorie
   toggleAddCategory() {
     this.showAddCategory = !this.showAddCategory;
     if (!this.showAddCategory) this.newCategoryName = '';
     this.cdr.detectChanges();
   }
 
-  // Category hinzufügen
+  // CATEGORY CREATE
+  // Erstellt eine neue Kategorie im Backend
   addCategory() {
     const name = this.newCategoryName.trim();
     if (!name) return;
@@ -134,7 +185,8 @@ export class OwnerMenu implements OnInit {
       });
   }
 
-  // Category löschen
+  // CATEGORY DELETE
+  // Löscht eine Kategorie inklusive aller enthaltenen Gerichte
   removeCategory(categoryId: number) {
     this.http
       .delete<void>(`${this.baseUrl}/owner/categories/${categoryId}`, this.authHeaders())
@@ -155,7 +207,8 @@ export class OwnerMenu implements OnInit {
       });
   }
 
-  // Category Drag&Drop speichern
+  // CATEGORY REORDER
+  // Speichert die neue Reihenfolge der Kategorien nach Drag & Drop
   dropCategory(event: CdkDragDrop<Category[]>) {
     if (this.searchTerm.trim()) return;
 
@@ -164,27 +217,20 @@ export class OwnerMenu implements OnInit {
 
     const orderedIds = this.categories.map((c) => c.id);
 
-    // Saving Badge an
     this.isSavingCategoryOrder = true;
     this.cdr.detectChanges();
 
-    // Token erhöhen
     const myToken = ++this.categoryReorderReqToken;
 
     this.http
       .patch(`${this.baseUrl}/owner/categories/reorder`, { orderedIds }, this.authHeaders())
       .subscribe({
-        next: () => {
-          // ok
-        },
         error: (err) => {
           console.error(err);
-
           if (myToken === this.categoryReorderReqToken) {
             this.isSavingCategoryOrder = false;
             this.cdr.detectChanges();
           }
-
           alert(err.error?.error || 'Could not save category order');
           this.loadMenu();
         },
@@ -197,7 +243,8 @@ export class OwnerMenu implements OnInit {
       });
   }
 
-  // Dish Form
+  // DISH FORM TOGGLE
+  // Öffnet oder schließt das Formular zum Hinzufügen eines Gerichts
   toggleDishForm(categoryId: number) {
     if (this.openDishFormForCategoryId === categoryId) {
       this.openDishFormForCategoryId = null;
@@ -211,7 +258,8 @@ export class OwnerMenu implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // Dish hinzufügen
+  // DISH CREATE
+  // Erstellt ein neues Gericht innerhalb einer Kategorie
   addDish(categoryId: number) {
     const name = this.newDish.name.trim();
     const description = this.newDish.description.trim();
@@ -240,7 +288,8 @@ export class OwnerMenu implements OnInit {
       });
   }
 
-  // Dish löschen
+  // DISH DELETE
+  // Löscht ein einzelnes Gericht
   removeDish(_categoryId: number, dishId: number) {
     this.http
       .delete<void>(`${this.baseUrl}/owner/dishes/${dishId}`, this.authHeaders())
@@ -257,7 +306,8 @@ export class OwnerMenu implements OnInit {
       });
   }
 
-  // Dish Drag&Drop speichern
+  // DISH REORDER
+  // Speichert die neue Reihenfolge der Gerichte innerhalb einer Kategorie
   dropDish(cat: Category, event: CdkDragDrop<Dish[]>) {
     if (this.searchTerm.trim()) return;
 
@@ -278,16 +328,12 @@ export class OwnerMenu implements OnInit {
         this.authHeaders()
       )
       .subscribe({
-        next: () => {
-        },
         error: (err) => {
           console.error(err);
-
           if (myToken === this.dishReorderReqToken) {
             this.isSavingDishOrder = false;
             this.cdr.detectChanges();
           }
-
           alert(err.error?.error || 'Could not save dish order');
           this.loadMenu();
         },
@@ -300,7 +346,8 @@ export class OwnerMenu implements OnInit {
       });
   }
 
-  // Suche / Filter
+  // SEARCH FILTER
+  // Filtert Kategorien und Gerichte anhand des Suchbegriffs
   filteredCategories(): Category[] {
     const q = this.searchTerm.trim().toLowerCase();
     if (!q) return this.categories;
@@ -321,12 +368,67 @@ export class OwnerMenu implements OnInit {
       .filter((c): c is Category => c !== null);
   }
 
-  // trackBy Helpers
+  // TRACKBY HELPERS
+  // Optimiert Rendering bei Listen mit ngFor
   trackByCategoryId = (_: number, item: Category) => item.id;
   trackByDishId = (_: number, item: Dish) => item.id;
 
-  // Dish Form Reset
+  // DISH FORM RESET
+  // Setzt die Eingabefelder für ein neues Gericht zurück
   private resetDishForm() {
     this.newDish = { name: '', description: '', price: null };
+  }
+
+  // FILE INPUT HELPER
+  // Öffnet das versteckte Datei-Auswahlfeld per Klick
+  triggerDishFilePicker(fileInput: HTMLInputElement) {
+    fileInput.click();
+  }
+
+  // DISH IMAGE UPLOAD
+  // Erstellt eine Vorschau und lädt das Bild zum Backend hoch
+  onDishImageSelected(dish: Dish, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (dish._previewUrl) URL.revokeObjectURL(dish._previewUrl);
+    dish._previewUrl = URL.createObjectURL(file);
+    this.cdr.detectChanges();
+
+    const form = new FormData();
+    form.append('image', file);
+
+    this.uploadingDishImage[dish.id] = true;
+    this.cdr.detectChanges();
+
+    this.http
+      .post<{ picture_path: string }>(
+        `${this.baseUrl}/owner/dishes/${dish.id}/picture`,
+        form,
+        this.authHeaders()
+      )
+      .subscribe({
+        next: (res) => {
+          dish.picture_path = res.picture_path;
+          dish.pictureUrl = `${this.baseUrl}${res.picture_path}`;
+
+          if (dish._previewUrl) {
+            URL.revokeObjectURL(dish._previewUrl);
+            dish._previewUrl = null;
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+          alert(err.error?.error || 'Could not upload image');
+          this.cdr.detectChanges();
+        },
+        complete: () => {
+          this.uploadingDishImage[dish.id] = false;
+          input.value = '';
+          this.cdr.detectChanges();
+        },
+      });
   }
 }
