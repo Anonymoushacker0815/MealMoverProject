@@ -33,7 +33,7 @@ type ProfileResponse = {
   name: string;
   email: string;
   phone: string;
-  delivery_zone: string;
+  delivery_zone: number;
   opening_hours: Record<DayKey, OpeningDay>;
 
   logo_path?: string | null;
@@ -78,7 +78,7 @@ export class OwnerProfile implements OnInit {
     restaurantName: 'Loading...',
     email: 'Loading...',
     phone: 'Loading...',
-    deliveryZone: 'Loading...',
+    deliveryZone: 0,
   };
 
   // OPENING HOURS MODEL
@@ -136,6 +136,14 @@ export class OwnerProfile implements OnInit {
     return `${this.baseUrl}${p}`;
   }
 
+  // DELIVERY ZONE LABEL
+  // Baut das Anzeige-Label "X km radius" aus der gespeicherten Zahl
+  get deliveryZoneLabel(): string {
+    const n = Number(this.profile.deliveryZone);
+    if (!Number.isFinite(n) || n <= 0) return '-';
+    return `${n} km radius`;
+  }
+
   // PROFILE LOAD
   // Lädt Profil + Opening Hours aus dem Backend und mappt es ins UI-Modell
   loadProfile() {
@@ -149,7 +157,7 @@ export class OwnerProfile implements OnInit {
             restaurantName: data?.name ?? '',
             email: data?.email ?? '',
             phone: data?.phone ?? '',
-            deliveryZone: data?.delivery_zone ?? '',
+            deliveryZone: Number(data?.delivery_zone ?? 0),
           };
 
           this.openingHours = data?.opening_hours ?? this.openingHours;
@@ -162,6 +170,7 @@ export class OwnerProfile implements OnInit {
           this.coverUrl = this.toFullUrl(this.cover_path);
 
           this.isLoading = false;
+
           this.cdr.detectChanges();
         },
         error: (err) => {
@@ -214,11 +223,15 @@ export class OwnerProfile implements OnInit {
   // PROFILE SAVE
   // Baut Payload aus UI-Modell und speichert via PUT /owner/profile
   saveProfile() {
+
+    const dz = Number(this.profile.deliveryZone);
+    const delivery_zone = Number.isFinite(dz) ? dz : 0;
+
     const payload = {
       name: this.profile.restaurantName,
       email: this.profile.email,
       phone: this.profile.phone,
-      delivery_zone: this.profile.deliveryZone,
+      delivery_zone,
       opening_hours: this.openingHours,
     };
 
@@ -294,7 +307,6 @@ export class OwnerProfile implements OnInit {
             URL.revokeObjectURL(this.logoPreviewUrl);
             this.logoPreviewUrl = null;
           }
-
           this.cdr.detectChanges();
         },
         error: (err) => {
@@ -342,7 +354,6 @@ export class OwnerProfile implements OnInit {
             URL.revokeObjectURL(this.coverPreviewUrl);
             this.coverPreviewUrl = null;
           }
-
           this.cdr.detectChanges();
         },
         error: (err) => {

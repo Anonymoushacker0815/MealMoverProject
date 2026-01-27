@@ -138,7 +138,7 @@ router.get("/profile", authenticateToken, async (req, res) => {
       name: r.name ?? "",
       email: r.email ?? "",
       phone: r.phone ?? "",
-      delivery_zone: r.delivery_zone ?? "",
+      delivery_zone: Number(r.delivery_zone ?? 0),
       opening_hours: r.opening_hours ?? DEFAULT_OPENING_HOURS,
 
       // IMAGE PATHS
@@ -167,7 +167,12 @@ router.put("/profile", authenticateToken, async (req, res) => {
     const name = String(req.body.name ?? "").trim();
     const email = String(req.body.email ?? "").trim();
     const phone = String(req.body.phone ?? "").trim();
-    const deliveryZone = String(req.body.delivery_zone ?? "").trim();
+    const deliveryZone = Number(req.body.delivery_zone);
+
+    if (!Number.isFinite(deliveryZone) || deliveryZone <= 0) {
+      return res.status(400).json({ error: "Delivery zone must be a positive number" });
+    }
+
     const openingHours = req.body.opening_hours ?? DEFAULT_OPENING_HOURS;
 
     if (!name) return res.status(400).json({ error: "Restaurant name required" });

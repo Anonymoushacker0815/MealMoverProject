@@ -20,7 +20,7 @@ INSERT INTO restaurants (
           'SpeedEat',
           'speed.eat@mail.com',
           '95839682',
-          '3 km radius',
+          10,
           '{
             "mon": {"label":"Mon","closed":false,"open":"09:00","close":"18:00"},
             "tue": {"label":"Tue","closed":false,"open":"09:00","close":"18:00"},
@@ -40,7 +40,7 @@ INSERT INTO restaurants (
           'Gimme Foods',
           'gimme.foods@email.com',
           '8533455',
-          '5 km radius',
+          5,
           '{
             "mon": {"label":"Mon","closed":false,"open":"10:00","close":"18:00"},
             "tue": {"label":"Tue","closed":false,"open":"10:00","close":"18:00"},
