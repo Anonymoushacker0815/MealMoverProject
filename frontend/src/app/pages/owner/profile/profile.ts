@@ -109,6 +109,11 @@ export class OwnerProfile implements OnInit {
   uploadingLogo = false;
   uploadingCover = false;
 
+  // PENDING IMAGE FILES
+  // Merkt ausgewählte Files lokal, damit Upload erst bei Save passiert
+  pendingLogoFile: File | null = null;
+  pendingCoverFile: File | null = null;
+
   // BACKUP STATE
   // Snapshot zum Zurücksetzen, wenn Edit abgebrochen wird
   private backup: any = null;
@@ -169,6 +174,11 @@ export class OwnerProfile implements OnInit {
           this.logoUrl = this.toFullUrl(this.logo_path);
           this.coverUrl = this.toFullUrl(this.cover_path);
 
+          // PENDING RESET
+          // Nach dem Laden: pending Auswahl ist nicht mehr relevant
+          this.pendingLogoFile = null;
+          this.pendingCoverFile = null;
+
           this.isLoading = false;
 
           this.cdr.detectChanges();
@@ -193,6 +203,12 @@ export class OwnerProfile implements OnInit {
       logoUrl: this.logoUrl,
       coverUrl: this.coverUrl,
     };
+
+    // PENDING RESET
+    // Beim Start von Edit: keine alten pending Files übernehmen
+    this.pendingLogoFile = null;
+    this.pendingCoverFile = null;
+
     this.isEditing = true;
     this.cdr.detectChanges();
   }
@@ -210,6 +226,11 @@ export class OwnerProfile implements OnInit {
       this.coverUrl = this.backup.coverUrl;
     }
 
+    // PENDING RESET
+    // Auswahl verwerfen, damit nichts später aus Versehen hochgeladen wird
+    this.pendingLogoFile = null;
+    this.pendingCoverFile = null;
+
     // PREVIEW CLEANUP
     if (this.logoPreviewUrl) URL.revokeObjectURL(this.logoPreviewUrl);
     if (this.coverPreviewUrl) URL.revokeObjectURL(this.coverPreviewUrl);
@@ -220,8 +241,17 @@ export class OwnerProfile implements OnInit {
     this.cdr.detectChanges();
   }
 
+  // IMAGE UPLOAD HELPER
+  // Lädt Logo oder Cover hoch (wird nur bei Save verwendet)
+  private uploadImage(kind: 'logo' | 'cover', file: File) {
+    const form = new FormData();
+    form.append('image', file);
+    return this.http.post<any>(`${this.baseUrl}/owner/profile/${kind}`, form, this.authHeaders());
+  }
+
   // PROFILE SAVE
   // Baut Payload aus UI-Modell und speichert via PUT /owner/profile
+  // Bilder werden erst hier hochgeladen
   saveProfile() {
 
     const dz = Number(this.profile.deliveryZone);
@@ -235,18 +265,89 @@ export class OwnerProfile implements OnInit {
       opening_hours: this.openingHours,
     };
 
+    // PROFILE UPDATE FIRST
+    // Erst Profil speichern, danach Bilder hochladen
     this.http.put(`${this.baseUrl}/owner/profile`, payload, this.authHeaders())
       .subscribe({
         next: () => {
-          this.isEditing = false;
 
-          // PREVIEW CLEANUP
-          if (this.logoPreviewUrl) URL.revokeObjectURL(this.logoPreviewUrl);
-          if (this.coverPreviewUrl) URL.revokeObjectURL(this.coverPreviewUrl);
-          this.logoPreviewUrl = null;
-          this.coverPreviewUrl = null;
+          // UPLOAD LOGO THEN COVER
+          // Reihenfolge: Logo -> Cover -> Abschluss
+          const uploadLogo = () => {
+            if (!this.pendingLogoFile) return uploadCover();
 
-          this.loadProfile();
+            this.uploadingLogo = true;
+            this.cdr.detectChanges();
+
+            this.uploadImage('logo', this.pendingLogoFile).subscribe({
+              next: (res) => {
+                const p = res?.picture_path ?? null;
+                this.logo_path = p;
+                this.logoUrl = this.toFullUrl(p);
+                this.pendingLogoFile = null;
+              },
+              error: (err) => {
+                console.error(err);
+                alert(err.error?.error || 'Could not upload logo');
+              },
+              complete: () => {
+                this.uploadingLogo = false;
+
+                // PREVIEW CLEANUP
+                if (this.logoPreviewUrl) URL.revokeObjectURL(this.logoPreviewUrl);
+                this.logoPreviewUrl = null;
+
+                this.cdr.detectChanges();
+                uploadCover();
+              }
+            });
+          };
+
+          const uploadCover = () => {
+            if (!this.pendingCoverFile) return finish();
+
+            this.uploadingCover = true;
+            this.cdr.detectChanges();
+
+            this.uploadImage('cover', this.pendingCoverFile).subscribe({
+              next: (res) => {
+                const p = res?.picture_path ?? null;
+                this.cover_path = p;
+                this.coverUrl = this.toFullUrl(p);
+                this.pendingCoverFile = null;
+              },
+              error: (err) => {
+                console.error(err);
+                alert(err.error?.error || 'Could not upload cover image');
+              },
+              complete: () => {
+                this.uploadingCover = false;
+
+                // PREVIEW CLEANUP
+                if (this.coverPreviewUrl) URL.revokeObjectURL(this.coverPreviewUrl);
+                this.coverPreviewUrl = null;
+
+                this.cdr.detectChanges();
+                finish();
+              }
+            });
+          };
+
+          const finish = () => {
+            this.isEditing = false;
+
+            // PREVIEW CLEANUP
+            if (this.logoPreviewUrl) URL.revokeObjectURL(this.logoPreviewUrl);
+            if (this.coverPreviewUrl) URL.revokeObjectURL(this.coverPreviewUrl);
+            this.logoPreviewUrl = null;
+            this.coverPreviewUrl = null;
+
+            // RELOAD
+            // Holt frische Daten + Bildpfade vom Backend
+            this.loadProfile();
+          };
+
+          uploadLogo();
         },
         error: (err) => {
           console.error(err);
@@ -275,97 +376,43 @@ export class OwnerProfile implements OnInit {
     input.click();
   }
 
-  // LOGO UPLOAD
-  // Erstellt lokale Preview und lädt Logo zu POST /owner/profile/logo hoch
+  // LOGO SELECT
+  // Erstellt lokale Preview und merkt File, Upload passiert erst bei Save
   onLogoSelected(event: Event) {
-    if (!this.isEditing || this.uploadingLogo) return;
+    if (!this.isEditing) return;
 
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
 
+    // PENDING FILE
+    this.pendingLogoFile = file;
+
+    // PREVIEW
     if (this.logoPreviewUrl) URL.revokeObjectURL(this.logoPreviewUrl);
     this.logoPreviewUrl = URL.createObjectURL(file);
+
+    input.value = '';
     this.cdr.detectChanges();
-
-    const form = new FormData();
-    form.append('image', file);
-
-    this.uploadingLogo = true;
-    this.cdr.detectChanges();
-
-    this.http
-      .post<any>(`${this.baseUrl}/owner/profile/logo`, form, this.authHeaders())
-      .subscribe({
-        next: (res) => {
-          const p = res?.picture_path ?? null;
-
-          this.logo_path = p;
-          this.logoUrl = this.toFullUrl(p);
-
-          if (this.logoPreviewUrl) {
-            URL.revokeObjectURL(this.logoPreviewUrl);
-            this.logoPreviewUrl = null;
-          }
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error(err);
-          alert(err.error?.error || 'Could not upload logo');
-          this.cdr.detectChanges();
-        },
-        complete: () => {
-          this.uploadingLogo = false;
-          input.value = '';
-          this.cdr.detectChanges();
-        }
-      });
   }
 
-  // COVER UPLOAD
-  // Erstellt lokale Preview und lädt Cover zu POST /owner/profile/cover hoch
+  // COVER SELECT
+  // Erstellt lokale Preview und merkt File, Upload passiert erst bei Save
   onCoverSelected(event: Event) {
-    if (!this.isEditing || this.uploadingCover) return;
+    if (!this.isEditing) return;
 
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
 
+    // PENDING FILE
+    this.pendingCoverFile = file;
+
+    // PREVIEW
     if (this.coverPreviewUrl) URL.revokeObjectURL(this.coverPreviewUrl);
     this.coverPreviewUrl = URL.createObjectURL(file);
+
+    input.value = '';
     this.cdr.detectChanges();
-
-    const form = new FormData();
-    form.append('image', file);
-
-    this.uploadingCover = true;
-    this.cdr.detectChanges();
-
-    this.http
-      .post<any>(`${this.baseUrl}/owner/profile/cover`, form, this.authHeaders())
-      .subscribe({
-        next: (res) => {
-          const p = res?.picture_path ?? null;
-
-          this.cover_path = p;
-          this.coverUrl = this.toFullUrl(p);
-
-          if (this.coverPreviewUrl) {
-            URL.revokeObjectURL(this.coverPreviewUrl);
-            this.coverPreviewUrl = null;
-          }
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error(err);
-          alert(err.error?.error || 'Could not upload cover image');
-          this.cdr.detectChanges();
-        },
-        complete: () => {
-          this.uploadingCover = false;
-          input.value = '';
-          this.cdr.detectChanges();
-        }
-      });
   }
 }
