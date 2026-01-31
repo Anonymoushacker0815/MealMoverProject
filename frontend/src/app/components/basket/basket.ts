@@ -18,6 +18,7 @@ export class BasketComponent {
   @Input() restaurantId!: number;
   @Input() isSummary = false;
 
+  @Input() isOutOfRange = false;
   @Output() orderPlaced = new EventEmitter<number>();
 
   isSubmitting = false;
@@ -27,6 +28,7 @@ export class BasketComponent {
   get totalPrice() { return this.cartService.totalPrice; }
 
   handleAction() {
+    if (this.isOutOfRange) return;
     if (this.cartItems().length === 0) return;
 
     if (!this.authService.isLoggedIn()) {

@@ -22,6 +22,11 @@ export class OrderSummary implements OnInit {
   restaurant: any = null;
   restaurantCoords: { lat: number, lng: number } | null = null;
   currentDistance: number = 0;
+
+  currentDistanceKm: number = 0;
+  deliveryZoneKm: number = 0;
+  isOutOfRange: boolean = false;
+
   loading = true;
   error = '';
 
@@ -46,6 +51,17 @@ export class OrderSummary implements OnInit {
 
   handleDistance(meters: number) {
     this.currentDistance = meters;
+
+    this.currentDistanceKm = meters / 1000;
+
+
+    if (this.deliveryZoneKm > 0) {
+      this.isOutOfRange = this.currentDistanceKm > this.deliveryZoneKm;
+    } else {
+      this.isOutOfRange = false;
+    }
+
+    this.cdr.detectChanges();
   }
 
   loadData() {
@@ -53,6 +69,7 @@ export class OrderSummary implements OnInit {
     this.restaurantService.getRestaurantMenu(this.restaurantId).subscribe({
       next: (data) => {
         this.restaurant = data.restaurant;
+        this.deliveryZoneKm = this.restaurant.delivery_zone || 0;
         const loc = this.restaurant?.location;
 
         if (loc) {
