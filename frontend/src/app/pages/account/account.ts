@@ -19,6 +19,10 @@ import { UserMap } from '../../components/user-map/user-map';
 import { MapService } from '../../services/map.service';
 import { Navbar } from '../../components/navbar/navbar';
 
+// PASSWORD STRENGTH
+// zxcvbn Library für Passwortstärke-Analyse
+import zxcvbn from 'zxcvbn';
+
 // GEOJSON LOCATION MODEL
 // Standort als GeoJSON Point (lng/lat) für DB und Map-Komponenten
 type GeoJsonPoint = { type: 'Point'; coordinates: [number, number] };
@@ -75,6 +79,12 @@ export class Account implements OnInit {
     newPassword: '',
     confirmNewPassword: '',
   };
+
+  // PASSWORD STRENGTH STATE
+  // Score + Feedback + Vorschläge aus zxcvbn für UI Anzeige & Validierung
+  passwordStrengthScore = 0;
+  passwordFeedback = '';
+  passwordSuggestions: string[] = [];
 
   // LIFECYCLE INIT
   // Prüft Login-Status und lädt Userdaten beim Start
@@ -167,6 +177,11 @@ export class Account implements OnInit {
 
     this.pw = { currentPassword: '', newPassword: '', confirmNewPassword: '' };
 
+    // PASSWORD STRENGTH RESET
+    this.passwordStrengthScore = 0;
+    this.passwordFeedback = '';
+    this.passwordSuggestions = [];
+
     this.edit.email = this.user?.email ?? '';
     this.edit.username = this.user?.username ?? '';
     this.edit.location = this.user?.location ?? null;
@@ -224,7 +239,43 @@ export class Account implements OnInit {
   togglePasswordChange() {
     this.isChangingPassword = !this.isChangingPassword;
     this.pw = { currentPassword: '', newPassword: '', confirmNewPassword: '' };
+
+    // PASSWORD STRENGTH RESET
+    this.passwordStrengthScore = 0;
+    this.passwordFeedback = '';
+    this.passwordSuggestions = [];
+
     this.cdr.detectChanges();
+  }
+
+  // PASSWORD STRENGTH ANALYSIS
+  // Berechnet Score, Feedback und Vorschläge aus zxcvbn bei Passwort-Eingabe
+  onPasswordChange() {
+    const password = this.pw.newPassword;
+
+    if (!password) {
+      this.passwordStrengthScore = 0;
+      this.passwordFeedback = '';
+      this.passwordSuggestions = [];
+      return;
+    }
+
+    const result = zxcvbn(password);
+    this.passwordStrengthScore = result.score;
+    this.passwordFeedback = result.feedback.warning;
+    this.passwordSuggestions = result.feedback.suggestions;
+  }
+
+  // PASSWORD STRENGTH COLOR
+  get strengthColor(): string {
+    switch (this.passwordStrengthScore) {
+      case 0: return 'bg-red-500';
+      case 1: return 'bg-red-400';
+      case 2: return 'bg-yellow-500';
+      case 3: return 'bg-blue-500';
+      case 4: return 'bg-green-500';
+      default: return 'bg-gray-300';
+    }
   }
 
   // CHANGE PASSWORD
@@ -239,6 +290,20 @@ export class Account implements OnInit {
       return;
     }
 
+    // PASSWORD STRENGTH VALIDATION
+    // Prüft Mindestlänge und zxcvbn Score bevor Request geschickt wird
+    this.onPasswordChange();
+
+    if (this.pw.newPassword.length < 8) {
+      alert("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (this.passwordStrengthScore < 2) {
+      alert("Your password is too weak. Please follow the suggestions.");
+      return;
+    }
+
     const payload = {
       currentPassword: this.pw.currentPassword,
       newPassword: this.pw.newPassword,
@@ -248,6 +313,11 @@ export class Account implements OnInit {
       next: () => {
         this.isChangingPassword = false;
         this.pw = { currentPassword: '', newPassword: '', confirmNewPassword: '' };
+
+        // PASSWORD STRENGTH RESET
+        this.passwordStrengthScore = 0;
+        this.passwordFeedback = '';
+        this.passwordSuggestions = [];
 
         this.cdr.detectChanges();
         alert('Password changed!');
