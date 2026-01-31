@@ -34,8 +34,36 @@
           type="password"
           placeholder="Password"
           [(ngModel)]="password"
+          (input)="onPasswordChange()"
           class="w-full bg-white text-gray-800 ring-2 ring-[#9B1C1F] rounded-xl px-6 py-4 text-lg placeholder-gray-500 focus:outline-none focus:ring-4 transition-all"
         />
+
+        <!-- Strength Bar -->
+        @if (password.length > 0) {
+          <div class="mt-3 px-1">
+            <div class="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+              <div
+                [class]="strengthColor"
+                [style.width.%]="(passwordStrengthScore + 1) * 20"
+                class="h-full transition-all duration-300">
+              </div>
+            </div>
+
+            <p class="text-xs mt-2 font-medium" [ngClass]="passwordStrengthScore < 2 ? 'text-red-600' : 'text-green-600'">
+              @if (passwordStrengthScore < 2) {
+                Weak Password {{ passwordFeedback || 'try the following:' }}
+              } @else {
+                Strong enough to register!
+              }
+            </p>
+
+            @for (suggestion of passwordSuggestions; track suggestion) {
+              <p class="text-[10px] text-gray-500 italic leading-tight">• {{ suggestion }}</p>
+            }
+          </div>
+        }
+      </div>
+
 
         <div class="flex justify-end gap-4 mt-6">
           <button
@@ -52,7 +80,7 @@
             Register
           </button>
         </div>
-      </div>
+
     }
 
     @else {

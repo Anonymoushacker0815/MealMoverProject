@@ -4,8 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-
 import { UserMap } from '../../components/user-map/user-map';
+import zxcvbn from 'zxcvbn';
+
 
 @Component({
   selector: 'app-authentication',
@@ -19,6 +20,9 @@ export class Authentication {
   password = '';
   isSelectingRole = false;
 
+  passwordStrengthScore = 0;
+  passwordFeedback = '';
+  passwordSuggestions: string[] = [];
 
   tempGeoJson: any = null;
 
@@ -26,6 +30,32 @@ export class Authentication {
   private router = inject(Router);
   private authService = inject(AuthService);
 
+
+  onPasswordChange() {
+    if (!this.password) {
+      this.passwordStrengthScore = 0;
+      this.passwordFeedback = '';
+      this.passwordSuggestions = [];
+      return;
+    }
+
+    const result = zxcvbn(this.password);
+    this.passwordStrengthScore = result.score;
+    this.passwordFeedback = result.feedback.warning;
+    this.passwordSuggestions = result.feedback.suggestions;
+  }
+
+
+  get strengthColor(): string {
+    switch (this.passwordStrengthScore) {
+      case 0: return 'bg-red-500';
+      case 1: return 'bg-red-400';
+      case 2: return 'bg-yellow-500';
+      case 3: return 'bg-blue-500';
+      case 4: return 'bg-green-500';
+      default: return 'bg-gray-300';
+    }
+  }
 
   onLocationSelected(data: any) {
     this.tempGeoJson = data.geojson;
@@ -57,6 +87,17 @@ export class Authentication {
       alert("Please enter both email and password.");
       return;
     }
+
+    if (this.password.length < 8) {
+      alert("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (this.passwordStrengthScore < 2) {
+      alert("Your password is too weak. Please follow the suggestions.");
+      return;
+    }
+
     this.isSelectingRole = true;
   }
 
