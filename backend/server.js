@@ -92,7 +92,7 @@ function restoreSeedDishImages() {
     }
   }
 
-  console.log(`[seed-images] Restored ${copied} seed dish images`);
+  //console.log(`[seed-images] Restored ${copied} seed dish images`);
 }
 
 
@@ -126,7 +126,7 @@ function restoreSeedRestaurantImages() {
     }
   }
 
-  console.log(`[seed-images] Restored ${copied} seed restaurant images`);
+  //console.log(`[seed-images] Restored ${copied} seed restaurant images`);
 }
 
 
@@ -161,7 +161,7 @@ async function cleanupOrphanDishImages() {
     }
   }
 
-  console.log(`[cleanup] Removed ${removed} orphan dish images`);
+  //console.log(`[cleanup] Removed ${removed} orphan dish images`);
 }
 
 
@@ -198,7 +198,7 @@ async function cleanupOrphanRestaurantImages() {
     }
   }
 
-  console.log(`[cleanup] Removed ${removed} orphan restaurant images`);
+  //console.log(`[cleanup] Removed ${removed} orphan restaurant images`);
 }
 
 
