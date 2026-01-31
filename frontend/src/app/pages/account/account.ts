@@ -4,7 +4,7 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 
 // ANGULAR COMMON MODULES
 // Grundlegende Direktiven und Template-Formulare
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 
 // ROUTING & HTTP
@@ -29,7 +29,7 @@ type GeoJsonPoint = { type: 'Point'; coordinates: [number, number] };
 @Component({
   selector: 'app-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserMap, Navbar],
+  imports: [FormsModule, UserMap, Navbar],
   templateUrl: './account.html',
 })
 export class Account implements OnInit {

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   FormBuilder,
   Validators,
@@ -7,13 +7,13 @@ import {
   FormGroup,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ThreadService } from '../../../services/thread';
+import { ThreadService } from '../../../services/thread.service';
 
 
 @Component({
   standalone: true,
   selector: 'app-new-thread',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './new-thread.html',
 })
 export class NewThreadComponent {

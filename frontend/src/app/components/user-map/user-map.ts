@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, inject, signal, Input, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
 import { AuthService } from '../../services/auth.service';
@@ -8,7 +8,7 @@ import { MapService } from '../../services/map.service';
 @Component({
   selector: 'app-user-map',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './user-map.html',
   styleUrl: './user-map.css'
 })

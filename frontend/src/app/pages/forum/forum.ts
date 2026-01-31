@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ThreadCardComponent } from '../../components/thread-card/thread-card';
-import { ThreadService } from '../../services/thread';
+import { ThreadService } from '../../services/thread.service';
 import { Thread } from '../../types/thread';
 import { ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-forum',
   standalone: true,
-  imports: [CommonModule, FormsModule, ThreadCardComponent],
+  imports: [FormsModule, ThreadCardComponent],
   templateUrl: './forum.html',
   styleUrl: './forum.css',
 })
@@ -116,7 +116,7 @@ export class Forum implements OnInit {
     this.isSubmittingReport = true;
     this.reportErrorMsg = null;
 
-    this.threadService.reportThread(this.reportTarget.id, reason).subscribe({
+    this.threadService.reportThread(String(this.reportTarget.id), reason).subscribe({
       next: () => {
         this.isSubmittingReport = false;
         this.isReportModalOpen = false;

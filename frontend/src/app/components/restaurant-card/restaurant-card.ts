@@ -1,11 +1,11 @@
 import { Component, Input, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-restaurant-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './restaurant-card.html'
 })
 export class RestaurantCard {

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RestaurantService } from '../../../services/restaurant.service';
 import { RestaurantCard } from '../../../components/restaurant-card/restaurant-card';
@@ -7,7 +7,7 @@ import { RestaurantCard } from '../../../components/restaurant-card/restaurant-c
 @Component({
   selector: 'app-restaurants',
   standalone: true,
-  imports: [CommonModule, FormsModule, RestaurantCard],
+  imports: [FormsModule, RestaurantCard],
   templateUrl: './restaurants.html'
 })
 export class Restaurants implements OnInit {

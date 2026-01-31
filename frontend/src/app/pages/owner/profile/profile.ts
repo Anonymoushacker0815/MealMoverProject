@@ -4,7 +4,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 
 // ANGULAR COMMON MODULES
 // Grundlegende Direktiven und Template-Formulare
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 
 // UI COMPONENTS & SERVICES
@@ -46,7 +46,7 @@ type ProfileResponse = {
 @Component({
   standalone: true,
   selector: 'app-owner-profile',
-  imports: [CommonModule, FormsModule, Navbar],
+  imports: [FormsModule, Navbar],
   templateUrl: './profile.html',
 })
 export class OwnerProfile implements OnInit {

@@ -11,69 +11,80 @@
         (click)="loadUsers()"
         class="px-3 py-1.5 border rounded bg-white text-sm hover:bg-gray-50"
         [disabled]="isLoading"
-      >
+        >
         Refresh
       </button>
     </div>
 
-    <div *ngIf="errorMsg" class="bg-red-50 border border-red-200 text-red-700 rounded p-3">
-      {{ errorMsg }}
-    </div>
+    @if (errorMsg) {
+      <div class="bg-red-50 border border-red-200 text-red-700 rounded p-3">
+        {{ errorMsg }}
+      </div>
+    }
 
-    <div *ngIf="isLoading" class="bg-white border rounded p-4 text-gray-600">
-      Loading users...
-    </div>
+    @if (isLoading) {
+      <div class="bg-white border rounded p-4 text-gray-600">
+        Loading users...
+      </div>
+    }
 
-    <div *ngIf="!isLoading && users.length === 0" class="bg-white border rounded p-4 text-gray-600">
-      No users found.
-    </div>
+    @if (!isLoading && users.length === 0) {
+      <div class="bg-white border rounded p-4 text-gray-600">
+        No users found.
+      </div>
+    }
 
-    <div *ngIf="!isLoading && users.length > 0" class="bg-white border rounded">
-      <table class="min-w-full text-sm">
-        <thead class="bg-gray-50 border-b">
-          <tr>
-            <th class="text-left p-3 w-16">ID</th>
-            <th class="text-left p-3">Email</th>
-            <th class="text-left p-3">Username</th>
-            <th class="text-left p-3 w-32">Type</th>
-            <th class="text-left p-3 w-40">Status</th>
-            <th class="text-right p-3 w-56">Change status</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr *ngFor="let u of users" class="border-b last:border-b-0">
-            <td class="p-3">{{ u.id }}</td>
-            <td class="p-3 font-medium">{{ u.email }}</td>
-            <td class="p-3">{{ u.username || '-' }}</td>
-            <td class="p-3">{{ u.user_type }}</td>
-            <td class="p-3">
-              <span
-                class="inline-flex items-center px-2 py-1 rounded border text-xs"
+    @if (!isLoading && users.length > 0) {
+      <div class="bg-white border rounded">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-50 border-b">
+            <tr>
+              <th class="text-left p-3 w-16">ID</th>
+              <th class="text-left p-3">Email</th>
+              <th class="text-left p-3">Username</th>
+              <th class="text-left p-3 w-32">Type</th>
+              <th class="text-left p-3 w-40">Status</th>
+              <th class="text-right p-3 w-56">Change status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of users; track u) {
+              <tr class="border-b last:border-b-0">
+                <td class="p-3">{{ u.id }}</td>
+                <td class="p-3 font-medium">{{ u.email }}</td>
+                <td class="p-3">{{ u.username || '-' }}</td>
+                <td class="p-3">{{ u.user_type }}</td>
+                <td class="p-3">
+                  <span
+                    class="inline-flex items-center px-2 py-1 rounded border text-xs"
                 [ngClass]="{
                   'bg-green-50 border-green-200 text-green-800': u.status === 'Active',
                   'bg-yellow-50 border-yellow-200 text-yellow-800': u.status === 'Suspended',
                   'bg-blue-50 border-blue-200 text-blue-800': u.status === 'Pending'
                 }"
-              >
-                {{ u.status }}
-              </span>
-            </td>
-            <td class="p-3 text-right">
-              <select
-                class="px-3 py-1.5 border rounded bg-white text-sm hover:bg-gray-50"
-                [value]="u.status"
-                (change)="changeStatus(u, $any($event.target).value)"
-                [disabled]="u.user_type === 'Admin'"
-                title="Admins cannot be changed"
-              >
-                <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
-              </select>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+                    >
+                    {{ u.status }}
+                  </span>
+                </td>
+                <td class="p-3 text-right">
+                  <select
+                    class="px-3 py-1.5 border rounded bg-white text-sm hover:bg-gray-50"
+                    [value]="u.status"
+                    (change)="changeStatus(u, $any($event.target).value)"
+                    [disabled]="u.user_type === 'Admin'"
+                    title="Admins cannot be changed"
+                    >
+                    @for (s of statuses; track s) {
+                      <option [value]="s">{{ s }}</option>
+                    }
+                  </select>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
 
   </div>
 </div>

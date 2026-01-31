@@ -4,9 +4,11 @@
 
   <!-- LOADING STATE -->
   <!-- Zeigt eine Ladeanzeige solange Daten vom Backend geladen werden -->
-  <div *ngIf="isLoading" class="text-center text-gray-500 mb-4">
-    Loading analytics...
-  </div>
+  @if (isLoading) {
+    <div class="text-center text-gray-500 mb-4">
+      Loading analytics...
+    </div>
+  }
 
   <!-- TOP ROW -->
   <!-- Oberer Bereich mit zwei Karten: Order Counts und Monthly Overview -->
@@ -59,7 +61,7 @@
             (click)="prevMonth()"
             class="px-4 py-2 rounded border border-gray-300 bg-white hover:border-[#9B1C1F] transition"
             type="button"
-          >
+            >
             ←
           </button>
 
@@ -73,7 +75,7 @@
             (click)="nextMonth()"
             class="px-4 py-2 rounded border border-gray-300 bg-white hover:border-[#9B1C1F] transition"
             type="button"
-          >
+            >
             →
           </button>
         </div>
@@ -118,23 +120,26 @@
         <tbody>
           <!-- POPULAR ITEMS ROWS -->
           <!-- Zeigt jedes item aus popularItems -->
-          <tr
-            *ngFor="let item of popularItems; let i = index"
-            class="border-b border-gray-200 hover:bg-[#9B1C1F]/5 transition"
-          >
-            <td class="py-4 text-center font-semibold">{{ i + 1 }}</td>
-            <td class="py-4 text-center">{{ item.name }}</td>
-            <td class="py-4 text-center font-semibold">{{ item.sold }}</td>
-            <td class="py-4 text-center font-semibold">€{{ item.revenue | number:'1.0-2' }}</td>
-          </tr>
+          @for (item of popularItems; track item; let i = $index) {
+            <tr
+              class="border-b border-gray-200 hover:bg-[#9B1C1F]/5 transition"
+              >
+              <td class="py-4 text-center font-semibold">{{ i + 1 }}</td>
+              <td class="py-4 text-center">{{ item.name }}</td>
+              <td class="py-4 text-center font-semibold">{{ item.sold }}</td>
+              <td class="py-4 text-center font-semibold">€{{ item.revenue | number:'1.0-2' }}</td>
+            </tr>
+          }
 
           <!-- POPULAR ITEMS EMPTY STATE -->
           <!-- Wird gezeigt wenn es keine Daten gibt -->
-          <tr *ngIf="popularItems.length === 0">
-            <td colspan="4" class="py-8 text-center text-gray-500">
-              No items yet.
-            </td>
-          </tr>
+          @if (popularItems.length === 0) {
+            <tr>
+              <td colspan="4" class="py-8 text-center text-gray-500">
+                No items yet.
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>
@@ -163,46 +168,47 @@
         <tbody>
           <!-- REVIEW ROWS -->
           <!-- Zeigt jede Review-Zeile mit Buttons -->
-          <tr
-            *ngFor="let r of reviews"
-            class="border-b border-gray-200 hover:bg-[#9B1C1F]/5 transition"
-          >
-            <td class="py-4 text-center font-semibold">{{ r.orderId }}</td>
-            <td class="py-4 text-center">{{ r.date }}</td>
-            <td class="py-4 text-center font-semibold">{{ r.rating }}</td>
-
-            <!-- REVIEW ACTIONS -->
-            <!-- Öffnet Review-Modal oder Report-Modal -->
-            <td class="py-4">
-              <div class="flex items-center justify-center gap-3">
-                <button
-                  (click)="viewReview(r)"
+          @for (r of reviews; track r) {
+            <tr
+              class="border-b border-gray-200 hover:bg-[#9B1C1F]/5 transition"
+              >
+              <td class="py-4 text-center font-semibold">{{ r.orderId }}</td>
+              <td class="py-4 text-center">{{ r.date }}</td>
+              <td class="py-4 text-center font-semibold">{{ r.rating }}</td>
+              <!-- REVIEW ACTIONS -->
+              <!-- Öffnet Review-Modal oder Report-Modal -->
+              <td class="py-4">
+                <div class="flex items-center justify-center gap-3">
+                  <button
+                    (click)="viewReview(r)"
                   class="px-6 py-1 rounded-full border border-gray-400 bg-white
                          hover:border-[#9B1C1F] hover:text-[#9B1C1F] transition"
-                  type="button"
-                >
-                  View
-                </button>
-
-                <button
-                  (click)="openReport(r)"
+                    type="button"
+                    >
+                    View
+                  </button>
+                  <button
+                    (click)="openReport(r)"
                   class="px-6 py-1 rounded-full border border-gray-400 bg-white
                          hover:border-[#9B1C1F] hover:text-[#9B1C1F] transition"
-                  type="button"
-                >
-                  Report
-                </button>
-              </div>
-            </td>
-          </tr>
+                    type="button"
+                    >
+                    Report
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
 
           <!-- REVIEWS EMPTY STATE -->
           <!-- Wird gezeigt wenn es noch keine Reviews gibt -->
-          <tr *ngIf="reviews.length === 0">
-            <td colspan="4" class="py-8 text-center text-gray-500">
-              No reviews yet.
-            </td>
-          </tr>
+          @if (reviews.length === 0) {
+            <tr>
+              <td colspan="4" class="py-8 text-center text-gray-500">
+                No reviews yet.
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>
@@ -212,143 +218,139 @@
 
 <!-- REVIEW MODAL -->
 <!-- Modal für Details eines Reviews -->
-<div
-  *ngIf="isReviewModalOpen"
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-  (click)="closeReviewModal()"
->
-  <!-- REVIEW MODAL CONTENT -->
-  <!-- Stoppt Click-Propagation damit das Modal nicht schließt -->
+@if (isReviewModalOpen) {
   <div
-    class="w-full max-w-xl rounded-2xl bg-white border border-gray-200 shadow-lg overflow-hidden"
-    (click)="$event.stopPropagation()"
-  >
-    <!-- REVIEW MODAL HEADER -->
-    <!-- Titel und Close Button -->
-    <div class="bg-[#9B1C1F] text-white px-5 py-3 flex items-center justify-between">
-      <div class="font-semibold text-lg">Review Details</div>
-      <button
-        type="button"
-        class="px-3 py-1 rounded-md bg-white/10 border border-white/40 hover:bg-white hover:text-[#9B1C1F] transition"
-        (click)="closeReviewModal()"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+    (click)="closeReviewModal()"
+    >
+    <!-- REVIEW MODAL CONTENT -->
+    <!-- Stoppt Click-Propagation damit das Modal nicht schließt -->
+    <div
+      class="w-full max-w-xl rounded-2xl bg-white border border-gray-200 shadow-lg overflow-hidden"
+      (click)="$event.stopPropagation()"
       >
-        ✕
-      </button>
-    </div>
-
-    <!-- REVIEW MODAL BODY -->
-    <!-- Zeigt Loading State oder Review-Details -->
-    <div class="p-6 space-y-4">
-      <div *ngIf="isReviewLoading" class="text-center text-gray-500">
-        Loading review...
+      <!-- REVIEW MODAL HEADER -->
+      <!-- Titel und Close Button -->
+      <div class="bg-[#9B1C1F] text-white px-5 py-3 flex items-center justify-between">
+        <div class="font-semibold text-lg">Review Details</div>
+        <button
+          type="button"
+          class="px-3 py-1 rounded-md bg-white/10 border border-white/40 hover:bg-white hover:text-[#9B1C1F] transition"
+          (click)="closeReviewModal()"
+          >
+          ✕
+        </button>
       </div>
-
-      <!-- REVIEW DETAILS -->
-      <!-- Zeigt Review-Daten wenn geladen -->
-      <div *ngIf="!isReviewLoading && selectedReview" class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-            <div class="text-3xl font-semibold text-gray-900">{{ selectedReview.rating }}</div>
-            <div class="text-sm font-semibold text-gray-700 mt-1">Rating</div>
+      <!-- REVIEW MODAL BODY -->
+      <!-- Zeigt Loading State oder Review-Details -->
+      <div class="p-6 space-y-4">
+        @if (isReviewLoading) {
+          <div class="text-center text-gray-500">
+            Loading review...
           </div>
-
-          <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-            <div class="text-sm text-gray-600">Customer</div>
-            <div class="font-semibold text-gray-900">{{ selectedReview.username }}</div>
-
-            <div class="mt-3 text-sm text-gray-600">Dish</div>
-            <div class="font-semibold text-gray-900">
-              {{ selectedReview.dish_name || 'general review' }}
+        }
+        <!-- REVIEW DETAILS -->
+        <!-- Zeigt Review-Daten wenn geladen -->
+        @if (!isReviewLoading && selectedReview) {
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+                <div class="text-3xl font-semibold text-gray-900">{{ selectedReview.rating }}</div>
+                <div class="text-sm font-semibold text-gray-700 mt-1">Rating</div>
+              </div>
+              <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div class="text-sm text-gray-600">Customer</div>
+                <div class="font-semibold text-gray-900">{{ selectedReview.username }}</div>
+                <div class="mt-3 text-sm text-gray-600">Dish</div>
+                <div class="font-semibold text-gray-900">
+                  {{ selectedReview.dish_name || 'general review' }}
+                </div>
+              </div>
+            </div>
+            <div class="rounded-xl border border-gray-200 bg-white p-4">
+              <div class="text-sm font-semibold text-gray-700 mb-2">Details</div>
+              <p class="text-gray-900 whitespace-pre-wrap">
+                {{ selectedReview.details || '-' }}
+              </p>
+            </div>
+            <!-- REVIEW MODAL FOOTER -->
+            <!-- Close Button zum Schließen des Modals -->
+            <div class="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                class="px-5 py-2 rounded-xl border border-gray-300 bg-white hover:bg-gray-100 transition"
+                (click)="closeReviewModal()"
+                >
+                Close
+              </button>
             </div>
           </div>
-        </div>
+        }
+      </div>
+    </div>
+  </div>
+}
 
-        <div class="rounded-xl border border-gray-200 bg-white p-4">
-          <div class="text-sm font-semibold text-gray-700 mb-2">Details</div>
-          <p class="text-gray-900 whitespace-pre-wrap">
-            {{ selectedReview.details || '-' }}
-          </p>
+<!-- REPORT MODAL -->
+<!-- Modal zum Melden eines Reviews mit Textfeld -->
+@if (isReportModalOpen) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+    (click)="closeReportModal()"
+    >
+    <!-- REPORT MODAL CONTENT -->
+    <!-- Stoppt Click-Propagation damit das Modal nicht schließt -->
+    <div
+      class="w-full max-w-xl rounded-2xl bg-white border border-gray-200 shadow-lg overflow-hidden"
+      (click)="$event.stopPropagation()"
+      >
+      <!-- REPORT MODAL HEADER -->
+      <!-- Titel und Close Button -->
+      <div class="bg-[#9B1C1F] text-white px-5 py-3 flex items-center justify-between">
+        <div class="font-semibold text-lg">Report Review</div>
+        <button
+          type="button"
+          class="px-3 py-1 rounded-md bg-white/10 border border-white/40 hover:bg-white hover:text-[#9B1C1F] transition"
+          (click)="closeReportModal()"
+          >
+          ✕
+        </button>
+      </div>
+      <!-- REPORT MODAL BODY -->
+      <!-- Textarea für Report-Grund und Buttons -->
+      <div class="p-6 space-y-4">
+        <div class="text-sm text-gray-600">
+          Write why you want to report <span class="font-semibold text-gray-900">{{ reportTarget?.orderId }}</span>.
         </div>
-
-        <!-- REVIEW MODAL FOOTER -->
-        <!-- Close Button zum Schließen des Modals -->
-        <div class="flex justify-end gap-3 pt-2">
+        <!-- REPORT INPUT -->
+        <!-- Bindet reportText an das Textfeld -->
+        <textarea
+          [(ngModel)]="reportText"
+          rows="5"
+          class="w-full rounded-xl border border-gray-300 p-3 focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
+          placeholder="Reason..."
+        ></textarea>
+        <!-- REPORT ACTIONS -->
+        <!-- Abbrechen oder Report senden -->
+        <div class="flex justify-end gap-3">
           <button
             type="button"
             class="px-5 py-2 rounded-xl border border-gray-300 bg-white hover:bg-gray-100 transition"
-            (click)="closeReviewModal()"
-          >
-            Close
+            (click)="closeReportModal()"
+            [disabled]="isReportSending"
+            >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="px-5 py-2 rounded-xl bg-[#9B1C1F] text-white hover:opacity-95 transition disabled:opacity-60"
+            (click)="submitReport()"
+            [disabled]="isReportSending"
+            >
+            {{ isReportSending ? 'Sending...' : 'Send Report' }}
           </button>
         </div>
       </div>
     </div>
   </div>
-</div>
-
-<!-- REPORT MODAL -->
-<!-- Modal zum Melden eines Reviews mit Textfeld -->
-<div
-  *ngIf="isReportModalOpen"
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-  (click)="closeReportModal()"
->
-  <!-- REPORT MODAL CONTENT -->
-  <!-- Stoppt Click-Propagation damit das Modal nicht schließt -->
-  <div
-    class="w-full max-w-xl rounded-2xl bg-white border border-gray-200 shadow-lg overflow-hidden"
-    (click)="$event.stopPropagation()"
-  >
-    <!-- REPORT MODAL HEADER -->
-    <!-- Titel und Close Button -->
-    <div class="bg-[#9B1C1F] text-white px-5 py-3 flex items-center justify-between">
-      <div class="font-semibold text-lg">Report Review</div>
-      <button
-        type="button"
-        class="px-3 py-1 rounded-md bg-white/10 border border-white/40 hover:bg-white hover:text-[#9B1C1F] transition"
-        (click)="closeReportModal()"
-      >
-        ✕
-      </button>
-    </div>
-
-    <!-- REPORT MODAL BODY -->
-    <!-- Textarea für Report-Grund und Buttons -->
-    <div class="p-6 space-y-4">
-      <div class="text-sm text-gray-600">
-        Write why you want to report <span class="font-semibold text-gray-900">{{ reportTarget?.orderId }}</span>.
-      </div>
-
-      <!-- REPORT INPUT -->
-      <!-- Bindet reportText an das Textfeld -->
-      <textarea
-        [(ngModel)]="reportText"
-        rows="5"
-        class="w-full rounded-xl border border-gray-300 p-3 focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F] focus:outline-none transition"
-        placeholder="Reason..."
-      ></textarea>
-
-      <!-- REPORT ACTIONS -->
-      <!-- Abbrechen oder Report senden -->
-      <div class="flex justify-end gap-3">
-        <button
-          type="button"
-          class="px-5 py-2 rounded-xl border border-gray-300 bg-white hover:bg-gray-100 transition"
-          (click)="closeReportModal()"
-          [disabled]="isReportSending"
-        >
-          Cancel
-        </button>
-
-        <button
-          type="button"
-          class="px-5 py-2 rounded-xl bg-[#9B1C1F] text-white hover:opacity-95 transition disabled:opacity-60"
-          (click)="submitReport()"
-          [disabled]="isReportSending"
-        >
-          {{ isReportSending ? 'Sending...' : 'Send Report' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+}

@@ -1,6 +1,6 @@
 import {Component, OnInit, inject, ChangeDetectorRef, OnDestroy} from '@angular/core';
 import { Router,} from '@angular/router';
-import { CommonModule,Location } from '@angular/common';
+import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -12,7 +12,7 @@ import { BasketComponent } from '../../../components/basket/basket';
 @Component({
   selector: 'app-order-menu',
   standalone: true,
-  imports: [CommonModule, FormsModule, MenuItemComponent, BasketComponent],
+  imports: [FormsModule, MenuItemComponent, BasketComponent],
   templateUrl: './menu.html'
 })
 export class Menu implements OnInit,OnDestroy {

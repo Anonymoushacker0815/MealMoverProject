@@ -14,128 +14,158 @@
           class="px-3 py-1.5 border rounded bg-white text-sm hover:bg-gray-50"
           (click)="loadPendingRestaurants()"
           [disabled]="isLoadingPending"
-        >
+          >
           Refresh
         </button>
       </div>
 
-      <div *ngIf="pendingError" class="bg-red-50 border border-red-200 text-red-700 rounded p-3">
-        {{ pendingError }}
-      </div>
+      @if (pendingError) {
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded p-3">
+          {{ pendingError }}
+        </div>
+      }
 
-      <div *ngIf="isLoadingPending" class="text-sm text-gray-600">
-        Loading pending restaurants...
-      </div>
+      @if (isLoadingPending) {
+        <div class="text-sm text-gray-600">
+          Loading pending restaurants...
+        </div>
+      }
 
-      <div *ngIf="!isLoadingPending" class="text-sm text-gray-700">
-        Pending restaurants:
-        <span class="font-semibold">{{ pendingCount }}</span>
-      </div>
+      @if (!isLoadingPending) {
+        <div class="text-sm text-gray-700">
+          Pending restaurants:
+          <span class="font-semibold">{{ pendingCount }}</span>
+        </div>
+      }
 
-      <div *ngIf="!isLoadingPending && pendingCount === 0" class="text-sm text-gray-600">
-        No restaurants waiting for approval.
-      </div>
+      @if (!isLoadingPending && pendingCount === 0) {
+        <div class="text-sm text-gray-600">
+          No restaurants waiting for approval.
+        </div>
+      }
 
-      <div *ngIf="!isLoadingPending && pendingCount > 0" class="space-y-2">
-        <div
-          *ngFor="let r of pendingRestaurants | slice:0:5"
-          class="flex items-center justify-between border rounded p-2"
-        >
-          <div class="min-w-0">
-            <div class="font-medium truncate">{{ r.email }}</div>
-            <div class="text-xs text-gray-500">
-              User ID: {{ r.id }} • {{ r.username || '—' }}
+      @if (!isLoadingPending && pendingCount > 0) {
+        <div class="space-y-2">
+          @for (r of pendingRestaurants | slice:0:5; track r) {
+            <div
+              class="flex items-center justify-between border rounded p-2"
+              >
+              <div class="min-w-0">
+                <div class="font-medium truncate">{{ r.email }}</div>
+                <div class="text-xs text-gray-500">
+                  User ID: {{ r.id }} • {{ r.username || '—' }}
+                </div>
+              </div>
+              <button
+                type="button"
+                class="px-3 py-1.5 bg-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
+                (click)="goToUsers()"
+                >
+                Review
+              </button>
             </div>
-          </div>
-
-          <button
-            type="button"
-            class="px-3 py-1.5 bg-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
-            (click)="goToUsers()"
-          >
-            Review
-          </button>
+          }
+          @if (pendingCount > 5) {
+            <div class="text-xs text-gray-500">
+              Showing 5 of {{ pendingCount }}. Open Users to review all.
+            </div>
+          }
         </div>
-
-        <div *ngIf="pendingCount > 5" class="text-xs text-gray-500">
-          Showing 5 of {{ pendingCount }}. Open Users to review all.
-        </div>
-      </div>
+      }
     </div>
 
     <div class="bg-white border rounded p-4 space-y-3">
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold">Quick Stat Overview</h2>
-        </div>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold">Quick Stat Overview</h2>
+      </div>
 
-        <div *ngIf="incomeError" class="bg-red-50 border border-red-200 text-red-700 rounded p-3">
-            {{ pendingError }}
+      @if (incomeError) {
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded p-3">
+          {{ pendingError }}
         </div>
+      }
 
-        <div *ngIf="isLoadingIncome" class="text-sm text-gray-600">
-            Loading total Income...
+      @if (isLoadingIncome) {
+        <div class="text-sm text-gray-600">
+          Loading total Income...
         </div>
+      }
 
-        <div *ngIf="!isLoadingIncome" class="text-sm text-gray-700">
-            Total income:
-            <span class="font-semibold">{{ incomes[0].amount }}</span>
+      @if (!isLoadingIncome) {
+        <div class="text-sm text-gray-700">
+          Total income:
+          <span class="font-semibold">{{ incomes[0].amount }}</span>
         </div>
-        
-        <div *ngIf="isLoadingUserCount" class="text-sm text-gray-600">
-            Loading User Counts...
-        </div>
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold">User Counts</h2>
-        </div>
-        <div *ngIf="!isLoadingUserCount" class="ng-white border">
-            <table class="min-w-full text-sm">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="text-left p-3">Status</th>
-                        <th class="text-left p-3">Count</th>
-                    </tr>
-                </thead>
+      }
 
-                <tbody>
-                    <tr *ngFor="let u of userCounts" class="border-b last:border-b-0">
-                        <td class="p-3">{{ u.name }}</td>
-                        <td class="p-3 font-medium">{{ u.amount }}</td>
-                    </tr>
-                </tbody>
-            </table>
+      @if (isLoadingUserCount) {
+        <div class="text-sm text-gray-600">
+          Loading User Counts...
         </div>
+      }
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold">User Counts</h2>
+      </div>
+      @if (!isLoadingUserCount) {
+        <div class="ng-white border">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 border-b">
+              <tr>
+                <th class="text-left p-3">Status</th>
+                <th class="text-left p-3">Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of userCounts; track u) {
+                <tr class="border-b last:border-b-0">
+                  <td class="p-3">{{ u.name }}</td>
+                  <td class="p-3 font-medium">{{ u.amount }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
 
-        <div *ngIf="isLoadingOrderStats" class="text-sm text-gray-600">
-            Loading per Restaurant Income...
+      @if (isLoadingOrderStats) {
+        <div class="text-sm text-gray-600">
+          Loading per Restaurant Income...
         </div>
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold">Orders per Restaurant</h2>
-        </div>
-        <div *ngIf="!isLoadingOrderStats" class="space-y-2">
-        <div *ngFor="let s of orderStats" class="flex items-center justify-between border rounded p-2">
-            <div class="min-w-0">
+      }
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold">Orders per Restaurant</h2>
+      </div>
+      @if (!isLoadingOrderStats) {
+        <div class="space-y-2">
+          @for (s of orderStats; track s) {
+            <div class="flex items-center justify-between border rounded p-2">
+              <div class="min-w-0">
                 <table class="min-w-full text-sm">
-                    <thead class="bg-gray-50 border-b">
-                        <tr>
-                            <th class="text-left p-3">Restaurant ID</th>
-                            <th class="text-left p-3">Order Count</th>
-                            <th class="text-left p-3">Total Income</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr *ngFor="let s of orderStats" class="border-b last:border-b-0">
-                            <td class="p-3">{{ s.id }}</td>
-                            <td class="p-3 font-medium">{{ s.amount }}</td>
-                            <td class="p-3">{{ s.income || '-' }}</td>
-           
-                        </tr>
-                    </tbody>
+                  <thead class="bg-gray-50 border-b">
+                    <tr>
+                      <th class="text-left p-3">Restaurant ID</th>
+                      <th class="text-left p-3">Order Count</th>
+                      <th class="text-left p-3">Total Income</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (s of orderStats; track s) {
+                      <tr class="border-b last:border-b-0">
+                        <td class="p-3">{{ s.id }}</td>
+                        <td class="p-3 font-medium">{{ s.amount }}</td>
+                        <td class="p-3">{{ s.income || '-' }}</td>
+                      </tr>
+                    }
+                  </tbody>
                 </table>
+              </div>
+              @if (pendingCount > 5) {
+                <div class="text-xs text-gray-500">
+                  Showing 5 of {{ pendingCount }}. Open Users to review all.
+                </div>
+              }
             </div>
-            <div *ngIf="pendingCount > 5" class="text-xs text-gray-500">
-                Showing 5 of {{ pendingCount }}. Open Users to review all.
-            </div>
+          }
         </div>
+      }
     </div>
-</div>

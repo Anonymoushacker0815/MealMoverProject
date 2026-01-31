@@ -39,13 +39,7 @@ router.get('/', async (req, res) => {
     query += ` WHERE LOWER(title) LIKE $${params.length}`;
   }
 
-  if (sort === 'likes') {
-    query += ' ORDER BY likes DESC';
-  } else if (sort === 'dislikes') {
-    query += ' ORDER BY dislikes DESC';
-  } else {
-    query += ' ORDER BY created_at DESC';
-  }
+  query += ' ORDER BY created_at DESC';
 
   try {
     const result = await pool.query(query, params);

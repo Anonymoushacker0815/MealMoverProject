@@ -5,7 +5,7 @@
     [formGroup]="threadForm"
     (ngSubmit)="submit()"
     class="flex flex-col gap-4"
-  >
+    >
     <!-- TITLE -->
     <div>
       <input
@@ -13,17 +13,18 @@
         placeholder="Thread title"
         formControlName="title"
         class="w-full border rounded px-3 py-2"
-      />
+        />
 
-      <p
-        *ngIf="
-          threadForm.get('title')?.touched &&
-          threadForm.get('title')?.invalid
-        "
-        class="text-sm text-red-600 mt-1"
-      >
-        Title is required
-      </p>
+      @if (
+        threadForm.get('title')?.touched &&
+        threadForm.get('title')?.invalid
+        ) {
+        <p
+          class="text-sm text-red-600 mt-1"
+          >
+          Title is required
+        </p>
+      }
     </div>
 
     <!-- CONTENT -->
@@ -35,15 +36,16 @@
         class="w-full border rounded px-3 py-2"
       ></textarea>
 
-      <p
-        *ngIf="
-          threadForm.get('content')?.touched &&
-          threadForm.get('content')?.invalid
-        "
-        class="text-sm text-red-600 mt-1"
-      >
-        Content is required
-      </p>
+      @if (
+        threadForm.get('content')?.touched &&
+        threadForm.get('content')?.invalid
+        ) {
+        <p
+          class="text-sm text-red-600 mt-1"
+          >
+          Content is required
+        </p>
+      }
     </div>
 
     <!-- ACTIONS -->
@@ -52,7 +54,7 @@
         type="button"
         (click)="cancel()"
         class="px-4 py-2 border rounded"
-      >
+        >
         Cancel
       </button>
 
@@ -67,7 +69,7 @@
           font-medium
           disabled:opacity-50
         "
-      >
+        >
         Post Thread
       </button>
     </div>

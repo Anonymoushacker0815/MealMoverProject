@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { RestaurantService } from '../../../services/restaurant.service';
 import { BasketComponent } from '../../../components/basket/basket';
@@ -9,7 +9,7 @@ import { OrderStatusComponent } from '../../../components/order-status/order-sta
 @Component({
   selector: 'app-order-summary',
   standalone: true,
-  imports: [CommonModule, BasketComponent, UserMap, OrderStatusComponent],
+  imports: [BasketComponent, UserMap, OrderStatusComponent],
   templateUrl: './order-summary.html'
 })
 export class OrderSummary implements OnInit {
