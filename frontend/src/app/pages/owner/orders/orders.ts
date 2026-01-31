@@ -14,6 +14,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 // UI COMPONENTS & SERVICES
 // Navbar-Komponente sowie Auth-Service und MapService für Adressauflösung
 import { Navbar } from '../../../components/navbar/navbar';
+import { Chat } from '../../../components/chat/chat';
 import { AuthService } from '../../../services/auth.service';
 import { MapService } from '../../../services/map.service';
 
@@ -51,7 +52,7 @@ type Order = {
 @Component({
   standalone: true,
   selector: 'app-owner-orders',
-  imports: [CommonModule, FormsModule, Navbar],
+  imports: [CommonModule, FormsModule, Navbar, Chat],
   templateUrl: './orders.html',
 })
 export class OwnerOrders implements OnInit, OnDestroy {
@@ -292,6 +293,10 @@ export class OwnerOrders implements OnInit, OnDestroy {
         alert(err.error?.error || 'Reject failed');
       },
     });
+  }
+  
+  trackByOrderId(_: number, order: Order) {
+    return order._id;
   }
 
   // STATUS LABEL

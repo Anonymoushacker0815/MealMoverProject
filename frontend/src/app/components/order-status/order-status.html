@@ -76,5 +76,8 @@
       }
 
     </div>
+    @if (canChat()) {
+      <app-chat [orderId]="orderId"></app-chat>
+    }
   }
 </div>

@@ -4,6 +4,9 @@ import cors from "cors";
 import pkg from "pg";
 import path from "path";
 import fs from "fs";
+import http from "http";
+import { Server as SocketIOServer } from "socket.io";
+
 
 // ROUTE MODULES
 // Importiert alle Router für die einzelnen Features der Anwendung
@@ -18,6 +21,8 @@ import ownerOrdersRouter from "./routes/ownerOrders.routes.js";
 import managerSettingsRouter from "./routes/managerSettings.routes.js";
 import managerDashboardRouter from "./routes/managerDashboard.routes.js";
 import ownerAnalyticsRoutes from "./routes/ownerAnalytics.routes.js";
+import { registerOrderChatSocket } from "./sockets/orderChat.socket.js";
+
 
 // POSTGRES CONFIG
 // Holt die Pool-Klasse aus dem pg Package
@@ -28,6 +33,18 @@ const { Pool } = pkg;
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// HTTP SERVER + SOCKET.IO
+// Wrap Express in an HTTP server so Socket.IO can attach to it.
+const httpServer = http.createServer(app);
+const io = new SocketIOServer(httpServer, {
+  cors: {
+    origin: true,
+    credentials: true,
+  },
+});
+
+app.set("io", io);
 
 // STATIC FILE SERVING
 // Macht Upload-Dateien per URL erreichbar, damit Frontend Bilder laden kann
@@ -43,6 +60,8 @@ const pool = new Pool({
   database: "postgres",
 });
 
+// SOCKET HANDLERS 
+registerOrderChatSocket(io, pool);
 
 // SEED IMAGE RESTORE (DISHES)
 // Kopiert fehlende Seed-Dish-Bilder beim Serverstart nach /uploads/dishes
@@ -230,6 +249,7 @@ app.use("/user-restaurants", userRestaurantRoutes);
 
 // SERVER START
 // Startet den HTTP Server auf Port 3000
-app.listen(3000, () => {
+httpServer.listen(3000, () => {
   console.log("Backend running on http://localhost:3000");
 });
+

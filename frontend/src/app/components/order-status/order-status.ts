@@ -3,21 +3,44 @@ import { CommonModule } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { Router } from '@angular/router';
 import { Subscription, interval, startWith, switchMap } from 'rxjs';
+import { ChatService } from '../../services/chat.service';
+import { Chat } from '../chat/chat';
+
 
 @Component({
   selector: 'app-order-status',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Chat],
   templateUrl: './order-status.html'
 })
 export class OrderStatusComponent implements OnInit, OnDestroy {
   private cartService = inject(CartService);
+  private chatService = inject(ChatService);
+  private realtimeSub?: Subscription;
   private router = inject(Router);
   private pollSubscription?: Subscription;
   private hasRedirected = false;
 
   @Input({ required: true }) orderId!: number;
   @Input({ required: true }) restaurantId!: number;
+
+  private normalizeIncomingStatus(s: string): string {
+    switch (s) {
+      case 'new':
+        return 'placed';
+      case 'ready':
+        return 'delivering';
+      case 'complete':
+        return 'completed';
+      default:
+        return s;
+    }
+  }
+
+  canChat(): boolean {
+    const s = this.status();
+    return s !== 'placed' && s !== 'rejected';
+  }
 
   status = signal<string>('placed');
   lastUpdated = signal<Date>(new Date());
@@ -31,6 +54,13 @@ export class OrderStatusComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit() {
+    this.chatService.joinOrder(this.orderId);
+
+    this.realtimeSub = this.chatService.onOrderStatus(this.orderId).subscribe((evt) => {
+      this.status.set(this.normalizeIncomingStatus(evt.status));
+      this.lastUpdated.set(new Date(evt.updatedAt));
+      this.loading.set(false);
+    });
     // Poll every 60 seconds typically but for debug every 5
     this.pollSubscription = interval(5000)
       .pipe(
@@ -40,7 +70,7 @@ export class OrderStatusComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res.success && res.order) {
-            this.status.set(res.order.status);
+            this.status.set(this.normalizeIncomingStatus(res.order.status));
             this.lastUpdated.set(new Date());
             this.loading.set(false);
 
@@ -71,6 +101,9 @@ export class OrderStatusComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.pollSubscription) {
       this.pollSubscription.unsubscribe();
+    }
+    if (this.realtimeSub) {
+      this.realtimeSub.unsubscribe();
     }
   }
 

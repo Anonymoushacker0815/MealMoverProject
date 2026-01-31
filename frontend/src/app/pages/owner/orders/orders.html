@@ -107,7 +107,7 @@
     <!-- ORDER CARD -->
     <!-- Einzelne Bestellung -->
     <div
-      *ngFor="let order of filteredOrders()"
+      *ngFor="let order of filteredOrders(); trackBy: trackByOrderId"
       class="border border-gray-300 rounded-lg overflow-hidden bg-white"
     >
 
@@ -146,6 +146,11 @@
             </li>
           </ul>
         </div>
+        <!-- CHAT (only after accepted) -->
+        <app-chat
+          *ngIf="order.status !== 'new' && order.status !== 'rejected'"
+          [orderId]="order._id"
+        ></app-chat>
       </div>
 
       <!-- ORDER ACTIONS -->

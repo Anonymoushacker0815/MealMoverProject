@@ -185,6 +185,16 @@ router.patch("/owner/orders/:orderId/status", authenticateToken, async (req, res
       return res.status(404).json({ error: "Order not found for this restaurant." });
     }
 
+    // broadcast status update to both customer + restaurant
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`order:${Number(orderId)}`).emit("order:status", {
+        orderId: Number(orderId),
+        status, 
+        updatedAt: new Date().toISOString(),
+      });
+    }
+
     res.json({ success: true });
   } catch (err) {
     console.error("PATCH /owner/orders/:id/status error:", err);
