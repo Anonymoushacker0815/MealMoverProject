@@ -55,12 +55,11 @@ const logUserEvent = async ({ userId, type, actorUserId = null, meta = null, cre
 
 // ROUTE: Register
 router.post("/register", async (req, res) => {
-    const { email, password, user_type, location } = req.body;
+    const { email, password, user_type, location,username } = req.body;
 
     const allowedTypes = ['Customer', 'Restaurant'];
     const typeToSave = allowedTypes.includes(user_type) ? user_type : 'Customer';
 
-    // Password Hashing
     const hashRounds = 10;
     const hashedPassword = await bcrypt.hash(password, hashRounds);
 
@@ -75,11 +74,11 @@ router.post("/register", async (req, res) => {
         await ensureUserStatuses();
         const statusId = await getStatusIdByName(statusName);
         const query = `
-            INSERT INTO users (email, password, location, user_type, status_id)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *;
+            INSERT INTO users (email, password, location, user_type, status_id, username)
+            VALUES ($1, $2, $3, $4, $5, $6)
+                RETURNING *;
         `;
-        const values = [email, hashedPassword, locationToSave, typeToSave, statusId];
+        const values = [email, hashedPassword, locationToSave, typeToSave, statusId, username];
 
         const result = await pool.query(query, values);
         const newUser = result.rows[0];
@@ -118,9 +117,14 @@ router.post("/register", async (req, res) => {
     } catch (err) {
         console.error("Database Insert Error:", err);
 
-        //  duplicate email error (Postgres Error 23505)
         if (err.code === '23505') {
-            return res.status(409).json({ error: "Email already exists" });
+            if (err.detail && err.detail.includes('username')) {
+                return res.status(409).json({ error: "Username already exists" });
+            }
+            if (err.detail && err.detail.includes('email')) {
+                return res.status(409).json({ error: "Email already exists" });
+            }
+            return res.status(409).json({ error: "Account already exists" });
         }
 
         res.status(500).json({ error: "Database insertion failed" });

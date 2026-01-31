@@ -18,6 +18,7 @@ import zxcvbn from 'zxcvbn';
 export class Authentication {
   email = '';
   password = '';
+  username = '';
   isSelectingRole = false;
 
   passwordStrengthScore = 0;
@@ -102,12 +103,19 @@ export class Authentication {
   }
 
   onRegister(role: string) {
+
+    if (!this.username) {
+      alert("Please enter a username.");
+      return;
+    }
+
     if (!this.tempGeoJson) {
       alert("Please select location.");
       return;
     }
 
     const payload = {
+      username: this.username,
       email: this.email,
       password: this.password,
       user_type: role,
@@ -126,6 +134,7 @@ export class Authentication {
   cancelRoleSelection() {
     this.isSelectingRole = false;
     this.tempGeoJson = null;
+    this.username = '';
   }
 
   onLogin() {
