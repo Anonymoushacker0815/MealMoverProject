@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
             FROM restaurants r
             JOIN u_status us ON us.id = r.status_id
             LEFT JOIN reviews rev ON r.id = rev.restaurant_id
-            WHERE us.name = 'Active'
+            WHERE LOWER(TRIM(us.name)) = 'active'
             GROUP BY r.id
             ORDER BY average_rating DESC
         `;

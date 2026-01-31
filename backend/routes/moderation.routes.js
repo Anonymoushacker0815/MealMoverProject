@@ -164,7 +164,13 @@ router.patch('/users/:id/status', authenticateToken, requireModerationRole, asyn
     const s = await pool.query(`SELECT id FROM u_status WHERE name = $1`, [status]);
     if (s.rowCount === 0) return res.status(400).json({ error: 'Status not found in u_status.' });
 
-    await pool.query(`UPDATE users SET status_id = $1 WHERE id = $2`, [s.rows[0].id, userId]);
+    const statusId = s.rows[0].id;
+
+    await pool.query(`UPDATE users SET status_id = $1 WHERE id = $2`, [statusId, userId]);
+    if (before.rows[0].user_type === 'Restaurant') {
+      await pool.query(`UPDATE restaurants SET status_id = $1 WHERE user_id = $2`, [statusId, userId]);
+    }
+
     try {
       await logUserEvent({
         userId,
