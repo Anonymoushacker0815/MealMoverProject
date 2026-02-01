@@ -1,9 +1,10 @@
 <app-navbar role="manager"></app-navbar>
 <div class="min-h-screen bg-gray-100">
+    
+        <!----------------Settings------------------->
     <div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
-
         <h1 class="text-2xl font-semibold">Settings</h1>
-        
+    
         <div class="bg-white border rounded p-4 space-y-3">
             <div *ngIf="isLoadingSettings">
                 Loading Settings ...
@@ -19,8 +20,9 @@
                     <li>
                         <div class="text-gray-700 py-1">
                             Delivery distance:
-                            <span class="font-semibold">{{ settings[0].delivery_distance + " " }}</span>
+                            <span id = "managerDeliveryDistance" class="font-semibold">{{ settings[0].delivery_distance + " " }}</span>
                               <input 
+                                id = "managerDeliveryDistanceInput"
                                 *ngIf="isEditingSettings"
                                 type="number"
                                 class="px-1 border-gray-400 rounded border-2" 
@@ -30,8 +32,9 @@
                     <li>
                         <div class="text-gray-700 py-1">
                             Global Discount:
-                            <span class="font-semibold">{{ settings[0].discount + " " }}</span>
+                            <span id="managerDiscount" class="font-semibold">{{ settings[0].discount + " " }}</span>
                             <input 
+                                id = "managerDiscountInput"
                                 *ngIf="isEditingSettings"
                                 type="number"
                                 class="px-1 border-gray-400 rounded border-2" 
@@ -41,8 +44,9 @@
                     <li>
                         <div class="text-gray-700 py-1">
                             Service Fee:
-                            <span class="font-semibold">{{ settings[0].service_fee + " " }}</span>
+                            <span id="managerServiceFee" class="font-semibold">{{ settings[0].service_fee + " " }}</span>
                             <input 
+                                id = "managerServiceFeeInput"
                                 *ngIf="isEditingSettings"
                                 type="string"
                                 class="px-1 border-gray-400 rounded border-2" 
@@ -51,39 +55,41 @@
                     </li>
                 </ul>
                 <!-- Edit Button -->
-        @if (!isEditingSettings) {
-          <button
-            type="button"
-            (click)="startEditSettings()"
-            class="px-6 py-3 rounded-xl border-2 border-[#9B1C1F] text-[#9B1C1F]
-                     font-semibold bg-white hover:bg-[#9B1C1F] hover:text-white transition"
-           >
-            Edit
-          </button>
-        }
+                @if (!isEditingSettings) {
+                <button
+                    type="button"
+                    (click)="startEditSettings()"
+                    class="px-6 py-3 rounded-xl border-2 border-[#9B1C1F] text-[#9B1C1F]
+                            font-semibold bg-white hover:bg-[#9B1C1F] hover:text-white transition"
+                >
+                    Edit
+                </button>
+                }
 
-        <!-- Save / Cancel Buttons -->
-        @else {
-          <button
-            type="button"
-            (click)="saveSettings()"
-            class="px-6 py-3 rounded-xl border-2 border-[#9B1c1F] bg-white text-[#9B1C1F] 
-            font-semibold hover:bg-[#9B1C1F] hover:text-white transition"
-          >
-            Save
-          </button>
-          <span class="text-white">--</span>
-          <button
-            type="button"
-            (click)="cancelEditSettings()"
-            class="px-6 py-3 rounded-xl border-2 border-black/70 bg-white/10 hover:bg-white hover:text-[#9B1C1F] hover:border-[#9B1C1F] transition"
-          >
-            Cancel
-          </button>
-        }
+                <!-- Save / Cancel Buttons -->
+                @else {
+                <button
+                    type="button"
+                    (click)="saveSettings()"
+                    class="px-6 py-3 rounded-xl border-2 border-[#9B1c1F] bg-white text-[#9B1C1F] 
+                    font-semibold hover:bg-[#9B1C1F] hover:text-white transition"
+                >
+                    Save
+                </button>
+                <span class="text-white">--</span>
+                <button
+                    type="button"
+                    (click)="cancelEditSettings()"
+                    class="px-6 py-3 rounded-xl border-2 border-black/70 bg-white/10 hover:bg-white hover:text-[#9B1C1F] hover:border-[#9B1C1F] transition"
+                >
+                    Cancel
+                </button>
+                }
             </div>
         </div>
     </div>
+
+    <!-----------Discount Codes------------------------------------>
     <div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
         <div class="bg-white border rounded p-4 space-y-3">
         
@@ -104,40 +110,40 @@
                             <th class="text-left p-3">Delete</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody> <!--Codes Loop-->
                             <tr *ngFor="let c of codes" class="border-b last:border-b-0">
                             <td class="p-3">
-                                <span *ngIf="!isEditingCodes">{{ c.code }}</span>
-                                <input 
-                                *ngIf="isEditingCodes"
+                                <span id="code{{c.id}}" *ngIf="!c.isEditing">{{ c.code }}</span>
+                                <input id="codeInput{{c.id}}"
+                                *ngIf="c.isEditing"
                                 class="px-3 py-1.5 border-gray-400 rounded border-2" 
                                 value="{{ c.code }}">
                             </td>
                             <td class="p-3">
-                                <span *ngIf="!isEditingCodes">{{ c.percent }}</span>
-                                <input 
-                                *ngIf="isEditingCodes"
+                                <span id="percent{{c.id}}"*ngIf="!c.isEditing">{{ c.percent }}</span>
+                                <input id ="percentInput{{c.id}}"
+                                *ngIf="c.isEditing && c.isPercent"
                                 class="px-3 py-1.5 border-gray-400 rounded border-2" 
                                 value="{{ c.percent }}">
                             </td>
                              <td class="p-3">
-                                <span *ngIf="!isEditingCodes">{{ c.amount }}</span>
-                                <input 
-                                *ngIf="isEditingCodes"
+                                <span id="amount{{c.id}}"*ngIf="!c.isEditing">{{ c.amount }}</span>
+                                <input id="amountInput{{c.id}}"
+                                *ngIf="c.isEditing && !c.isPercent"
                                 class="px-3 py-1.5 border-gray-400 rounded border-2" 
                                 value="{{ c.amount }}">
                             </td>
                             <td class="p-3">
-                                <button *ngIf="!isEditingCodes"
+                                <button *ngIf="!c.isEditing"
                                     type="button"
                                     class="px-3 py-1.5 bg-[#9B1C1F] border-2 border-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
-                                    (click)="updateDiscountCode()">
+                                    (click)="startEditingDiscountCode(c.id)">
                                     Edit
                                 </button>
-                                <button *ngIf="isEditingCodes"
+                                <button *ngIf="c.isEditing"
                                     type="button"
                                     class="px-3 py-1.5 bg-[#9B1C1F] border-2 border-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
-                                    (click)="saveDiscountCode()">
+                                    (click)="saveDiscountCode(c.id)">
                                     Save
                                 </button>
                             </td>
@@ -145,20 +151,20 @@
                                 <button
                                     type="button"
                                     class="px-3 py-1.5 bg-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
-                                    (click)="deleteDiscountCode()">
+                                    (click)="deleteDiscountCode(c.id)">
                                     Delete
                                 </button>
                             </td>
                         </tr>
                         <tr>
                             <td class="p-3">
-                                <input class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="code"/>
+                                <input id="newCodeInput" class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="code"/>
                             </td>
                             <td class="p-3">
-                                <input class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="%"/>
+                                <input id="newPercentInput" class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="%"/>
                             </td>
                             <td class="p-3">
-                                <input class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="$"/>
+                                <input id="newAmountInput" class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="$"/>
                             </td>
                             <td class="p-3">
                                 <button

@@ -6,7 +6,8 @@ service_fee money
 );
 
 CREATE TABLE IF NOT EXISTS discount_codes (
-code varchar(255) PRIMARY KEY,
+id serial PRIMARY KEY,
+code varchar(255) unique,
 percent int,
 amount money
 );
