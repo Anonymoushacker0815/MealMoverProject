@@ -1,10 +1,32 @@
 import express from "express";
 import { pool } from "../db.js";
+import jwt from 'jsonwebtoken';
+import { config } from "../config.js";
 
 const router = express.Router();
+const JWT_SECRET = config.JWT_SECRET;
+
+const authenticateToken = (req, res, next) => {
+  const token = req.headers['authorization'];
+  if (!token) return res.status(401).json({ error: 'No Token.' });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Token Found to be not valid .' });
+    req.user = user;
+    next();
+  });
+};
+
+const requireModerationRole = (req, res, next) => {
+  const type = req.user?.user_type;
+  if (type !== 'Admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
+};
 
 //global income
-router.get("/income", async (req, res) => {
+router.get("/income", authenticateToken, requireModerationRole, async (req, res) => {
     try{
         const query = `
         SELECT SUM(price) AS amount
@@ -20,7 +42,7 @@ router.get("/income", async (req, res) => {
 });
 
 //user count
-router.get("/usercount", async (req, res) => {
+router.get("/usercount", authenticateToken, requireModerationRole, async (req, res) => {
     try {
         const query = `
         SELECT s.name, COUNT(u.id) AS amount
@@ -38,7 +60,7 @@ router.get("/usercount", async (req, res) => {
 });
 
 //pending registrations
-router.get("/pendingRegistrations", async (req, res) => {
+router.get("/pendingRegistrations", authenticateToken, requireModerationRole, async (req, res) => {
     try { 
         const query = `
         SELECT r.name, r.email, r.phone
@@ -56,7 +78,7 @@ router.get("/pendingRegistrations", async (req, res) => {
 });
 
 // order count per restaurant + income
-router.get("/orders", async (req, res) => {
+router.get("/orders", authenticateToken, requireModerationRole, async (req, res) => {
     try {
         const query = `
         SELECT restaurant_id AS id, COUNT(id) AS amount, SUM(price) AS income
@@ -73,7 +95,7 @@ router.get("/orders", async (req, res) => {
 });
 
 //all restaurants
-router.get("/restaurants", async (req, res) => {
+router.get("/restaurants", authenticateToken, requireModerationRole, async (req, res) => {
     try {
         const query = `
         SELECT r.id, r.name, r.email, r.phone, delivery_zone, opening_hours, s.name
