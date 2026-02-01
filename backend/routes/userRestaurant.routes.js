@@ -11,16 +11,16 @@ router.get("/", async (req, res) => {
                 r.id,
                 r.name,
                 r.location,
-                r.email,
-                r.phone,
-                r.opening_hours,
                 r.delivery_zone,
                 r.cover_path,
                 COUNT(rev.id) as review_count,
-                COALESCE(AVG(rev.rating), 0)::numeric(10,1) as average_rating
+                COALESCE(AVG(rev.rating), 0)::numeric(10,1) as average_rating,
+                -- Aggregate categories into an array
+                ARRAY_AGG(DISTINCT c.name) as categories
             FROM restaurants r
-            JOIN u_status us ON us.id = r.status_id
-            LEFT JOIN reviews rev ON r.id = rev.restaurant_id
+                     JOIN u_status us ON us.id = r.status_id
+                     LEFT JOIN reviews rev ON r.id = rev.restaurant_id
+                     LEFT JOIN categories c ON r.id = c.restaurant_id
             WHERE LOWER(TRIM(us.name)) = 'active'
             GROUP BY r.id
             ORDER BY average_rating DESC
