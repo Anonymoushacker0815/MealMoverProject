@@ -1,5 +1,5 @@
 import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-basket',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './basket.html'
 })
 export class BasketComponent {
@@ -18,6 +18,7 @@ export class BasketComponent {
   @Input() restaurantId!: number;
   @Input() isSummary = false;
 
+  @Input() isOutOfRange = false;
   @Output() orderPlaced = new EventEmitter<number>();
 
   isSubmitting = false;
@@ -27,6 +28,7 @@ export class BasketComponent {
   get totalPrice() { return this.cartService.totalPrice; }
 
   handleAction() {
+    if (this.isOutOfRange) return;
     if (this.cartItems().length === 0) return;
 
     if (!this.authService.isLoggedIn()) {

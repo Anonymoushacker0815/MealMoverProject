@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Navbar } from '../../../components/navbar/navbar';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -30,7 +30,7 @@ interface UserStatsSnapshot {
 @Component({
   selector: 'app-manager-report',
   standalone: true,
-  imports: [CommonModule, Navbar],
+  imports: [Navbar],
   templateUrl: './report.html',
   styleUrl: './report.css',
 })

@@ -9,7 +9,7 @@ import {
 } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
 
-import { ThreadService } from '../../../services/thread';
+import { ThreadService } from '../../../services/thread.service';
 import { Thread } from '../../../types/thread';
 import { Reply } from '../../../types/reply';
 import { AuthService } from '../../../services/auth.service';

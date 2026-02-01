@@ -17,13 +17,13 @@
 
   <div class="flex-1 p-8 flex flex-col justify-center z-10">
 
-    <h3 class="text-3xl font-bold text-[#9B1C1F] uppercase tracking-wide leading-tight group-hover: decoration-[#9B1C1F]  line-clamp-1">
+    <h3 class="text-3xl font-bold text-[#9B1C1F] uppercase tracking-wide leading-tight line-clamp-1">
       {{ restaurant.name }}
     </h3>
 
     <div class="flex items-center gap-4 mt-3 text-sm font-bold text-[#9B1C1F]">
       <div class="flex items-center gap-1">
-        <span>★</span>
+        <span>*</span>
         <span>{{ restaurant.average_rating }}</span>
         <span class="text-gray-400 font-normal">({{ restaurant.review_count }})</span>
       </div>
@@ -31,15 +31,40 @@
       <span class="text-gray-300">|</span>
 
       <span class="text-gray-400 uppercase tracking-wider text-xs">
-        {{ restaurant.delivery_zone || 'base' }}
+        {{ restaurant.delivery_zone || 'base' }} KM
       </span>
     </div>
   </div>
 
-  <div class="w-1/3 min-w-[160px] relative overflow-hidden h-full">
+  <div class="
+      w-1/3 min-w-[160px] relative h-full
+      rounded-l-3xl
+      ring-2 ring-gray-200
+      group-hover:ring-[#9B1C1F]
+      transition-all duration-200
+      overflow-hidden
+  ">
 
-    <div class="absolute inset-0 bg-gray-50 transform -skew-x-12 scale-125 origin-bottom-right border-l-4 border-white transition-colors flex items-center justify-center">
+    @if (restaurant.cover_path) {
+      <img
+        [src]="getFullImageUrl(restaurant.cover_path)"
+        alt="{{ restaurant.name }}"
+        class="
+          w-full
+          h-full
+          object-cover
+          transition-transform
+          duration-500
+          group-hover:scale-110
+        "
+      />
+    } @else {
+      <div class="absolute inset-0 bg-gray-50 flex items-center justify-center">
+        <span class="text-gray-300 font-bold text-4xl">
+          {{ restaurant.name.substring(0,1) }}
+        </span>
+      </div>
+    }
 
-    </div>
   </div>
 </div>

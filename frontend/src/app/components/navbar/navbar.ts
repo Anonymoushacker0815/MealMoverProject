@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { NAV_ITEMS, Role } from './navbar.config';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })

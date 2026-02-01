@@ -1,10 +1,11 @@
 export interface Thread {
-  id: string;
+  id: number;
   title: string;
   content: string;
-  author: string;
+  author_name: string;
   likes: number;
   dislikes: number;
   views: number;
-  createdAt: Date;
+  created_at: string;   
+  updated_at: string;
 }

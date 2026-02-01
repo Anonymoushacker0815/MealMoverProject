@@ -1,183 +1,204 @@
 <app-navbar role="manager"></app-navbar>
 <div class="min-h-screen bg-gray-100">
-    
-        <!----------------Settings------------------->
-    <div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
-        <h1 class="text-2xl font-semibold">Settings</h1>
-    
-        <div class="bg-white border rounded p-4 space-y-3">
-            <div *ngIf="isLoadingSettings">
-                Loading Settings ...
-            </div>
-            <div *ngIf="errorMsg">
-                {{errorMsg}}
-            </div>
-            <div *ngIf="!isLoadingSettings">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold">Settings</h2>
-                </div>
-                <ul>
-                    <li>
-                        <div class="text-gray-700 py-1">
-                            Delivery distance:
-                            <span id = "managerDeliveryDistance" class="font-semibold">{{ settings[0].delivery_distance + " " }}</span>
-                              <input 
-                                id = "managerDeliveryDistanceInput"
-                                *ngIf="isEditingSettings"
-                                type="number"
-                                class="px-1 border-gray-400 rounded border-2" 
-                                value="{{ settings[0].delivery_distance }}">
-                        </div>
-                    </li>
-                    <li>
-                        <div class="text-gray-700 py-1">
-                            Global Discount:
-                            <span id="managerDiscount" class="font-semibold">{{ settings[0].discount + " " }}</span>
-                            <input 
-                                id = "managerDiscountInput"
-                                *ngIf="isEditingSettings"
-                                type="number"
-                                class="px-1 border-gray-400 rounded border-2" 
-                                value="{{ settings[0].discount }}">
-                        </div>
-                    </li>
-                    <li>
-                        <div class="text-gray-700 py-1">
-                            Service Fee:
-                            <span id="managerServiceFee" class="font-semibold">{{ settings[0].service_fee + " " }}</span>
-                            <input 
-                                id = "managerServiceFeeInput"
-                                *ngIf="isEditingSettings"
-                                type="string"
-                                class="px-1 border-gray-400 rounded border-2" 
-                                value="{{ settings[0].service_fee }}">
-                        </div>
-                    </li>
-                </ul>
-                <!-- Edit Button -->
-                @if (!isEditingSettings) {
-                <button
-                    type="button"
-                    (click)="startEditSettings()"
-                    class="px-6 py-3 rounded-xl border-2 border-[#9B1C1F] text-[#9B1C1F]
-                            font-semibold bg-white hover:bg-[#9B1C1F] hover:text-white transition"
-                >
-                    Edit
-                </button>
-                }
+  <div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
 
-                <!-- Save / Cancel Buttons -->
-                @else {
-                <button
-                    type="button"
-                    (click)="saveSettings()"
-                    class="px-6 py-3 rounded-xl border-2 border-[#9B1c1F] bg-white text-[#9B1C1F] 
-                    font-semibold hover:bg-[#9B1C1F] hover:text-white transition"
-                >
-                    Save
-                </button>
-                <span class="text-white">--</span>
-                <button
-                    type="button"
-                    (click)="cancelEditSettings()"
-                    class="px-6 py-3 rounded-xl border-2 border-black/70 bg-white/10 hover:bg-white hover:text-[#9B1C1F] hover:border-[#9B1C1F] transition"
-                >
-                    Cancel
-                </button>
-                }
-            </div>
-        </div>
-    </div>
+    <h1 class="text-2xl font-semibold">Settings</h1>
 
-    <!-----------Discount Codes------------------------------------>
-    <div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
-        <div class="bg-white border rounded p-4 space-y-3">
-        
-            <div *ngIf="isLoadingCodes" class="text-sm text-gray-600">
-                Loading Discount Codes ...
-            </div>
-            <div class="flex items-center justify-between">
-                <h2 class="text-lg font-semibold">Discount Codes</h2>
-            </div>
-            <div *ngIf="!isLoadingCodes" class="ng-white border">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-gray-50 border-b">
-                        <tr>
-                            <th class="text-left p-3">Code</th>
-                            <th class="text-left p-3">Percent</th>
-                            <th class="text-left p-3">Amount</th>
-                            <th class="text-left p-3">Edit</th>
-                            <th class="text-left p-3">Delete</th>
-                        </tr>
-                    </thead>
-                    <tbody> <!--Codes Loop-->
-                            <tr *ngFor="let c of codes" class="border-b last:border-b-0">
-                            <td class="p-3">
-                                <span id="code{{c.id}}" *ngIf="!c.isEditing">{{ c.code }}</span>
-                                <input id="codeInput{{c.id}}"
-                                *ngIf="c.isEditing"
-                                class="px-3 py-1.5 border-gray-400 rounded border-2" 
-                                value="{{ c.code }}">
-                            </td>
-                            <td class="p-3">
-                                <span id="percent{{c.id}}"*ngIf="!c.isEditing">{{ c.percent }}</span>
-                                <input id ="percentInput{{c.id}}"
-                                *ngIf="c.isEditing && c.isPercent"
-                                class="px-3 py-1.5 border-gray-400 rounded border-2" 
-                                value="{{ c.percent }}">
-                            </td>
-                             <td class="p-3">
-                                <span id="amount{{c.id}}"*ngIf="!c.isEditing">{{ c.amount }}</span>
-                                <input id="amountInput{{c.id}}"
-                                *ngIf="c.isEditing && !c.isPercent"
-                                class="px-3 py-1.5 border-gray-400 rounded border-2" 
-                                value="{{ c.amount }}">
-                            </td>
-                            <td class="p-3">
-                                <button *ngIf="!c.isEditing"
-                                    type="button"
-                                    class="px-3 py-1.5 bg-[#9B1C1F] border-2 border-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
-                                    (click)="startEditingDiscountCode(c.id)">
-                                    Edit
-                                </button>
-                                <button *ngIf="c.isEditing"
-                                    type="button"
-                                    class="px-3 py-1.5 bg-[#9B1C1F] border-2 border-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
-                                    (click)="saveDiscountCode(c.id)">
-                                    Save
-                                </button>
-                            </td>
-                            <td class="p-3">
-                                <button
-                                    type="button"
-                                    class="px-3 py-1.5 bg-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
-                                    (click)="deleteDiscountCode(c.id)">
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="p-3">
-                                <input id="newCodeInput" class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="code"/>
-                            </td>
-                            <td class="p-3">
-                                <input id="newPercentInput" class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="%"/>
-                            </td>
-                            <td class="p-3">
-                                <input id="newAmountInput" class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="$"/>
-                            </td>
-                            <td class="p-3">
-                                <button
-                                    type="button"
-                                    class="px-3 py-1.5 bg-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
-                                    (click)="addDiscountCode()">
-                                    Add
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>    
-            </div>
+    <div class="bg-white border rounded p-4 space-y-3">
+      @if (isLoadingSettings) {
+        <div>
+          Loading Settings ...
         </div>
+      }
+      @if (errorMsg) {
+        <div>
+          {{errorMsg}}
+        </div>
+      }
+      @if (!isLoadingSettings) {
+        <div>
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold">Settings</h2>
+          </div>
+          <ul>
+            <li>
+              <div class="text-gray-700 py-1">
+                Delivery distance:
+                <span class="font-semibold">{{ settings[0].delivery_distance + " " }}</span>
+                @if (isEditingSettings) {
+                  <input
+                    type="number"
+                    class="px-1 border-gray-400 rounded border-2"
+                    value="{{ settings[0].delivery_distance }}">
+                }
+              </div>
+            </li>
+            <li>
+              <div class="text-gray-700 py-1">
+                Global Discount:
+                <span class="font-semibold">{{ settings[0].discount + " " }}</span>
+                @if (isEditingSettings) {
+                  <input
+                    type="number"
+                    class="px-1 border-gray-400 rounded border-2"
+                    value="{{ settings[0].discount }}">
+                }
+              </div>
+            </li>
+            <li>
+              <div class="text-gray-700 py-1">
+                Service Fee:
+                <span class="font-semibold">{{ settings[0].service_fee + " " }}</span>
+                @if (isEditingSettings) {
+                  <input
+                    type="string"
+                    class="px-1 border-gray-400 rounded border-2"
+                    value="{{ settings[0].service_fee }}">
+                }
+              </div>
+            </li>
+          </ul>
+          <!-- Edit Button -->
+          @if (!isEditingSettings) {
+            <button
+              type="button"
+              (click)="startEditSettings()"
+            class="px-6 py-3 rounded-xl border-2 border-[#9B1C1F] text-[#9B1C1F]
+                     font-semibold bg-white hover:bg-[#9B1C1F] hover:text-white transition"
+              >
+              Edit
+            </button>
+          }
+          <!-- Save / Cancel Buttons -->
+          @else {
+          <button
+            type="button"
+            (click)="saveSettings()"
+            class="px-6 py-3 rounded-xl border-2 border-[#9B1c1F] bg-white text-[#9B1C1F] 
+            font-semibold hover:bg-[#9B1C1F] hover:text-white transition"
+            >
+            Save
+          </button>
+          <span class="text-white">--</span>
+          <button
+            type="button"
+            (click)="cancelEditSettings()"
+            class="px-6 py-3 rounded-xl border-2 border-black/70 bg-white/10 hover:bg-white hover:text-[#9B1C1F] hover:border-[#9B1C1F] transition"
+            >
+            Cancel
+          </button>
+        }
+      </div>
+    }
+  </div>
+</div>
+<div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
+  <div class="bg-white border rounded p-4 space-y-3">
+
+    @if (isLoadingCodes) {
+      <div class="text-sm text-gray-600">
+        Loading Discount Codes ...
+      </div>
+    }
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold">Discount Codes</h2>
     </div>
+    @if (!isLoadingCodes) {
+      <div class="ng-white border">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-50 border-b">
+            <tr>
+              <th class="text-left p-3">Code</th>
+              <th class="text-left p-3">Percent</th>
+              <th class="text-left p-3">Amount</th>
+              <th class="text-left p-3">Edit</th>
+              <th class="text-left p-3">Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of codes; track c) {
+              <tr class="border-b last:border-b-0">
+                <td class="p-3">
+                  @if (!isEditingCodes) {
+                    <span>{{ c.code }}</span>
+                  }
+                  @if (isEditingCodes) {
+                    <input
+                      class="px-3 py-1.5 border-gray-400 rounded border-2"
+                      value="{{ c.code }}">
+                  }
+                </td>
+                <td class="p-3">
+                  @if (!isEditingCodes) {
+                    <span>{{ c.percent }}</span>
+                  }
+                  @if (isEditingCodes) {
+                    <input
+                      class="px-3 py-1.5 border-gray-400 rounded border-2"
+                      value="{{ c.percent }}">
+                  }
+                </td>
+                <td class="p-3">
+                  @if (!isEditingCodes) {
+                    <span>{{ c.amount }}</span>
+                  }
+                  @if (isEditingCodes) {
+                    <input
+                      class="px-3 py-1.5 border-gray-400 rounded border-2"
+                      value="{{ c.amount }}">
+                  }
+                </td>
+                <td class="p-3">
+                  @if (!isEditingCodes) {
+                    <button
+                      type="button"
+                      class="px-3 py-1.5 bg-[#9B1C1F] border-2 border-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
+                      (click)="updateDiscountCode()">
+                      Edit
+                    </button>
+                  }
+                  @if (isEditingCodes) {
+                    <button
+                      type="button"
+                      class="px-3 py-1.5 bg-[#9B1C1F] border-2 border-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
+                      (click)="saveDiscountCode()">
+                      Save
+                    </button>
+                  }
+                </td>
+                <td class="p-3">
+                  <button
+                    type="button"
+                    class="px-3 py-1.5 bg-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
+                    (click)="deleteDiscountCode()">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            }
+            <tr>
+              <td class="p-3">
+                <input class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="code"/>
+              </td>
+              <td class="p-3">
+                <input class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="%"/>
+              </td>
+              <td class="p-3">
+                <input class="px-3 py-1.5 border-gray-400 rounded border-2" placeholder="$"/>
+              </td>
+              <td class="p-3">
+                <button
+                  type="button"
+                  class="px-3 py-1.5 bg-[#9B1C1F] text-white rounded text-sm hover:opacity-90"
+                  (click)="addDiscountCode()">
+                  Add
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
 </div>

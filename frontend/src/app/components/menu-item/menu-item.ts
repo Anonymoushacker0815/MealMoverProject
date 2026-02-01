@@ -12,6 +12,15 @@ export class MenuItemComponent {
   @Input() dish: any;
   private cartService = inject(CartService);
 
+
+  private baseUrl = 'http://localhost:3000';
+
+
+  getFullImageUrl(path: string | null): string | null {
+    if (!path) return null;
+    return `${this.baseUrl}${path}`;
+  }
+
   addToBasket() {
     this.cartService.addToCart(this.dish);
   }

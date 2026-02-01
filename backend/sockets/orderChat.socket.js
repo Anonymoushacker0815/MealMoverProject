@@ -3,7 +3,6 @@ import { config } from "../config.js";
 
 const JWT_SECRET = config.JWT_SECRET;
 
-// Helper: map DB status -> UI status (consistent with your ownerOrders.routes.js)
 const mapDbStatusToUiStatus = (dbStatus) => {
   switch (dbStatus) {
     case "placed":
@@ -22,7 +21,6 @@ const mapDbStatusToUiStatus = (dbStatus) => {
 };
 
 export function registerOrderChatSocket(io, pool) {
-  // Socket.IO auth (JWT)
   io.use((socket, next) => {
     const token =
       socket.handshake.auth?.token ||
@@ -66,7 +64,6 @@ export function registerOrderChatSocket(io, pool) {
         const order = await getOrderAccessInfo(orderId);
         if (!order) return cb?.({ ok: false, error: "Order not found" });
 
-        // Access rules
         if (user.user_type === "Customer") {
           if (Number(order.customer_id) !== Number(user.id)) {
             return cb?.({ ok: false, error: "Forbidden" });
@@ -84,7 +81,6 @@ export function registerOrderChatSocket(io, pool) {
 
         socket.join(`order:${orderId}`);
 
-        // push current status immediately
         socket.emit("order:status", {
           orderId,
           status: mapDbStatusToUiStatus(order.status_name),
@@ -109,12 +105,10 @@ export function registerOrderChatSocket(io, pool) {
         const order = await getOrderAccessInfo(orderId);
         if (!order) return cb?.({ ok: false, error: "Order not found" });
 
-        // Only after accepted
         if (order.status_name === "placed" || order.status_name === "rejected") {
           return cb?.({ ok: false, error: "Chat not available yet" });
         }
 
-        // Same access rules again
         if (user.user_type === "Customer") {
           if (Number(order.customer_id) !== Number(user.id)) {
             return cb?.({ ok: false, error: "Forbidden" });

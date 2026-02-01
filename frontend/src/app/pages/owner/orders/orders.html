@@ -18,7 +18,7 @@
         [ngClass]="activeFilter === 'all' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
         class="px-4 py-2 rounded-xl border font-medium transition bg-white hover:border-[#9B1C1F]"
         type="button"
-      >
+        >
         All Orders
       </button>
 
@@ -29,7 +29,7 @@
         [ngClass]="activeFilter === 'new' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
         class="px-4 py-2 rounded-xl border transition bg-white hover:border-[#9B1C1F]"
         type="button"
-      >
+        >
         New Order
       </button>
 
@@ -40,7 +40,7 @@
         [ngClass]="activeFilter === 'preparing' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
         class="px-4 py-2 rounded-xl border transition bg-white hover:border-[#9B1C1F]"
         type="button"
-      >
+        >
         Preparing
       </button>
 
@@ -51,7 +51,7 @@
         [ngClass]="activeFilter === 'ready' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
         class="px-4 py-2 rounded-xl border transition bg-white hover:border-[#9B1C1F]"
         type="button"
-      >
+        >
         Ready
       </button>
 
@@ -62,7 +62,7 @@
         [ngClass]="activeFilter === 'complete' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
         class="px-4 py-2 rounded-xl border transition bg-white hover:border-[#9B1C1F]"
         type="button"
-      >
+        >
         Complete
       </button>
 
@@ -73,7 +73,7 @@
         [ngClass]="activeFilter === 'rejected' ? 'border-[#9B1C1F] text-[#9B1C1F]' : 'border-gray-300'"
         class="px-4 py-2 rounded-xl border transition bg-white hover:border-[#9B1C1F]"
         type="button"
-      >
+        >
         Rejected
       </button>
 
@@ -87,7 +87,7 @@
           class="pl-4 pr-10 py-2 rounded-xl border border-gray-300 bg-white
                  focus:border-[#9B1C1F] focus:ring-1 focus:ring-[#9B1C1F]
                  focus:outline-none transition"
-        />
+          />
         <span class="absolute right-3 top-2.5">🔍</span>
       </div>
 
@@ -96,9 +96,11 @@
 
   <!-- LOADING STATE -->
   <!-- Anzeige während Bestellungen vom Backend geladen werden -->
-  <div *ngIf="isLoading" class="text-center text-gray-500 mb-4">
-    Loading orders...
-  </div>
+  @if (isLoading) {
+    <div class="text-center text-gray-500 mb-4">
+      Loading orders...
+    </div>
+  }
 
   <!-- ORDERS GRID -->
   <!-- Grid-Darstellung aller gefilterten Bestellungen -->
@@ -106,116 +108,113 @@
 
     <!-- ORDER CARD -->
     <!-- Einzelne Bestellung -->
-    <div
-      *ngFor="let order of filteredOrders(); trackBy: trackByOrderId"
-      class="border border-gray-300 rounded-lg overflow-hidden bg-white"
-    >
-
-      <!-- ORDER HEADER -->
-      <!-- Bestell-ID und aktueller Status -->
-      <div class="bg-[#9B1C1F] text-white px-4 py-2 flex justify-between items-center">
-        <span class="font-semibold">{{ order.id }}</span>
-
-        <span class="text-xs px-3 py-1 rounded-lg border border-white/70 bg-white/10">
-          {{ statusLabel(order.status) }}
-        </span>
-      </div>
-
-      <!-- ORDER BODY -->
-      <!-- Kundeninformationen und Bestellinhalt -->
-      <div class="p-4 space-y-4">
-
-        <!-- CUSTOMER INFO -->
-        <!-- Name und Adresse des Kunden -->
-        <div class="flex gap-3 items-start">
-          <div class="w-10 h-10 bg-[#9B1C1F]/15 rounded"></div>
-
-          <div>
-            <p class="font-medium text-gray-900">{{ order.customerName }}</p>
-            <p class="text-sm text-gray-600">{{ order.address }}</p>
+    @for (order of filteredOrders(); track trackByOrderId($index, order)) {
+      <div
+        class="border border-gray-300 rounded-lg overflow-hidden bg-white"
+        >
+        <!-- ORDER HEADER -->
+        <!-- Bestell-ID und aktueller Status -->
+        <div class="bg-[#9B1C1F] text-white px-4 py-2 flex justify-between items-center">
+          <span class="font-semibold">{{ order.id }}</span>
+          <span class="text-xs px-3 py-1 rounded-lg border border-white/70 bg-white/10">
+            {{ statusLabel(order.status) }}
+          </span>
+        </div>
+        <!-- ORDER BODY -->
+        <!-- Kundeninformationen und Bestellinhalt -->
+        <div class="p-4 space-y-4">
+          <!-- CUSTOMER INFO -->
+          <!-- Name und Adresse des Kunden -->
+          <div class="flex gap-3 items-start">
+            <div class="w-10 h-10 bg-[#9B1C1F]/15 rounded"></div>
+            <div>
+              <p class="font-medium text-gray-900">{{ order.customerName }}</p>
+              <p class="text-sm text-gray-600">{{ order.address }}</p>
+            </div>
           </div>
+          <!-- ORDER ITEMS -->
+          <!-- Liste der bestellten Gerichte -->
+          <div class="bg-[#9B1C1F]/10 p-3 rounded-md border border-[#9B1C1F]/20">
+            <p class="font-semibold text-sm mb-1 text-gray-900">ORDER ITEMS</p>
+            <ul class="text-sm list-disc ml-4 text-gray-800">
+              @for (item of order.items; track item) {
+                <li>
+                  {{ item.quantity }} × {{ item.name }}
+                </li>
+              }
+            </ul>
+          </div>
+          <!-- CHAT (only after accepted) -->
+          @if (order.status !== 'new' && order.status !== 'rejected') {
+            <app-chat
+              [orderId]="order._id"
+            ></app-chat>
+          }
         </div>
-
-        <!-- ORDER ITEMS -->
-        <!-- Liste der bestellten Gerichte -->
-        <div class="bg-[#9B1C1F]/10 p-3 rounded-md border border-[#9B1C1F]/20">
-          <p class="font-semibold text-sm mb-1 text-gray-900">ORDER ITEMS</p>
-          <ul class="text-sm list-disc ml-4 text-gray-800">
-            <li *ngFor="let item of order.items">
-              {{ item.quantity }} × {{ item.name }}
-            </li>
-          </ul>
-        </div>
-        <!-- CHAT (only after accepted) -->
-        <app-chat
-          *ngIf="order.status !== 'new' && order.status !== 'rejected'"
-          [orderId]="order._id"
-        ></app-chat>
-      </div>
-
-      <!-- ORDER ACTIONS -->
-      <!-- Statusabhängige Aktionsbuttons -->
-      <div class="flex gap-3 p-4">
-
-        <!-- ACTION: START PREPARING -->
-        <!-- Setzt Status von "new" auf "preparing" -->
-        <button
-          *ngIf="order.status === 'new'"
-          (click)="startPreparing(order)"
+        <!-- ORDER ACTIONS -->
+        <!-- Statusabhängige Aktionsbuttons -->
+        <div class="flex gap-3 p-4">
+          <!-- ACTION: START PREPARING -->
+          <!-- Setzt Status von "new" auf "preparing" -->
+          @if (order.status === 'new') {
+            <button
+              (click)="startPreparing(order)"
           class="flex-1 py-2 rounded-full border border-[#9B1C1F] text-[#9B1C1F]
                  hover:bg-[#9B1C1F] hover:text-white transition"
-          type="button"
-        >
-          Start Preparing
-        </button>
-
-        <!-- ACTION: READY -->
-        <!-- Setzt Status von "preparing" auf "ready" -->
-        <button
-          *ngIf="order.status === 'preparing'"
-          (click)="markReady(order)"
+              type="button"
+              >
+              Start Preparing
+            </button>
+          }
+          <!-- ACTION: READY -->
+          <!-- Setzt Status von "preparing" auf "ready" -->
+          @if (order.status === 'preparing') {
+            <button
+              (click)="markReady(order)"
           class="flex-1 py-2 rounded-full border border-[#9B1C1F] text-[#9B1C1F]
                  hover:bg-[#9B1C1F] hover:text-white transition"
-          type="button"
-        >
-          Ready
-        </button>
-
-        <!-- ACTION: COMPLETE -->
-        <!-- Setzt Status von "ready" auf "complete" -->
-        <button
-          *ngIf="order.status === 'ready'"
-          (click)="completeOrder(order)"
+              type="button"
+              >
+              Ready
+            </button>
+          }
+          <!-- ACTION: COMPLETE -->
+          <!-- Setzt Status von "ready" auf "complete" -->
+          @if (order.status === 'ready') {
+            <button
+              (click)="completeOrder(order)"
           class="flex-1 py-2 rounded-full border border-[#9B1C1F] text-[#9B1C1F]
                  hover:bg-[#9B1C1F] hover:text-white transition"
-          type="button"
-        >
-          Complete
-        </button>
-
-        <!-- ACTION: REJECT -->
-        <!-- Lehnt eine neue Bestellung ab -->
-        <button
-          *ngIf="order.status === 'new'"
-          (click)="rejectOrder(order)"
+              type="button"
+              >
+              Complete
+            </button>
+          }
+          <!-- ACTION: REJECT -->
+          <!-- Lehnt eine neue Bestellung ab -->
+          @if (order.status === 'new') {
+            <button
+              (click)="rejectOrder(order)"
           class="py-2 px-5 rounded-full border border-gray-400 text-gray-800
                  hover:border-[#9B1C1F] hover:text-[#9B1C1F] transition"
-          type="button"
-        >
-          Reject
-        </button>
-
+              type="button"
+              >
+              Reject
+            </button>
+          }
+        </div>
       </div>
-    </div>
+    }
 
     <!-- EMPTY STATE -->
     <!-- Hinweis, wenn keine Bestellungen gefunden wurden -->
-    <div
-      *ngIf="!isLoading && filteredOrders().length === 0"
-      class="col-span-full text-center text-gray-500 mt-10"
-    >
-      No orders found.
-    </div>
+    @if (!isLoading && filteredOrders().length === 0) {
+      <div
+        class="col-span-full text-center text-gray-500 mt-10"
+        >
+        No orders found.
+      </div>
+    }
 
   </div>
 </div>

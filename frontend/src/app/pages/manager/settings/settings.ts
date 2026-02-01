@@ -1,5 +1,5 @@
 import { Component,OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Navbar } from '../../../components/navbar/navbar';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -24,7 +24,7 @@ type DiscountCode = {
 @Component({
   standalone: true,
   selector: 'app-settings',
-  imports: [CommonModule, Navbar],
+  imports: [Navbar],
   templateUrl: './settings.html',
   styleUrl: './settings.css',
 })

@@ -6,11 +6,11 @@
     w-screen
     bg-[#E8DCCF]
   "
->
+  >
   <div class="flex justify-center gap-6 py-3">
-    <button
-      *ngFor="let item of items"
-      (click)="navigate(item.route)"
+    @for (item of items; track item) {
+      <button
+        (click)="navigate(item.route)"
       class="
         text-[#4A3B2F]
         font-medium
@@ -21,8 +21,9 @@
         transition
         whitespace-nowrap
       "
-    >
-      {{ item.label }}
-    </button>
+        >
+        {{ item.label }}
+      </button>
+    }
   </div>
 </nav>

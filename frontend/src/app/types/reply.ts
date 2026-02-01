@@ -1,7 +1,8 @@
 export interface Reply {
-  id: string;
-  threadId: string;
+  id: number;
+  thread_id: number;
   content: string;
-  author: string;
-  createdAt: Date;
+  author_name: string;
+  created_at: string;
+  updated_at: string;
 }
