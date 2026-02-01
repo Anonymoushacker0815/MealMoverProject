@@ -37,7 +37,7 @@ router.get("/settings", authenticateToken, requireModerationRole, async (req, re
         res.json(result.rows);
     } catch (err) {
         console.error("Error fetching settings: ", err);
-        res.json(500).json({ error: "Server Error "});
+        res.status(500).json({ error: "Server Error "});
     }
 });
 

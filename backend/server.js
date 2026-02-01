@@ -22,6 +22,7 @@ import managerSettingsRouter from "./routes/managerSettings.routes.js";
 import managerDashboardRouter from "./routes/managerDashboard.routes.js";
 import ownerAnalyticsRoutes from "./routes/ownerAnalytics.routes.js";
 import { registerOrderChatSocket } from "./sockets/orderChat.socket.js";
+import userLoyaltyRoutes from "./routes/userLoyalty.routes.js";
 
 
 // POSTGRES CONFIG
@@ -245,6 +246,7 @@ app.use("/manager", managerSettingsRouter);
 app.use("/manager/dashboard", managerDashboardRouter);
 
 app.use("/user-restaurants", userRestaurantRoutes);
+app.use("/user", userLoyaltyRoutes);
 
 
 // SERVER START
