@@ -91,7 +91,7 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/user/menu/menu').then(m => m.Menu),
       },
       {
-        path: 'summary/:restaurantId',
+        path: 'summary/:restaurantId/:loyaltyPoints',
         loadComponent: () => import('./pages/user/order-summary/order-summary').then(m => m.OrderSummary)
       },
       {

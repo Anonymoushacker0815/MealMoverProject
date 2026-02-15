@@ -9,20 +9,24 @@ export type UserLoyalty = {
 }
 
 @Injectable({ providedIn: 'root'})
-export class LoayltyService {
-    private readonly API = 'http://loacalhost:3000';
+export class LoyaltyService {
+    private readonly API = 'http://localhost:3000';
 
     constructor(private http:HttpClient) {}
 
-    private authHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') ?? '';
-    return new HttpHeaders({ Authorization: token });
+   private getAuthHeaders(): { headers?: HttpHeaders } {
+    const token = localStorage.getItem('token');
+    if (!token) return {};
+    return {
+      headers: new HttpHeaders({
+        Authorization: token,
+      }),
+    };
   }
   
   getLoyalty(id: number) {
-    return this.http.get<UserLoyalty>(
-        `${this.API}/user/loyalty/${id}`, 
-        { headers: this.authHeaders() }
+    return this.http.get<UserLoyalty[]>(
+        `${this.API}/user/loyalty/${id}`, this.getAuthHeaders()
     )
   }
 
@@ -31,7 +35,7 @@ export class LoayltyService {
     return this.http.patch<any>(
         `${this.API}/user/loyalty/${id}` ,
         {loyalty_points: amount},
-        { headers: this.authHeaders() }
+        this.getAuthHeaders() 
     );
   }
 }

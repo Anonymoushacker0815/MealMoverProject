@@ -47,7 +47,6 @@ router.patch("/loyalty/:id", authenticateToken, requireModerationRole, async (re
     try {
         const { loyalty_points } = req.body;
         const { id } = req.params;
-        console.log(loyalty_points+" , "+id);
 
         const query = `
             UPDATE users

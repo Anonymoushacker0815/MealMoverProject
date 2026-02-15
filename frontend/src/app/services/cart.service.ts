@@ -54,11 +54,11 @@ export class CartService {
   }
 
 
-  placeOrder(customerId: number, restaurantId: number): Observable<any> {
+  placeOrder(customerId: number, restaurantId: number, loyaltyPoints: number): Observable<any> {
     const payload = {
       customerId: customerId,
       restaurantId: restaurantId,
-      price: this.totalPrice(),
+      price: this.totalPrice()-(loyaltyPoints/100),
       items: this.cartItems()
     };
 

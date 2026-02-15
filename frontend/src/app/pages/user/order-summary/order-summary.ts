@@ -32,10 +32,14 @@ export class OrderSummary implements OnInit {
 
   activeOrderId: number | null = null;
 
+  loyaltyPoints!: number;
+
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('restaurantId');
+    const loyaltyP = this.route.snapshot.paramMap.get('loyaltyPoints');
     if (id) {
       this.restaurantId = Number(id);
+      this.loyaltyPoints = Number(loyaltyP);
       this.loadData();
     }
   }

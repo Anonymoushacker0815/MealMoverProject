@@ -33,11 +33,14 @@ export class Menu implements OnInit,OnDestroy {
   searchQuery = '';
   selectedCategoryFilter = '';
 
+  loyaltyPoints!: number;
+
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.currentRestaurantId = Number(id);
       this.loadMenu(Number(id));
+      this.loyaltyPoints = 0;
     }
   }
 

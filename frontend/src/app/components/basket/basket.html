@@ -21,7 +21,42 @@
         </div>
       }
     }
+<div class="relative bg-gray-50 rounded-2xl p-4 border border-gray-200 group">
 
+        <p class="font-bold text-gray-800 uppercase tracking-wide text-sm">
+          LOYALTY POINTS ({{maxPoints}})
+        </p>
+
+        <p class="text-sm font-bold text-[#9B1C1F] mt-1">
+          $ -{{(loyaltyPoints/100).toFixed(2)}}
+        </p>
+
+        <div class="flex items-center gap-3 mt-3">
+          @if (!isSummary) {
+            <button
+              (click)="removePoints()"
+              [disabled]="isSubmitting"
+              class="w-7 h-7 rounded-full border border-[#9B1C1F] text-[#9B1C1F] font-bold hover:bg-[#9B1C1F] hover:text-white transition-colors disabled:opacity-50"
+            >
+              -
+            </button>
+          }
+
+          <span class="font-bold text-gray-800 w-6 text-center">
+            {{loyaltyPoints}}
+          </span>
+
+          @if (!isSummary) {
+            <button
+              (click)="addPoints()"
+              [disabled]="isSubmitting"
+              class="w-7 h-7 rounded-full border border-[#9B1C1F] text-[#9B1C1F] font-bold hover:bg-[#9B1C1F] hover:text-white transition-colors disabled:opacity-50"
+            >
+              +
+            </button>
+          }
+        </div>
+      </div>
     @for (item of cartItems(); track item.id) {
       <div class="relative bg-gray-50 rounded-2xl p-4 border border-gray-200 group">
         @if (!isSummary) {
@@ -71,6 +106,7 @@
         </div>
       </div>
     }
+    
   </div>
 
   @if (!orderSuccess) {
@@ -84,7 +120,7 @@
 
       <button
         (click)="handleAction()"
-        [disabled]="cartItems().length === 0 || isSubmitting || (isSummary && isOutOfRange)"
+        [disabled]="cartItems().length === 0 || isSubmitting || (isSummary && isOutOfRange)|| totalPrice<0"
         [class]="(isSummary && isOutOfRange)
           ? 'w-full py-4 rounded-2xl font-bold uppercase tracking-wide border-2 border-gray-300 text-gray-400 cursor-not-allowed bg-gray-100'
           : 'w-full py-4 rounded-2xl font-bold uppercase tracking-wide border-2 border-[#9B1C1F] text-[#9B1C1F] hover:bg-[#9B1C1F] hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed'"
@@ -99,11 +135,11 @@
           @if (isOutOfRange) {
             Out of Delivery Zone
           } @else {
-            Confirm & Pay (${{ totalPrice() }})
+            Confirm & Pay (${{ totalPrice.toFixed(2) }})
           }
         }
         @else {
-          Review Order (${{ totalPrice() }})
+          Review Order (${{ totalPrice.toFixed(2) }})
         }
       </button>
     </div>
