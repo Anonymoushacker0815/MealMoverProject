@@ -1,15 +1,23 @@
 <app-navbar role="user"></app-navbar>
-<main class="p-6">
-  <h1 class="text-2xl font-bold">Loyalty</h1>
-  <div class="h-[3000px] bg-gradient-to-b from-gray-100 to-gray-300 p-8">
-    <h1 class="text-3xl font-bold mb-6">
-      Current point balance: <br/> {{points}}
-    </h1>
+<main class="flex flex-col items-center justify-center gap-6 min-h-[70vh] px-6 py-6">
+  <div class="w-full max-w-3xl border border-gray-300 rounded-2xl overflow-hidden shadow-sm bg-white">
 
-    <p class="text-lg">
-      that is equal to: ${{money}}
-    </p>
-    
+    <div class="bg-[#9B1C1F] text-white px-5 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <span class="font-semibold text-lg">Loyalty</span>
+      </div>
+    </div>
+
+    <div class="p-6 space-y-6">
+      <div class="space-y-2 text-center">
+        <h1 class="text-3xl font-bold mb-6">
+          Current point balance: {{points}}
+        </h1>
+        <p class="text-lg">
+          that is equal to: ${{money}}
+        </p>
+      </div>
+    </div>
   </div>
 </main>
 
